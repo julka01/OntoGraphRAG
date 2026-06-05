@@ -625,12 +625,4 @@ if __name__ == "__main__":
 
     # Create template
     processor.create_csv_template('medical_reports_template.csv')
-    print("Template created successfully!")
-
-    # Example validation
-    # validation = processor.validate_csv_format('your_file.csv')
-    # print(f"Validation: {validation}")
-
-    # Example bulk processing
-    # reports = processor.load_reports_bulk('your_file.csv', max_rows=100)
-    # print(f"Loaded {len(reports['reports'])} reports")
+    logging.info("Template created successfully")

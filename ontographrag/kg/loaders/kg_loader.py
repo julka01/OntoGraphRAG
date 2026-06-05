@@ -1,5 +1,6 @@
 import os
 import json
+import logging
 import requests
 from neo4j import GraphDatabase, basic_auth
 from PyPDF2 import PdfReader
@@ -9,6 +10,8 @@ from owlready2 import get_ontology
 
 # Load environment variables
 load_dotenv()
+
+logger = logging.getLogger(__name__)
 
 class KGLoader:
     def __init__(self):
@@ -26,7 +29,7 @@ class KGLoader:
         self.neo4j_user = os.getenv("NEO4J_USERNAME", "neo4j")
         self.neo4j_password = os.getenv("NEO4J_PASSWORD", "password")
         
-        print(f"KGLoader initialized with Neo4j URI: {self.neo4j_uri}")
+        logger.info("KGLoader initialized with Neo4j URI: %s", self.neo4j_uri)
         self.last_import_dir = None
         
     def _load_ontology(self, ontology_path: str) -> Dict:
@@ -46,7 +49,7 @@ class KGLoader:
     def load_from_pdf(self, file_path: str, ontology_path: str = None) -> Dict:
         """Extract text from PDF and structure as knowledge graph using optional ontology"""
         try:
-            print(f"Loading PDF: {file_path}")
+            logger.info("Loading PDF: %s", file_path)
             self.last_import_dir = os.path.dirname(file_path)
             reader = PdfReader(file_path)
             text = ""
@@ -58,9 +61,9 @@ class KGLoader:
             if ontology_path:
                 try:
                     ontology = self._load_ontology(ontology_path)
-                    print(f"Loaded ontology: {ontology_path}")
+                    logger.info("Loaded ontology: %s", ontology_path)
                 except Exception as e:
-                    print(f"Error loading ontology: {str(e)}")
+                    logger.warning("Error loading ontology %s: %s", ontology_path, e)
             
             # Create knowledge graph with ontology and supernodes
             nodes, supernodes, relationships = self._create_graph_with_ontology(text, ontology)
@@ -81,10 +84,10 @@ class KGLoader:
                 "error_message": str(e),
                 "error_args": e.args
             }
-            print(f"Error loading from Neo4j: {error_details}")
+            logger.exception("Error loading PDF: %s", error_details)
             return {
                 "status": "error",
-                "message": "Failed to load from Neo4j",
+                "message": "Failed to load PDF",
                 "details": error_details
             }
 
@@ -136,7 +139,11 @@ class KGLoader:
             stats_result = session.run("MATCH ()-[r]->() RETURN count(r) as rel_count")
             total_relationships = (stats_result.single() or {"rel_count": 0})["rel_count"]
 
-            print(f"Neo4j Database Stats: {total_nodes} nodes, {total_relationships} relationships")
+            logger.info(
+                "Neo4j database stats: %s nodes, %s relationships",
+                total_nodes,
+                total_relationships,
+            )
 
             # Determine loading strategy based on graph size
             if sample_mode and total_nodes > 1000:
@@ -181,7 +188,7 @@ class KGLoader:
                     node_query += f" LIMIT {limit}"
                     rel_query += f" LIMIT {limit}"
 
-            print(f"Executing node query: {node_query}")
+            logger.debug("Executing node query: %s", node_query)
             result = session.run(node_query)
             nodes = []
             node_id_map = {}  # Map Neo4j internal IDs to our node indices
@@ -209,10 +216,10 @@ class KGLoader:
                 nodes.append(node_data)
                 node_id_map[node.id] = node.id
 
-            print(f"Loaded {len(nodes)} nodes")
+            logger.info("Loaded %s nodes", len(nodes))
 
             # Get relationships
-            print(f"Executing relationship query: {rel_query}")
+            logger.debug("Executing relationship query: %s", rel_query)
             rel_result = session.run(rel_query)
             relationships = []
 
@@ -238,7 +245,7 @@ class KGLoader:
                         "properties": properties
                     })
 
-            print(f"Loaded {len(relationships)} relationships")
+            logger.info("Loaded %s relationships", len(relationships))
 
             return {
                 "status": "success",
@@ -259,7 +266,7 @@ class KGLoader:
                 "error_message": str(e),
                 "error_args": e.args
             }
-            print(f"Error loading from Neo4j: {error_details}")
+            logger.exception("Error loading from Neo4j: %s", error_details)
             return {"status": "error", "message": str(e), "details": error_details}
         finally:
             # Ensure resources are cleaned up properly
@@ -323,7 +330,11 @@ class KGLoader:
                 RETURN r, start, end
                 """
 
-            print(f"Loading sample of {sample_size} most connected nodes from {total_nodes} total nodes")
+            logger.info(
+                "Loading sample of %s most connected nodes from %s total nodes",
+                sample_size,
+                total_nodes,
+            )
             
             # Load sample nodes
             result = session.run(sample_query)
@@ -481,7 +492,7 @@ class KGLoader:
                 # Clear existing data only if requested
                 if clear_database:
                     session.run("MATCH (n) DETACH DELETE n")
-                    print("Cleared existing database data")
+                    logger.info("Cleared existing database data")
 
                 node_map = {}
 
@@ -551,8 +562,12 @@ class KGLoader:
                             properties=rel_properties
                         )
                     else:
-                        print(f"Warning: Could not find nodes for relationship {rel.get('id', 'unknown')} "
-                              f"({rel['from']} -> {rel['to']})")
+                        logger.warning(
+                            "Could not find nodes for relationship %s (%s -> %s)",
+                            rel.get("id", "unknown"),
+                            rel["from"],
+                            rel["to"],
+                        )
 
                 return {
                     "status": "success",
@@ -569,7 +584,7 @@ class KGLoader:
                 "error_message": str(e),
                 "error_args": e.args
             }
-            print(f"Error saving to Neo4j: {error_details}")
+            logger.exception("Error saving to Neo4j: %s", error_details)
             return {"status": "error", "message": "Failed to save knowledge graph to Neo4j", "details": error_details}
 
     def save_to_file(self, graph_data: Dict, file_path: str) -> Dict:
@@ -595,7 +610,7 @@ class KGLoader:
             if not file_path.endswith('.json'):
                 file_path += '.json'
             
-            print(f"Saving KG to: {os.path.abspath(file_path)}")  # Debug logging
+            logger.info("Saving KG to: %s", os.path.abspath(file_path))
             
             with open(file_path, 'w') as f:
                 json.dump(graph_data, f, indent=2)
@@ -609,9 +624,6 @@ class KGLoader:
             return {"status": "error", "message": str(e)}
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     loader = KGLoader()
-    print("Testing PDF loading:")
-    print(loader.load_from_pdf("test_document.pdf"))
-    
-    print("\nTesting Neo4j loading:")
-    print(loader.load_from_neo4j(loader.neo4j_uri, loader.neo4j_user, loader.neo4j_password))
+    logger.info("KGLoader ready for Neo4j URI: %s", loader.neo4j_uri)

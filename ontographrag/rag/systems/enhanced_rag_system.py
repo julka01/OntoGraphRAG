@@ -205,67 +205,6 @@ class EnhancedRAGSystem:
             self.embedding_dimension,
         )
 
-        # ========================================================================
-        # ORIGINAL: Detailed structured prompt with mandatory sections (COMMENTED OUT)
-        # ========================================================================
-        # self.rag_prompt_original = ChatPromptTemplate.from_messages([
-        #     ("system", """You are an AI assistant that provides structured responses with detailed node traversal from the knowledge graph. All responses must follow the same format but content adapts to the user's query intent.
-        # 
-        # CRITICAL INSTRUCTIONS FOR RESPONSE FORMAT:
-        # 
-        # 1. **RECOMMENDATION/SUMMARY** (Always include this)
-        #    - Provide a summary of the key findings and important information from the knowledge graph
-        #    - Include key insights, important relationships, and relevant context
-        #    - Be concise but comprehensive in highlighting what matters most
-        # 
-        # 2. **NODE TRAVERSAL PATH** (Always include this - detailed graph traversal)
-        #    - Show the complete path through the knowledge graph nodes and relationships used to derive the answer
-        #    - Format: Start Node Name (ID:start_node_id) → Relationship Type [rel_id] → End Node Name (ID:end_node_id)
-        #    - Reference actual node and relationship IDs from the provided context
-        #    - Include traversal depth and how each connection was discovered (text similarity/vector search)
-        #    - Explain which chunks and entities were retrieved via vector similarity search
-        #    - Show scores/confidence for each traversal step when available
-        # 
-        # 3. **REASONING PATH** (Always include this - logical progression)
-        #    - Finding 1 → Triggers or yields or reveals → Finding 2 → etc.
-        #    - Show how each piece of evidence connects to the next
-        #    - Use actual node IDs when referencing entities from the knowledge graph
-        #    - Format entity references as: "Entity Name (ID:actual_id_from_context)"
-        #    - Explain confidence level if evidence is weak
-        # 
-        # 4. **COMBINED EVIDENCE** (Always include this)
-        #    - Synthesize all relevant information into coherent evidence base
-        #    - Show how different findings support or contradict each other
-        #    - Highlight key relationships and patterns identified during traversal
-        # 
-        # 5. **NEXT STEPS** (Only include if user asks for next steps, actions, or follow-up guidance)
-        #    - Suggest specific next actions based on the analysis
-        #    - Provide actionable recommendations for implementation
-        #    - If no specific next steps are appropriate, omit this section entirely
-        # 
-        # NODE ID REQUIREMENTS:
-        # - When referencing entities from knowledge graph, ALWAYS use their actual node IDs from context
-        # - NEVER use placeholder IDs like "ID:X", "ID:Y", "ID:Z", or "ID:actual_number"
-        # - Show relationship traversal as: Node1 (ID:id1) → RELATIONSHIP_TYPE [rel_id] → Node2 (ID:id2)
-        # 
-        # VECTOR SEARCH DETAILS:
-        # - Include vector similarity scores for chunks/entities retrieved
-        # - Show which vector index (chunk vs entity) was used for retrieval
-        # - Reference element IDs from vector search results
-        # 
-        # IMPORTANT: Base your answer ONLY on the provided context. Structure ALL responses with sections 2, 3, and 4, but only include sections 1 and 5 when appropriate for the user's intent.
-        # 
-        # Context Information:
-        # {context}
-        # 
-        # Relevant Entities:
-        # {entities}
-        # 
-        # User Query: {question}"""),
-        #     ("human", "{question}")
-        # ])
-        # ========================================================================
-        
         # KG-RAG prompt: KG2RAG-style evidence organization.
         # Evidence is pre-organized into reasoning chains (graph paths + their
         # supporting passages) before generation, making multi-hop evidence explicit

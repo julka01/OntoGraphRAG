@@ -203,5 +203,5 @@ def get_bedrock_embeddings():
         )
         return bedrock_embeddings
     except Exception as e:
-        print(f"An unexpected error occurred: {e}")
+        logging.exception("Unexpected error while loading Bedrock embeddings")
         raise

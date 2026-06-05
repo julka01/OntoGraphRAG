@@ -1,5 +1,6 @@
 import os
 import json
+import logging
 import httpx
 from abc import ABC, abstractmethod
 from openai import OpenAI as OpenAIClient
@@ -9,6 +10,8 @@ from typing import Dict, Any
 
 from langchain_core.runnables.base import Runnable
 from ontographrag.kg.utils.common_functions import _resolve_huggingface_embedding_model
+
+logger = logging.getLogger(__name__)
 
 class ModelProvider(ABC):
     @abstractmethod
@@ -273,23 +276,20 @@ def get_embedding_model(provider="huggingface"):
                 try:
                     from langchain_community.embeddings import HuggingFaceEmbeddings
                 except ImportError:
-                    try:
-                        from langchain_community.embeddings import HuggingFaceEmbeddings
-                    except ImportError:
-                        print("❌ No compatible HuggingFace embeddings package found")
-                        raise
+                    logger.error("No compatible HuggingFace embeddings package found")
+                    raise
 
-            print("✓ Importing HuggingFaceEmbeddings...")
+            logger.info("Importing HuggingFaceEmbeddings")
             model_name = _resolve_huggingface_embedding_model()
             embedder = HuggingFaceEmbeddings(
                 model_name=model_name,
                 model_kwargs={'device': 'cpu'},  # Use CPU by default for compatibility
                 encode_kwargs={'normalize_embeddings': True}
             )
-            print("✓ HuggingFaceEmbeddings initialized successfully")
+            logger.info("HuggingFaceEmbeddings initialized successfully")
             return embedder
         except Exception as e:
-            print(f"❌ HuggingFace initialization failed: {e}")
+            logger.warning("HuggingFace initialization failed: %s", e)
             raise ImportError("huggingface embeddings not available. Install with: pip install sentence-transformers transformers torch")
     elif provider == "openai":
         from langchain_openai import OpenAIEmbeddings
@@ -322,7 +322,11 @@ def get_embedding_method(provider_name=None):
         embedder = get_embedding_model(provider)
         return provider, embedder
     except Exception as e:
-        print(f"Failed to initialize {provider} embeddings, falling back to OpenAI: {e}")
+        logger.warning(
+            "Failed to initialize %s embeddings; falling back to OpenAI: %s",
+            provider,
+            e,
+        )
         # Fallback to OpenAI if HuggingFace fails
         try:
             embedder = get_embedding_model("openai")

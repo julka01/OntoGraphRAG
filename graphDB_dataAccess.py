@@ -594,7 +594,7 @@ class graphDBdataAccess:
             relationship_types = [record["relationshipType"] for record in relationship_result]
             return node_labels,relationship_types
         except Exception as e:
-            print(f"Error in getting node labels/relationship types from db: {e}")
+            logging.error("Error getting node labels/relationship types from db: %s", e)
             return []
 
     def get_websource_url(self,file_name):
