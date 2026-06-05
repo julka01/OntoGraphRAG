@@ -63,6 +63,15 @@ DATASET_CORPUS_PROFILES: Dict[str, Dict[str, Any]] = {
         "requires_shared_corpus_for_fair_retrieval": False,
         "notes": "Question contexts are the benchmark-provided passage bundle, not pure gold snippets.",
     },
+    "hotpotqa_fullwiki": {
+        "question_context_role": QUESTION_CONTEXT_ROLE_GOLD_EVIDENCE,
+        "requires_shared_corpus_for_fair_retrieval": True,
+        "notes": (
+            "Questions come from HotpotQA fullwiki, but retrieval should use a "
+            "shared corpus prepared from FullWiki retrieved paragraphs or the "
+            "official processed Wikipedia corpus."
+        ),
+    },
     "2wikimultihopqa": {
         "question_context_role": QUESTION_CONTEXT_ROLE_RETRIEVAL_BUNDLE,
         "requires_shared_corpus_for_fair_retrieval": False,
@@ -104,6 +113,7 @@ class InferenceRecord:
     dataset: str
     question: str
     contexts: List[str]
+    context_titles: Optional[List[Optional[str]]] = None
     options: Optional[Dict[str, str]] = None
     task_type: str = "binary"
 
@@ -473,9 +483,11 @@ def adapt_hotpotqa(raw_data: Dict[str, Any], q_id: str = None) -> Tuple[Inferenc
     # Each context entry is [title, [sent0, sent1, ...]]
     # Flatten to one string per passage (title + sentences joined)
     contexts = []
+    context_titles: List[Optional[str]] = []
     for title, sentences in raw_data.get("context", []):
         passage = title + ". " + " ".join(sentences)
         contexts.append(passage)
+        context_titles.append(str(title).strip() or None)
 
     if q_type == "comparison" and answer in {"yes", "no"}:
         task_type = TaskType.BINARY.value
@@ -490,6 +502,7 @@ def adapt_hotpotqa(raw_data: Dict[str, Any], q_id: str = None) -> Tuple[Inferenc
             dataset="hotpotqa",
             question=question,
             contexts=contexts,
+            context_titles=context_titles,
             options=options,
             task_type=task_type,
         ),
@@ -500,6 +513,13 @@ def adapt_hotpotqa(raw_data: Dict[str, Any], q_id: str = None) -> Tuple[Inferenc
             aliases=None,
         ),
     )
+
+
+def adapt_hotpotqa_fullwiki(raw_data: Dict[str, Any], q_id: str = None) -> Tuple[InferenceRecord, GoldRecord]:
+    """Adapt HotpotQA FullWiki while keeping a distinct dataset label."""
+    inf_rec, gold_rec = adapt_hotpotqa(raw_data, q_id=q_id)
+    inf_rec.dataset = "hotpotqa_fullwiki"
+    return inf_rec, gold_rec
 
 
 def adapt_2wikimultihopqa(raw_data: Dict[str, Any], q_id: str = None) -> Tuple[InferenceRecord, GoldRecord]:
@@ -520,9 +540,11 @@ def adapt_2wikimultihopqa(raw_data: Dict[str, Any], q_id: str = None) -> Tuple[I
 
     # Same structure as HotpotQA context
     contexts = []
+    context_titles: List[Optional[str]] = []
     for title, sentences in raw_data.get("context", []):
         passage = title + ". " + " ".join(sentences)
         contexts.append(passage)
+        context_titles.append(str(title).strip() or None)
 
     # Only use explicit answer aliases if the release provides them.
     aliases = [
@@ -547,6 +569,7 @@ def adapt_2wikimultihopqa(raw_data: Dict[str, Any], q_id: str = None) -> Tuple[I
             dataset="2wikimultihopqa",
             question=question,
             contexts=contexts,
+            context_titles=context_titles,
             options=options,
             task_type=task_type,
         ),
@@ -580,11 +603,13 @@ def adapt_musique(raw_data: Dict[str, Any], q_id: str = None) -> Tuple[Inference
 
     # Build contexts from paragraph objects when available.
     contexts: List[str] = []
+    context_titles: List[Optional[str]] = []
     for p in raw_data.get("paragraphs", []) or []:
         if not isinstance(p, dict):
             txt = str(p).strip()
             if txt:
                 contexts.append(txt)
+                context_titles.append(None)
             continue
 
         title = str(p.get("title", "")).strip()
@@ -597,6 +622,7 @@ def adapt_musique(raw_data: Dict[str, Any], q_id: str = None) -> Tuple[Inference
                 contexts.append(f"{title}. {paragraph_text}")
             else:
                 contexts.append(paragraph_text)
+            context_titles.append(title or None)
 
     # Fallback to generic context key if paragraphs are absent.
     if not contexts:
@@ -608,15 +634,18 @@ def adapt_musique(raw_data: Dict[str, Any], q_id: str = None) -> Tuple[Inference
                     body = " ".join(str(x).strip() for x in (entry[1] or []) if str(x).strip())
                     if body:
                         contexts.append(f"{title}. {body}" if title else body)
+                        context_titles.append(title or None)
                 elif isinstance(entry, dict):
                     title = str(entry.get("title", "")).strip()
                     body = str(entry.get("text", entry.get("paragraph_text", ""))).strip()
                     if body:
                         contexts.append(f"{title}. {body}" if title else body)
+                        context_titles.append(title or None)
                 else:
                     txt = str(entry).strip()
                     if txt:
                         contexts.append(txt)
+                        context_titles.append(None)
 
     aliases = [str(a).lower().strip() for a in (raw_data.get("answer_aliases", []) or []) if str(a).strip()]
     aliases = [a for a in aliases if a and a != short_answer]
@@ -627,6 +656,7 @@ def adapt_musique(raw_data: Dict[str, Any], q_id: str = None) -> Tuple[Inference
             dataset="musique",
             question=question,
             contexts=contexts,
+            context_titles=context_titles or None,
             options=None,
             task_type=TaskType.FREE_TEXT.value,
         ),
@@ -827,6 +857,7 @@ ADAPTERS = {
     "medhop": adapt_medhop,
     "multihoprag": adapt_multihoprag,
     "hotpotqa": adapt_hotpotqa,
+    "hotpotqa_fullwiki": adapt_hotpotqa_fullwiki,
     "2wikimultihopqa": adapt_2wikimultihopqa,
     "musique": adapt_musique,
 }
@@ -870,7 +901,7 @@ def infer_hop_count_from_raw(
             if isinstance(supporting_facts, list) and supporting_facts:
                 return len(supporting_facts)
 
-        if dataset_name == "hotpotqa":
+        if dataset_name in {"hotpotqa", "hotpotqa_fullwiki"}:
             supporting_facts = raw_question.get("supporting_facts")
             if isinstance(supporting_facts, list) and supporting_facts:
                 return len(supporting_facts)
@@ -926,6 +957,7 @@ def load_raw_dataset(dataset_name: str) -> Dict[str, Any]:
         # Multi-hop datasets
         # Download: https://hotpotqa.github.io/  (hotpot_dev_fullwiki_v1.json)
         "hotpotqa": "MIRAGE/rawdata/hotpotqa/hotpot_dev_fullwiki_v1.json",
+        "hotpotqa_fullwiki": "MIRAGE/rawdata/hotpotqa/hotpot_dev_fullwiki_v1.json",
         # Download: https://github.com/Alab-NII/2wikimultihop  (dev.json)
         "2wikimultihopqa": "MIRAGE/rawdata/2wikimultihopqa/dev.json",
         # Download: https://github.com/stonybrooknlp/musique
@@ -1036,7 +1068,7 @@ def load_raw_dataset(dataset_name: str) -> Dict[str, Any]:
                     }
         return data
     
-    elif dataset_name in {"hotpotqa", "2wikimultihopqa", "medhop", "multihoprag"}:
+    elif dataset_name in {"hotpotqa", "hotpotqa_fullwiki", "2wikimultihopqa", "medhop", "multihoprag"}:
         # Both use JSON list format: [{_id, question, answer, context, ...}, ...]
         with open(file_path, 'r') as f:
             items = json.load(f)
@@ -1141,6 +1173,7 @@ class ContextPassage:
     dataset: str
     question_id: str
     passage_index: int
+    source_title: Optional[str] = None
 
 
 def build_passage_corpus(
@@ -1165,6 +1198,7 @@ def build_passage_corpus(
     seen: set = set()
     passages: List[ContextPassage] = []
     for rec in inference_records:
+        rec_titles = list(rec.context_titles or [])
         for idx, ctx in enumerate(rec.contexts):
             ctx_stripped = ctx.strip()
             if not ctx_stripped:
@@ -1181,6 +1215,7 @@ def build_passage_corpus(
                     dataset=rec.dataset,
                     question_id=rec.id,
                     passage_index=idx,
+                    source_title=rec_titles[idx] if idx < len(rec_titles) else None,
                 ))
     return passages
 
@@ -1286,6 +1321,23 @@ def _format_biomedical_corpus_document(doc: Dict[str, Any]) -> str:
     return "\n".join(parts).strip()
 
 
+def _format_hotpotqa_corpus_document(doc: Dict[str, Any]) -> str:
+    """Format a HotpotQA shared-corpus paragraph for indexing."""
+    title = str(doc.get("title", doc.get("source_title", ""))).strip()
+    text_value = doc.get("text", doc.get("paragraph", doc.get("contents", "")))
+    if isinstance(text_value, list):
+        text = " ".join(str(part).strip() for part in text_value if str(part).strip())
+    else:
+        text = str(text_value or "").strip()
+
+    parts: List[str] = []
+    if title:
+        parts.append(f"Title: {title}")
+    if text:
+        parts.append(text)
+    return "\n".join(parts).strip()
+
+
 def _build_optional_shared_corpus_passages(
     dataset_name: str,
     candidate_paths: List[str],
@@ -1369,6 +1421,35 @@ def build_global_corpus_passages(dataset_name: str) -> Optional[List[ContextPass
                         passage_index=idx,
                     )
                 )
+        return passages
+    if dataset_name == "hotpotqa_fullwiki":
+        docs = _load_optional_json_records(
+            [
+                "MIRAGE/rawdata/hotpotqa/fullwiki_corpus.jsonl",
+                "MIRAGE/rawdata/hotpotqa/hotpotqa_fullwiki_corpus.jsonl",
+                "MIRAGE/rawdata/hotpotqa/fullwiki_corpus.json",
+                "MIRAGE/rawdata/hotpotqa/hotpotqa_fullwiki_corpus.json",
+            ]
+        )
+        if docs is None:
+            return None
+
+        seen: set = set()
+        passages: List[ContextPassage] = []
+        for idx, doc in enumerate(docs):
+            text = _format_hotpotqa_corpus_document(doc)
+            if not text or text in seen:
+                continue
+            seen.add(text)
+            passages.append(
+                ContextPassage(
+                    text=text,
+                    dataset="hotpotqa_fullwiki",
+                    question_id=str(doc.get("id", doc.get("doc_id", f"hotpot_doc_{idx}"))),
+                    passage_index=idx,
+                    source_title=str(doc.get("title", doc.get("source_title", ""))).strip() or None,
+                )
+            )
         return passages
     if dataset_name != "multihoprag":
         return None

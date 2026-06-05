@@ -9,7 +9,7 @@ import numpy as np
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_neo4j import Neo4jGraph
-from ontographrag.providers.model_providers import get_embedding_method
+from ontographrag.kg.utils.common_functions import load_embedding_model
 from ontographrag.rag.answer_guardrails import (
     RUNTIME_GUARDRAIL_ABSTENTION,
     evaluate_runtime_answer_guardrail,
@@ -17,6 +17,11 @@ from ontographrag.rag.answer_guardrails import (
 from ontographrag.rag.retrieval_sampling import (
     compute_candidate_limit,
     select_ranked_subset,
+)
+from ontographrag.rag.reranking import (
+    late_interaction_enabled,
+    late_interaction_rescore_chunks_for_query,
+    rerank_chunks_for_query,
 )
 
 # Configurable parameters for different question types
@@ -88,15 +93,40 @@ class EnhancedRAGSystem:
     # and fall back to vector search.  An embedding-only anchor on a noisy
     # open-domain graph is more likely to start traversal from the wrong node
     # than to retrieve useful evidence.
-    # Set to 0.0 (disabled) for datasets with controlled vocabularies
-    # (bioasq, realmedqa, pubmedqa) where entity matching is already reliable.
-    _ENTITY_MATCH_MIN_GROUNDING: float = 0.0
+    # Minimum grounding fraction required before graph traversal runs.
+    # If the matched entity tokens cover less than this fraction of the
+    # meaningful query words AND no entity has a symbolic match (exact
+    # substring or ≥2 token overlap), traversal is skipped in favour of
+    # vector search — an embedding-only anchor on a noisy graph is more
+    # likely to start from the wrong node than to retrieve useful evidence.
+    #
+    # Default 0.25: skip traversal when fewer than 1-in-4 query content words
+    # are matched by any KG entity.  Per-KG overrides tune this for each
+    # dataset's vocabulary density.  Biomedical datasets (bioasq, pubmedqa,
+    # realmedqa) use a slightly higher bar because their entity names are
+    # highly specific and a low-grounding anchor almost always indicates a
+    # failed extraction rather than a legitimate sparse question.
+    _ENTITY_MATCH_MIN_GROUNDING: float = 0.25
     _ENTITY_MATCH_MIN_GROUNDING_BY_KG: Dict[str, float] = {
         "hotpotqa":        0.30,
         "2wikimultihopqa": 0.25,
         "musique":         0.25,
         "multihoprag":     0.20,
+        "bioasq":          0.30,
+        "pubmedqa":        0.30,
+        "realmedqa":       0.30,
     }
+    # On source-document biomedical tasks, KG structure is useful for finding
+    # and linking passages, but relation extraction can still compress away
+    # negation or study-level hedging. Keep final answer generation passage-led
+    # here so KG-RAG cannot underperform vanilla purely because of graph
+    # serialization noise.
+    _PASSAGE_ONLY_ANSWER_KGS = frozenset({
+        "pubmedqa",
+        "realmedqa",
+    })
+    _QUERY_FUSION_MAX_VARIANTS = 3
+    _QUERY_FUSION_RRF_K = 60
 
     # Valid retrieval modes for the retrieval_mode constructor param.
     RETRIEVAL_MODES = frozenset({"hybrid_auto", "entity_first", "rfge", "vector_only"})
@@ -121,6 +151,11 @@ class EnhancedRAGSystem:
         use_ppr_scoring: bool = True,       # PPR power iteration (vs fixed hop scores)
         use_rfge: bool = True,              # retriever-first graph expansion fallback
         use_evidence_block: bool = True,    # KG2RAG-style chain-grouped evidence format
+        use_rog_path_planning: bool = True, # RoG-style relation-path-guided traversal
+        allow_vector_augmentation: bool = True,  # merge vector evidence after graph retrieval
+        allow_vector_fallback: bool = True,      # retry/fallback to vector when graph is thin
+        max_chunks_per_passage: int = None, # per-passage chunk cap (None → class default)
+        traversal_chunk_min_sim: float = None,  # min query-chunk cosine for hop-1+ chunks
     ):
         # Load Neo4j credentials from environment variables if not provided
         self.neo4j_uri = neo4j_uri if neo4j_uri is not None else os.getenv("NEO4J_URI")
@@ -136,6 +171,7 @@ class EnhancedRAGSystem:
         self._graph: Optional[object] = None               # shared Neo4j connection
         self._embedding_cache: dict = {}                    # query text → embedding vector
         self._entity_extraction_cache: dict = {}            # (query, model_key) → entity strings
+        self._late_interaction_corpus_cache: dict = {}      # scoped corpus rows for LI retrieval
 
         if retrieval_mode not in self.RETRIEVAL_MODES:
             raise ValueError(
@@ -147,27 +183,27 @@ class EnhancedRAGSystem:
         self.use_ppr_scoring = use_ppr_scoring
         self.use_rfge = use_rfge
         self.use_evidence_block = use_evidence_block
+        self.use_rog_path_planning = use_rog_path_planning
+        self.allow_vector_augmentation = allow_vector_augmentation
+        self.allow_vector_fallback = allow_vector_fallback
+        if max_chunks_per_passage is not None:
+            self._MAX_CHUNKS_PER_PASSAGE = max_chunks_per_passage
+        if traversal_chunk_min_sim is not None:
+            self._TRAVERSAL_CHUNK_MIN_SIM = traversal_chunk_min_sim
 
-        # Initialize embedding model with consistent precedence:
-        # explicit arg > EMBEDDING_PROVIDER > EMBEDDING_MODEL > sentence_transformers
+        # Initialize embeddings through the shared loader so KG construction and
+        # query-time retrieval use the same backend/model defaults.
         embedding_provider = (
             embedding_model
             or os.getenv("EMBEDDING_PROVIDER")
             or os.getenv("EMBEDDING_MODEL", "sentence_transformers")
         )
-        embedding_provider = str(embedding_provider).lower()
-        
-        if embedding_provider == "openai":
-            from langchain_openai import OpenAIEmbeddings
-            self.embedding_model = OpenAIEmbeddings(model="text-embedding-ada-002")
-            self.embedding_dimension = 1536
-            logging.info("Initialized OpenAI embedding model: text-embedding-ada-002 (1536 dimensions)")
-        else:
-            # Fallback to sentence transformers
-            from sentence_transformers import SentenceTransformer
-            self.embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
-            self.embedding_dimension = 384
-            logging.info("Initialized SentenceTransformer embedding model: all-MiniLM-L6-v2 (384 dimensions)")
+        self.embedding_model, self.embedding_dimension = load_embedding_model(embedding_provider)
+        logging.info(
+            "Initialized retrieval embedding backend '%s' with dimension %d",
+            embedding_provider,
+            self.embedding_dimension,
+        )
 
         # ========================================================================
         # ORIGINAL: Detailed structured prompt with mandatory sections (COMMENTED OUT)
@@ -237,25 +273,30 @@ class EnhancedRAGSystem:
         self.rag_prompt = ChatPromptTemplate.from_messages([
             ("system", """You are a knowledgeable AI assistant. Answer the question using the provided evidence.
 
-The evidence is organized in two sections:
+The evidence is organized in up to three sections:
 
-1. REASONING CHAINS — each chain is a multi-hop graph path followed immediately by the text passages that support it.
+1. REASONING CHAINS — each chain is a multi-hop graph path with the text passages that support it.
    Format:  Chain N (K hops): A --RELATION--> B --RELATION--> C
             [P1] passage text ...
-            [P2] passage text ...
    Passages listed under a chain directly mention the entities in that chain.
    Prefer evidence from chains where BOTH the path and the supporting passages confirm the same fact.
 
-2. ADDITIONAL PASSAGES — passages retrieved by semantic similarity that are not directly on any chain.
+2. ADDITIONAL PASSAGES — passages retrieved by semantic similarity not on any chain.
    Use these for context and corroboration.
 
+3. STRUCTURAL HINTS — graph paths with no retrieved passage support.
+   Treat these as weak background structure only. Do NOT use them as evidence unless
+   sections 1 and 2 contain no relevant passages at all.
+
 HOW TO REASON:
+- For source-document tasks (biomedical classification, yes/no questions backed by an abstract):
+  let the study conclusion or finding in the PASSAGES govern the answer.
+  Graph paths are auxiliary; never let a bare structural hint override a clear passage answer.
 - Follow the task-specific answer instructions below when they are provided.
 - If the task-specific instructions require an exact label-only answer, obey them exactly and do not add explanation.
 - If the task-specific instructions require a short answer only, give only that short answer and do not add explanation.
 - For multi-hop questions: trace the reasoning chain step by step (e.g. "Chain 1 shows A→B; Chain 2 shows B→C; therefore A→C").
 - Evidence that appears in BOTH a chain path AND its supporting passages is the strongest signal.
-- For source-document biomedical classification tasks, let the study conclusion in the passages govern the final label; graph paths are auxiliary support.
 
 IMPORTANT:
 - Unless task-specific instructions say otherwise, for yes/no questions begin with "Yes" or "No" followed by your explanation.
@@ -331,8 +372,33 @@ Question: {question}"""),
     def _relationship_identity(rel: Dict[str, Any]) -> str:
         return (
             rel.get("key")
-            or f"{rel.get('source')}-{rel.get('type')}-{rel.get('target')}"
+            or rel.get("element_id")
+            or (
+                f"{rel.get('source')}-{rel.get('type')}-{rel.get('target')}"
+                f"-negated={bool(rel.get('negated', False))}"
+                f"-condition={str(rel.get('condition') or '').strip()}"
+                f"-quantitative={str(rel.get('quantitative') or '').strip()}"
+            )
         )
+
+    @staticmethod
+    def _format_relationship_label(rel: Optional[Dict[str, Any]]) -> str:
+        if not isinstance(rel, dict):
+            return "RELATED"
+        label = str(rel.get("type") or "RELATED").strip() or "RELATED"
+        if rel.get("negated"):
+            label = f"NOT {label}"
+        condition = str(rel.get("condition") or "").strip()
+        if condition:
+            label = f"{label} [{condition}]"
+        quantitative = str(rel.get("quantitative") or "").strip()
+        if quantitative and quantitative.lower() not in condition.lower():
+            label = f"{label} ({quantitative})"
+        return label
+
+    @classmethod
+    def _should_use_passage_only_answer_prompt(cls, kg_name: Optional[str]) -> bool:
+        return str(kg_name or "").strip().lower() in cls._PASSAGE_ONLY_ANSWER_KGS
 
     @staticmethod
     def _comparison_branches(query: str) -> List[str]:
@@ -388,6 +454,22 @@ Question: {question}"""),
         return sum(1 for branch in branches if branch.lower() in haystack)
 
     @classmethod
+    def _lexical_query_overlap_count(cls, query: str, chunk: Dict[str, Any]) -> int:
+        query_tokens = cls._content_query_tokens(query)
+        if not query_tokens:
+            return 0
+        haystack = " ".join(
+            filter(
+                None,
+                [
+                    str(chunk.get("document", "")).lower(),
+                    str(chunk.get("text", "")).lower(),
+                ],
+            )
+        )
+        return sum(1 for token in query_tokens if token in haystack)
+
+    @classmethod
     def _iterative_retrieval_query(
         cls,
         question: str,
@@ -425,24 +507,117 @@ Question: {question}"""),
     @classmethod
     def _sort_chunks_for_query(cls, query: str, chunks: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         branches = cls._comparison_branches(query)
-        if branches:
-            return sorted(
-                chunks,
-                key=lambda c: (
-                    -cls._comparison_branch_match_count(query, c),
-                    -float(c.get("score", 0.0)),
-                    -int(c.get("linked_entity_count", 0)),
-                    int(c.get("position") or 0),
-                ),
-            )
         return sorted(
             chunks,
             key=lambda c: (
-                -float(c.get("score", 0.0)),
+                -cls._comparison_branch_match_count(query, c) if branches else 0,
+                -cls._lexical_query_overlap_count(query, c),
                 -int(c.get("linked_entity_count", 0)),
+                -float(c.get("score", 0.0)),
+                1 if c.get("adjacent") else 0,
                 int(c.get("position") or 0),
             ),
         )
+
+    @staticmethod
+    def _normalize_retrieval_query(query: str) -> str:
+        return re.sub(r"\s+", " ", str(query or "")).strip()
+
+    @classmethod
+    def _query_fusion_enabled(cls) -> bool:
+        return str(os.getenv("ONTOGRAPHRAG_QUERY_FUSION", "1")).strip().lower() not in {
+            "0", "false", "off", "no",
+        }
+
+    @classmethod
+    def _should_run_query_fusion(
+        cls,
+        question: str,
+        context: Optional[Dict[str, Any]],
+        *,
+        max_hops: int,
+    ) -> bool:
+        if not cls._query_fusion_enabled():
+            return False
+
+        branches = cls._comparison_branches(question)
+        if branches:
+            coverage = cls._comparison_branch_coverage(question, list((context or {}).get("chunks", [])))
+            if coverage < len(branches):
+                return True
+
+        if max_hops >= 2 and str((context or {}).get("search_method") or "") != "iterative_hop":
+            return True
+
+        content_tokens = cls._content_query_tokens(question)
+        if len(content_tokens) >= 8 and len(list((context or {}).get("chunks", []))) < 4:
+            return True
+        return False
+
+    def _generate_query_variants(
+        self,
+        question: str,
+        llm,
+        *,
+        max_hops: int,
+    ) -> List[str]:
+        variants: List[str] = []
+        seen: Set[str] = {self._normalize_retrieval_query(question).lower()}
+
+        for branch in self._comparison_branches(question):
+            branch_query = self._normalize_retrieval_query(
+                f"Focus on {branch}. Original question: {question}"
+            )
+            branch_key = branch_query.lower()
+            if branch_query and branch_key not in seen:
+                seen.add(branch_key)
+                variants.append(branch_query)
+
+        if llm is None:
+            return variants[: self._QUERY_FUSION_MAX_VARIANTS]
+
+        remaining = self._QUERY_FUSION_MAX_VARIANTS - len(variants)
+        if remaining <= 0:
+            return variants[: self._QUERY_FUSION_MAX_VARIANTS]
+
+        is_complex = bool(self._comparison_branches(question)) or max_hops >= 2 or len(self._content_query_tokens(question)) >= 8
+        if not is_complex:
+            return variants[: self._QUERY_FUSION_MAX_VARIANTS]
+
+        prompt = ChatPromptTemplate.from_messages([
+            ("system", (
+                "You are optimizing retrieval queries for RAG. Produce up to {n} alternative "
+                "search queries that preserve the original question's constraints exactly while "
+                "surfacing missing evidence. Return ONLY a JSON array of strings.\n\n"
+                "Rules:\n"
+                "1. Do not answer the question.\n"
+                "2. Keep names, labels, comparison targets, and temporal constraints intact.\n"
+                "3. Prefer short evidence-seeking queries.\n"
+                "4. If the question compares two targets, at least one query should foreground each target.\n"
+                "5. If no useful reformulation exists, return []."
+            )),
+            ("human", "{question}"),
+        ])
+        try:
+            chain = prompt | llm | StrOutputParser()
+            raw = chain.invoke({"question": question, "n": remaining})
+            match = re.search(r"\[.*\]", str(raw), re.DOTALL)
+            if match:
+                parsed = json.loads(match.group(0))
+                if isinstance(parsed, list):
+                    for item in parsed:
+                        candidate = self._normalize_retrieval_query(str(item))
+                        candidate_key = candidate.lower()
+                        if not candidate or candidate_key in seen or len(candidate) > 220:
+                            continue
+                        seen.add(candidate_key)
+                        variants.append(candidate)
+                        if len(variants) >= self._QUERY_FUSION_MAX_VARIANTS:
+                            break
+        except Exception as exc:
+            logging.debug("Query fusion reformulation failed (non-fatal): %s", exc)
+
+        return variants[: self._QUERY_FUSION_MAX_VARIANTS]
 
     @classmethod
     def _retained_entity_ids_from_chunks(cls, chunks: List[Dict[str, Any]]) -> Set[str]:
@@ -656,6 +831,153 @@ Question: {question}"""),
         return has_structure or (grounding is not None and grounding >= cls._WEAK_GRAPH_GROUNDING_THRESHOLD)
 
     @classmethod
+    def _append_adjacent_chunks_to_context(
+        cls,
+        graph,
+        context: Dict[str, Any],
+        *,
+        kg_name: Optional[str],
+        question_id: Optional[str],
+        document_names: Optional[List[str]],
+        max_adjacent: int,
+    ) -> Dict[str, Any]:
+        """Append position-adjacent chunks so answer spans split across boundaries survive.
+
+        Vanilla retrieval already recovers adjacent chunks from the same local passage.
+        Apply the same recovery here so graph-first and vector-first KG retrieval paths
+        do not lose answer-bearing sentences simply because the retriever hit a nearby span.
+        """
+        chunks = list(context.get("chunks") or [])
+        if not chunks:
+            return context
+
+        seed_element_ids = [
+            chunk.get("parent_chunk_element_id") or chunk.get("chunk_element_id")
+            for chunk in chunks
+            if chunk.get("parent_chunk_element_id") or chunk.get("chunk_element_id")
+        ]
+        if not seed_element_ids:
+            return context
+
+        seen_ids = {
+            str(chunk_id)
+            for chunk in chunks
+            for chunk_id in [chunk.get("chunk_element_id")]
+            if chunk_id
+        }
+        if not seen_ids:
+            return context
+
+        params: Dict[str, Any] = {
+            "element_ids": seed_element_ids,
+            "max_adjacent": max(1, int(max_adjacent or 1)),
+        }
+        scope_conditions: List[str] = []
+        if kg_name:
+            scope_conditions.append("d.kgName = $kg_name")
+            params["kg_name"] = kg_name
+        if document_names:
+            scope_conditions.append("d.fileName IN $document_names")
+            params["document_names"] = list(document_names)
+        if question_id:
+            scope_conditions.append("seed.questionId = $question_id")
+            scope_conditions.append("adj.questionId = $question_id")
+            params["question_id"] = question_id
+        scope_clause = ""
+        if scope_conditions:
+            scope_clause = "\n                  AND " + "\n                  AND ".join(scope_conditions)
+
+        adj_query = f"""
+        UNWIND $element_ids AS eid
+        MATCH (seed:Chunk)-[:PART_OF]->(d:Document)
+        WHERE elementId(seed) = eid
+        MATCH (adj:Chunk)-[:PART_OF]->(d)
+        WHERE ((
+            seed.questionId IS NOT NULL
+            AND adj.questionId = seed.questionId
+            AND coalesce(adj.passageIndex, -1) = coalesce(seed.passageIndex, -1)
+            AND abs(
+                coalesce(adj.chunkLocalIndex, adj.position)
+                - coalesce(seed.chunkLocalIndex, seed.position)
+            ) = 1
+        ) OR (
+            seed.questionId IS NULL
+            AND adj.questionId IS NULL
+            AND abs(adj.position - seed.position) = 1
+        )){scope_clause}
+        OPTIONAL MATCH (adj)-[:HAS_ENTITY]->(entity:__Entity__)
+        WITH adj, d, collect(DISTINCT entity) AS chunk_entities
+        RETURN DISTINCT
+            adj.text AS text,
+            adj.id AS chunk_id,
+            elementId(adj) AS chunk_element_id,
+            adj.position AS position,
+            adj.source AS source,
+            adj.questionId AS question_id,
+            adj.passageIndex AS passage_index,
+            adj.chunkLocalIndex AS chunk_local_index,
+            0.0 AS score,
+            d.fileName AS document,
+            d.kgName AS kg_name,
+            [entity IN chunk_entities WHERE entity IS NOT NULL | {{
+                id: coalesce(entity.id, entity.name),
+                element_id: elementId(entity),
+                type: coalesce(entity.type, 'Entity'),
+                description: coalesce(entity.name, '')
+            }}] AS entities
+        ORDER BY d.fileName ASC,
+                 coalesce(adj.questionId, ''),
+                 coalesce(adj.passageIndex, -1),
+                 coalesce(adj.chunkLocalIndex, adj.position),
+                 adj.position ASC
+        LIMIT $max_adjacent
+        """
+        try:
+            adj_results = graph.query(adj_query, params) or []
+        except Exception as adj_err:
+            logging.debug("Enhanced adjacent chunk expansion failed (non-fatal): %s", adj_err)
+            return context
+
+        if not adj_results:
+            return context
+
+        updated = dict(context)
+        updated_chunks = list(chunks)
+        documents = set(context.get("documents") or [])
+        for result in adj_results:
+            chunk_element_id = result.get("chunk_element_id")
+            if not chunk_element_id or str(chunk_element_id) in seen_ids:
+                continue
+            entities = result.get("entities") or []
+            updated_chunks.append({
+                "text": result["text"],
+                "chunk_id": result["chunk_id"],
+                "chunk_element_id": chunk_element_id,
+                "position": result.get("position"),
+                "source": result.get("source"),
+                "question_id": result.get("question_id"),
+                "passage_index": result.get("passage_index"),
+                "chunk_local_index": result.get("chunk_local_index"),
+                "score": 0.0,
+                "document": result["document"],
+                "kg_name": result.get("kg_name"),
+                "entities": entities,
+                "linked_entity_ids": [
+                    entity.get("id")
+                    for entity in entities
+                    if isinstance(entity, dict) and entity.get("id")
+                ],
+                "linked_entity_count": len(entities),
+                "adjacent": True,
+            })
+            documents.add(result["document"])
+            seen_ids.add(str(chunk_element_id))
+
+        updated["chunks"] = updated_chunks
+        updated["documents"] = list(documents)
+        return updated
+
+    @classmethod
     def _merge_retrieval_contexts(
         cls,
         primary: Dict[str, Any],
@@ -750,6 +1072,136 @@ Question: {question}"""),
         )
         return merged
 
+    @classmethod
+    def _fuse_contexts_with_rrf(
+        cls,
+        *,
+        query: str,
+        contexts: List[Dict[str, Any]],
+        max_chunks: int,
+        kg_name: Optional[str],
+        retrieval_temperature: float,
+        retrieval_shortlist_factor: int,
+        retrieval_sample_id: int,
+        search_method: str,
+    ) -> Optional[Dict[str, Any]]:
+        usable_contexts = [ctx for ctx in contexts if ctx and ctx.get("chunks")]
+        if not usable_contexts:
+            return None
+        if len(usable_contexts) == 1:
+            return usable_contexts[0]
+
+        merged: Dict[str, Any] = {
+            "query": query,
+            "chunks": [],
+            "entities": {},
+            "relationships": [],
+            "graph_neighbors": {},
+            "traversal_paths": [],
+            "documents": [],
+            "total_score": 0.0,
+            "entity_count": 0,
+            "relationship_count": 0,
+            "search_method": search_method,
+            "kg_name": kg_name,
+            "grounding_quality": 0.0,
+            "seed_entity_count": 0,
+        }
+        chunk_records: Dict[str, Dict[str, Any]] = {}
+        seen_rel_keys: Set[str] = set()
+        seen_paths: Set[str] = set()
+
+        for context in usable_contexts:
+            ranked_chunks = cls._sort_chunks_for_query(query, list(context.get("chunks", [])))
+            for rank, chunk in enumerate(ranked_chunks, 1):
+                chunk_key = str(
+                    chunk.get("parent_chunk_id")
+                    or chunk.get("chunk_id")
+                    or chunk.get("chunk_element_id")
+                    or str(chunk.get("text", ""))[:120]
+                )
+                record = chunk_records.get(chunk_key)
+                if record is None:
+                    record = {
+                        "chunk": dict(chunk),
+                        "rrf": 0.0,
+                        "support_count": 0,
+                        "best_score": float(chunk.get("score", 0.0)),
+                    }
+                    chunk_records[chunk_key] = record
+                record["rrf"] += 1.0 / float(cls._QUERY_FUSION_RRF_K + rank)
+                record["support_count"] += 1
+                current_score = float(chunk.get("score", 0.0))
+                if current_score >= record["best_score"]:
+                    record["chunk"] = dict(chunk)
+                    record["best_score"] = current_score
+
+            for entity_id, entity_info in (context.get("entities") or {}).items():
+                merged["entities"].setdefault(entity_id, entity_info)
+            for entity_id, entity_info in (context.get("graph_neighbors") or {}).items():
+                merged["graph_neighbors"].setdefault(entity_id, entity_info)
+            for rel in context.get("relationships", []) or []:
+                rel_key = cls._relationship_identity(rel)
+                if rel_key in seen_rel_keys:
+                    continue
+                seen_rel_keys.add(rel_key)
+                merged["relationships"].append(rel)
+            for path_entry in context.get("traversal_paths", []) or []:
+                path_str = path_entry.get("path", "")
+                if not path_str or path_str in seen_paths:
+                    continue
+                seen_paths.add(path_str)
+                merged["traversal_paths"].append(path_entry)
+            merged["grounding_quality"] = max(
+                float(merged.get("grounding_quality") or 0.0),
+                float(context.get("grounding_quality") or 0.0),
+            )
+            merged["seed_entity_count"] = max(
+                int(merged.get("seed_entity_count") or 0),
+                int(context.get("seed_entity_count") or 0),
+            )
+
+        fused_chunks: List[Dict[str, Any]] = []
+        for record in chunk_records.values():
+            chunk = dict(record["chunk"])
+            chunk["rrf_score"] = record["rrf"]
+            chunk["retrieval_support_count"] = record["support_count"]
+            chunk["score"] = (
+                record["rrf"]
+                + 0.05 * min(record["support_count"], 3)
+                + 0.01 * float(record["best_score"])
+            )
+            fused_chunks.append(chunk)
+
+        merged["chunks"] = cls._sort_chunks_for_query(query, fused_chunks)
+        merged["documents"] = list({
+            chunk.get("document")
+            for chunk in merged["chunks"]
+            if chunk.get("document")
+        })
+        merged["total_score"] = float(
+            sum(float(chunk.get("score", 0.0)) for chunk in merged["chunks"])
+        )
+        merged["entity_count"] = len(merged["entities"])
+        merged["relationship_count"] = len(merged["relationships"])
+        return cls._apply_final_chunk_selection(
+            query=query,
+            context=merged,
+            max_chunks=max_chunks,
+            retrieval_temperature=retrieval_temperature,
+            retrieval_shortlist_factor=retrieval_shortlist_factor,
+            retrieval_sample_id=retrieval_sample_id,
+            kg_name=kg_name,
+        )
+
+    @staticmethod
+    def _is_pure_vector_search_method(search_method: Optional[str]) -> bool:
+        """Return True when the context already came from a pure vector-only route."""
+        return str(search_method or "").strip().lower() in {
+            "vector_similarity",
+            "retrieval_span_similarity",
+        }
+
     def _create_neo4j_connection(self):
         """Return the shared Neo4j connection, creating it once on first call."""
         if self._graph is None:
@@ -762,6 +1214,40 @@ Question: {question}"""),
                 sanitize=True,
             )
         return self._graph
+
+    def clear_retrieval_caches(self) -> None:
+        """Drop cached retrieval state after KG mutations."""
+        self._vector_index_available = None
+        self._active_vector_index_name = None
+        self._graph = None
+        self._embedding_cache.clear()
+        self._entity_extraction_cache.clear()
+        self._late_interaction_corpus_cache.clear()
+
+    @staticmethod
+    def _late_interaction_corpus_cap() -> int:
+        return max(200, int(os.getenv("ONTOGRAPHRAG_LATE_INTERACTION_CORPUS_CAP", "5000").strip() or 5000))
+
+    def _first_stage_late_interaction_enabled(self) -> bool:
+        explicit = str(os.getenv("ONTOGRAPHRAG_FIRST_STAGE_LATE_INTERACTION", "")).strip().lower()
+        if explicit:
+            return explicit in {"1", "true", "yes", "on"}
+        return late_interaction_enabled()
+
+    @staticmethod
+    def _late_interaction_scope_key(
+        *,
+        kg_name: Optional[str],
+        document_names: Optional[List[str]],
+        question_id: Optional[str],
+        include_entities: bool,
+    ) -> tuple:
+        return (
+            kg_name or "",
+            tuple(sorted(document_names or [])),
+            question_id or "",
+            bool(include_entities),
+        )
 
     def _generate_query_embedding(self, query: str) -> List[float]:
         """Generate query embedding, caching results to avoid redundant calls."""
@@ -782,13 +1268,426 @@ Question: {question}"""),
         self._embedding_cache[query] = embedding
         return embedding
 
+    def _late_interaction_corpus_rows(
+        self,
+        graph,
+        *,
+        kg_name: Optional[str],
+        document_names: Optional[List[str]],
+        question_id: Optional[str],
+        include_entities: bool,
+    ) -> List[Dict[str, Any]]:
+        cache = getattr(self, "_late_interaction_corpus_cache", None)
+        if cache is None:
+            cache = {}
+            self._late_interaction_corpus_cache = cache
+
+        scope_key = self._late_interaction_scope_key(
+            kg_name=kg_name,
+            document_names=document_names,
+            question_id=question_id,
+            include_entities=include_entities,
+        )
+        if scope_key in cache:
+            return [dict(row) for row in cache[scope_key]]
+
+        params: Dict[str, Any] = {"corpus_cap": self._late_interaction_corpus_cap()}
+        filters: List[str] = []
+        if kg_name:
+            filters.append("d.kgName = $kg_name")
+            params["kg_name"] = kg_name
+        if document_names:
+            filters.append("d.fileName IN $document_names")
+            params["document_names"] = list(document_names)
+        if question_id:
+            filters.append("coalesce(retrieval.questionId, chunk.questionId) = $question_id")
+            params["question_id"] = question_id
+        where_clause = "WHERE " + " AND ".join(filters) if filters else ""
+
+        entity_match = ""
+        with_clause = "WITH retrieval, chunk, d"
+        entity_return = "[] AS entities"
+        if include_entities:
+            entity_match = "OPTIONAL MATCH (chunk)-[:HAS_ENTITY]->(entity:__Entity__)"
+            with_clause = "WITH retrieval, chunk, d, collect(DISTINCT entity) AS chunk_entities"
+            entity_return = """[entity IN chunk_entities WHERE entity IS NOT NULL | {
+                id: coalesce(entity.id, entity.name),
+                element_id: elementId(entity),
+                type: coalesce(entity.type, 'Entity'),
+                description: coalesce(entity.name, '')
+            }] AS entities"""
+
+        retrieval_query = f"""
+        MATCH (retrieval:RetrievalChunk)-[:RETRIEVES_FROM]->(chunk:Chunk)-[:PART_OF]->(d:Document)
+        {where_clause}
+        {entity_match}
+        {with_clause}
+        RETURN
+            retrieval.text AS text,
+            retrieval.id AS chunk_id,
+            elementId(retrieval) AS chunk_element_id,
+            chunk.id AS parent_chunk_id,
+            elementId(chunk) AS parent_chunk_element_id,
+            coalesce(retrieval.questionId, chunk.questionId) AS question_id,
+            coalesce(retrieval.passageIndex, chunk.passageIndex) AS passage_index,
+            coalesce(retrieval.chunkLocalIndex, chunk.chunkLocalIndex) AS chunk_local_index,
+            retrieval.retrievalLocalIndex AS retrieval_local_index,
+            chunk.position AS position,
+            chunk.source AS source,
+            d.fileName AS document,
+            d.kgName AS kg_name,
+            {entity_return}
+        ORDER BY d.fileName ASC,
+                 coalesce(retrieval.questionId, ''),
+                 coalesce(retrieval.passageIndex, -1),
+                 coalesce(retrieval.chunkLocalIndex, chunk.chunkLocalIndex, chunk.position),
+                 chunk.position ASC
+        LIMIT $corpus_cap
+        """
+        rows = graph.query(retrieval_query, params) or []
+
+        if not rows:
+            chunk_filters: List[str] = []
+            if kg_name:
+                chunk_filters.append("d.kgName = $kg_name")
+            if document_names:
+                chunk_filters.append("d.fileName IN $document_names")
+            if question_id:
+                chunk_filters.append("chunk.questionId = $question_id")
+            chunk_where = "WHERE " + " AND ".join(chunk_filters) if chunk_filters else ""
+
+            entity_match = ""
+            with_clause = "WITH chunk, d"
+            entity_return = "[] AS entities"
+            if include_entities:
+                entity_match = "OPTIONAL MATCH (chunk)-[:HAS_ENTITY]->(entity:__Entity__)"
+                with_clause = "WITH chunk, d, collect(DISTINCT entity) AS chunk_entities"
+                entity_return = """[entity IN chunk_entities WHERE entity IS NOT NULL | {
+                    id: coalesce(entity.id, entity.name),
+                    element_id: elementId(entity),
+                    type: coalesce(entity.type, 'Entity'),
+                    description: coalesce(entity.name, '')
+                }] AS entities"""
+
+            chunk_query = f"""
+            MATCH (chunk:Chunk)-[:PART_OF]->(d:Document)
+            {chunk_where}
+            {entity_match}
+            {with_clause}
+            RETURN
+                chunk.text AS text,
+                chunk.id AS chunk_id,
+                elementId(chunk) AS chunk_element_id,
+                chunk.questionId AS question_id,
+                chunk.passageIndex AS passage_index,
+                chunk.chunkLocalIndex AS chunk_local_index,
+                chunk.position AS position,
+                chunk.source AS source,
+                d.fileName AS document,
+                d.kgName AS kg_name,
+                {entity_return}
+            ORDER BY d.fileName ASC,
+                     coalesce(chunk.questionId, ''),
+                     coalesce(chunk.passageIndex, -1),
+                     coalesce(chunk.chunkLocalIndex, chunk.position),
+                     chunk.position ASC
+            LIMIT $corpus_cap
+            """
+            rows = graph.query(chunk_query, params) or []
+
+        cache[scope_key] = [dict(row) for row in rows]
+        return [dict(row) for row in rows]
+
+    def _late_interaction_search(
+        self,
+        graph,
+        query: str,
+        document_names: List[str] = None,
+        max_chunks: int = 20,
+        kg_name: str = None,
+        max_hops: int = 2,
+        question_id: str = None,
+    ) -> Dict[str, Any]:
+        try:
+            scope_key = self._late_interaction_scope_key(
+                kg_name=kg_name,
+                document_names=document_names,
+                question_id=question_id,
+                include_entities=True,
+            )
+            rows = self._late_interaction_corpus_rows(
+                graph,
+                kg_name=kg_name,
+                document_names=document_names,
+                question_id=question_id,
+                include_entities=True,
+            )
+            if not rows:
+                return {
+                    "query": query,
+                    "chunks": [],
+                    "entities": {},
+                    "relationships": [],
+                    "graph_neighbors": {},
+                    "traversal_paths": [],
+                    "documents": [],
+                    "total_score": 0,
+                    "search_method": "late_interaction_unavailable",
+                }
+
+            candidate_rows: List[Dict[str, Any]] = []
+            for row in rows:
+                entities = row.get("entities") or []
+                candidate_rows.append({
+                    "text": row["text"],
+                    "chunk_id": row["chunk_id"],
+                    "chunk_element_id": row["chunk_element_id"],
+                    "parent_chunk_id": row.get("parent_chunk_id"),
+                    "parent_chunk_element_id": row.get("parent_chunk_element_id"),
+                    "question_id": row.get("question_id"),
+                    "passage_index": row.get("passage_index"),
+                    "chunk_local_index": row.get("chunk_local_index"),
+                    "retrieval_local_index": row.get("retrieval_local_index"),
+                    "position": row.get("position"),
+                    "source": row.get("source"),
+                    "score": 0.0,
+                    "document": row["document"],
+                    "kg_name": row.get("kg_name"),
+                    "entities": entities,
+                    "linked_entity_ids": [
+                        entity.get("id")
+                        for entity in entities
+                        if isinstance(entity, dict) and entity.get("id")
+                    ],
+                    "linked_entity_count": len(entities),
+                })
+
+            reranked_rows, li_meta = late_interaction_rescore_chunks_for_query(
+                query,
+                candidate_rows,
+                max_chunks=max_chunks,
+                replace_score=True,
+                index_key=scope_key,
+            )
+            selected_rows = reranked_rows[:max_chunks]
+            if not li_meta.get("applied"):
+                return {
+                    "query": query,
+                    "chunks": [],
+                    "entities": {},
+                    "relationships": [],
+                    "graph_neighbors": {},
+                    "traversal_paths": [],
+                    "documents": [],
+                    "total_score": 0,
+                    "search_method": "late_interaction_unavailable",
+                    "late_interaction_stage": li_meta,
+                }
+
+            score_values = [
+                abs(float(row.get("late_interaction_score", row.get("score", 0.0)) or 0.0))
+                for row in selected_rows
+            ]
+            if not selected_rows or max(score_values, default=0.0) <= 1e-9:
+                return {
+                    "query": query,
+                    "chunks": [],
+                    "entities": {},
+                    "relationships": [],
+                    "graph_neighbors": {},
+                    "traversal_paths": [],
+                    "documents": [],
+                    "total_score": 0,
+                    "search_method": "late_interaction_unavailable",
+                    "late_interaction_stage": {
+                        **li_meta,
+                        "applied": False,
+                        "reason": "no_score_signal",
+                    },
+                }
+
+            context = {
+                "query": query,
+                "chunks": selected_rows,
+                "entities": {},
+                "relationships": [],
+                "graph_neighbors": {},
+                "traversal_paths": [],
+                "documents": list({
+                    row.get("document")
+                    for row in selected_rows
+                    if row.get("document")
+                }),
+                "total_score": float(sum(float(row.get("score", 0.0)) for row in selected_rows)),
+                "search_method": "late_interaction_similarity",
+                "late_interaction_stage": li_meta,
+            }
+
+            all_entity_ids: List[str] = []
+            for row in selected_rows:
+                for entity in row.get("entities", []):
+                    entity_id = entity.get("id")
+                    if not entity_id:
+                        continue
+                    if entity_id not in context["entities"]:
+                        context["entities"][entity_id] = {
+                            "id": entity_id,
+                            "element_id": entity.get("element_id"),
+                            "type": entity.get("type"),
+                            "description": entity.get("description"),
+                            "mentioned_in_chunks": [row["chunk_id"]],
+                            "source": "late_interaction",
+                        }
+                        all_entity_ids.append(entity_id)
+                    else:
+                        context["entities"][entity_id].setdefault("mentioned_in_chunks", []).append(row["chunk_id"])
+
+            if all_entity_ids:
+                expansion = self._expand_entities_via_graph(
+                    graph,
+                    all_entity_ids[: self._GRAPH_TRAVERSAL_SEED_LIMIT],
+                    kg_name=kg_name,
+                    max_hops=max_hops,
+                    question_id=question_id,
+                    document_names=document_names,
+                )
+                context["graph_neighbors"] = expansion["neighbors"]
+                context["traversal_paths"] = expansion["paths"]
+                rel_results = self._fetch_relationships_for_entity_ids(
+                    graph,
+                    all_entity_ids[:40],
+                    kg_name=kg_name,
+                    question_id=question_id,
+                    document_names=document_names,
+                )
+                for rel in rel_results:
+                    rel_key = (
+                        rel.get("relationship_element_id")
+                        or f"{rel['source']}-{rel['relationship_type']}-{rel['target']}"
+                        f"-negated={bool(rel.get('negated', False))}"
+                    )
+                    context["relationships"].append({
+                        "key": rel_key,
+                        "source": rel["source"],
+                        "source_element_id": rel["source_element_id"],
+                        "target": rel["target"],
+                        "target_element_id": rel["target_element_id"],
+                        "type": rel["relationship_type"],
+                        "element_id": rel["relationship_element_id"],
+                        "negated": bool(rel.get("negated", False)),
+                        "condition": rel.get("condition"),
+                        "quantitative": rel.get("quantitative"),
+                        "confidence": rel.get("confidence"),
+                        "question_ids": rel.get("question_ids") or [],
+                        "passage_keys": rel.get("passage_keys") or [],
+                        "provenance_positions": rel.get("provenance_positions") or [],
+                    })
+
+            context["entity_count"] = len(context["entities"])
+            context["relationship_count"] = len(context["relationships"])
+            context.setdefault("grounding_quality", 0.0)
+            context.setdefault("seed_entity_count", 0)
+            return context
+        except Exception as exc:
+            logging.warning("Late-interaction search failed: %s", exc)
+            return {
+                "query": query,
+                "chunks": [],
+                "entities": {},
+                "relationships": [],
+                "graph_neighbors": {},
+                "traversal_paths": [],
+                "documents": [],
+                "total_score": 0,
+                "search_method": "late_interaction_error",
+                "error": str(exc),
+            }
+
+    def _semantic_similarity_search(
+        self,
+        graph,
+        query: str,
+        document_names: List[str] = None,
+        similarity_threshold: float = 0.08,
+        max_chunks: int = 20,
+        kg_name: str = None,
+        max_hops: int = 2,
+        question_id: str = None,
+        allow_first_stage_late_interaction: bool = True,
+    ) -> Dict[str, Any]:
+        if allow_first_stage_late_interaction and self._first_stage_late_interaction_enabled():
+            context = self._late_interaction_search(
+                graph,
+                query,
+                document_names=document_names,
+                max_chunks=max_chunks,
+                kg_name=kg_name,
+                max_hops=max_hops,
+                question_id=question_id,
+            )
+            if context.get("chunks"):
+                return context
+        return self._vector_similarity_search(
+            graph,
+            query,
+            document_names=document_names,
+            similarity_threshold=similarity_threshold,
+            max_chunks=max_chunks,
+            kg_name=kg_name,
+            max_hops=max_hops,
+            question_id=question_id,
+        )
+
     def classify_question_type(self, query: str) -> str:
         """
-        Classify the question type to determine retrieval strategy
-        """
-        query_lower = query.lower().strip()
+        Classify the question type to determine retrieval strategy.
 
-        # Statistical indicators
+        Returns one of: "comparison", "bridge", "statistical", "semantic", "generic".
+        "comparison" and "bridge" are checked first because they drive hard routing
+        decisions (comparison suppresses graph traversal; bridge enables it).
+        """
+        query_lower = query.lower().strip().rstrip("?")
+
+        # --- Comparison: parallel attribute lookup across two named entities ---
+        comparison_patterns = [
+            # "are/do/did/were/is/have both ..."
+            r"\bare both\b", r"\bdo both\b", r"\bdid both\b", r"\bwere both\b",
+            r"\bis both\b", r"\bhave both\b",
+            # "both X and Y ..." at start or after wh-word
+            r"\bboth\b.{1,60}\band\b",
+            # "are/is X and Y both ..." — subject before "both"
+            r"\band\b.{1,60}\bboth\b",
+            # "X and Y share", "X and Y are the same", "X and Y both"
+            r"\band\b.{1,80}\bshare\b",
+            r"\bsame\b.{1,40}\b(breed|species|profession|nationality|type|genre|band|group)\b",
+            # "between X and Y, who/which" — explicit comparison framing
+            r"^between\b",
+            # "in between X and Y"
+            r"^in between\b",
+        ]
+        if any(re.search(p, query_lower) for p in comparison_patterns):
+            return "comparison"
+        # "X or Y" style with a named entity on each side (handled by _comparison_branches)
+        if len(self._comparison_branches(query)) == 2:
+            return "comparison"
+
+        # --- Bridge: multi-hop entity chain (A→B→answer) ---
+        # HotpotQA bridge questions typically ask about a property of an entity
+        # that is itself defined by a chain through another entity.
+        # Heuristic: wh-question that doesn't match comparison and contains
+        # at least two named-entity-like tokens (capitalised mid-sentence tokens).
+        bridge_starters = ["who", "what", "which", "where", "when", "whose"]
+        if any(query_lower.startswith(s) for s in bridge_starters):
+            # Count plausible named entity tokens (title-case words not at start)
+            words = query.split()
+            ne_count = sum(
+                1 for w in words[1:]
+                if w and w[0].isupper() and w.isalpha() and len(w) >= 3
+            )
+            if ne_count >= 2:
+                return "bridge"
+
+        # --- Statistical ---
         statistical_terms = [
             "statistic", "tendencies", "trend", "correlation", "rate", "incidence",
             "prevalence", "distribution", "frequency", "proportion", "percentage",
@@ -798,31 +1697,23 @@ Question: {question}"""),
             "how many", "how much", "what percentage", "what proportion",
             "quantity", "quantity of", "number of", "count", "total", "sum"
         ]
+        if any(term in query_lower for term in statistical_terms):
+            return "statistical"
+        quantitative_starters = ["how many", "how much", "what percentage", "what proportion"]
+        if any(query_lower.startswith(s) for s in quantitative_starters):
+            return "statistical"
 
-        # Semantic indicators
+        # --- Semantic ---
         semantic_terms = [
             "explain", "describe", "what is", "how does", "define", "meaning",
             "concept", "principle", "theory", "framework", "model", "interpretation",
             "understanding", "overview", "context", "background", "history",
             "development", "evolution", "mechanism", "process", "function"
         ]
-
-        # Check for statistical terms (highest priority)
-        if any(term in query_lower for term in statistical_terms):
-            return "statistical"
-
-        # Check question starters for quantitative questions
-        quantitative_starters = ["how many", "how much", "what percentage", "what proportion"]
-        if any(query_lower.startswith(starter) for starter in quantitative_starters):
-            return "statistical"
-
-        # Check for semantic terms
         if any(term in query_lower for term in semantic_terms):
             return "semantic"
-
-        # Check question starters for semantic questions
         semantic_starters = ["what is", "how does", "explain", "describe"]
-        if any(query_lower.startswith(starter) for starter in semantic_starters):
+        if any(query_lower.startswith(s) for s in semantic_starters):
             return "semantic"
 
         return "generic"
@@ -832,7 +1723,7 @@ Question: {question}"""),
         Calculate dynamic similarity threshold based on question type and context
         """
         question_type = self.classify_question_type(query)
-        config = RAG_CONFIG[question_type]
+        config = RAG_CONFIG.get(question_type, RAG_CONFIG["generic"])
 
         if question_type == "statistical":
             # Lower threshold for statistical queries to catch more data
@@ -857,7 +1748,7 @@ Question: {question}"""),
         if question_type == "statistical":
             max_chunks = 200  # Aggressive limit to prevent timeouts - focus on quality over quantity
         else:
-            max_chunks = RAG_CONFIG[question_type]["default_max_chunks"]
+            max_chunks = RAG_CONFIG.get(question_type, RAG_CONFIG["generic"])["default_max_chunks"]
 
         params = {
             "question_type": question_type,
@@ -927,6 +1818,7 @@ Question: {question}"""),
         *,
         kg_name: Optional[str],
         question_id: Optional[str],
+        document_names: Optional[List[str]] = None,
         relationship_var: Optional[str] = None,
     ) -> str:
         """
@@ -937,14 +1829,26 @@ Question: {question}"""),
         question bundle by requiring both entities to be supported in the same
         passage, or in adjacent chunks of that passage.
         """
-        if not question_id:
+        if not question_id and not document_names:
             return "true"
 
-        kg_filters = ""
+        left_filters = ""
+        right_filters = ""
         if kg_name:
-            kg_filters = """
-              AND d1.kgName = $kg_name
-              AND d2.kgName = $kg_name"""
+            left_filters += "\n              AND d1.kgName = $kg_name"
+            right_filters += "\n              AND d2.kgName = $kg_name"
+        if document_names:
+            left_filters += "\n              AND d1.fileName IN $document_names"
+            right_filters += "\n              AND d2.fileName IN $document_names"
+
+        if not question_id:
+            return f"""EXISTS {{
+            MATCH ({left_var})<-[:MENTIONS|HAS_ENTITY]-(c1:Chunk)-[:PART_OF]->(d1:Document)
+            WHERE true{left_filters}
+        }} AND EXISTS {{
+            MATCH ({right_var})<-[:MENTIONS|HAS_ENTITY]-(c2:Chunk)-[:PART_OF]->(d2:Document)
+            WHERE true{right_filters}
+        }}"""
 
         direct_edge_scope = ""
         if relationship_var:
@@ -960,7 +1864,8 @@ Question: {question}"""),
                     coalesce(c1.chunkLocalIndex, c1.position)
                     - coalesce(c2.chunkLocalIndex, c2.position)
                   ) <= 1
-                      {kg_filters}
+                      {left_filters}
+                      {right_filters}
         }}"""
 
     @staticmethod
@@ -969,6 +1874,7 @@ Question: {question}"""),
         *,
         kg_name: Optional[str],
         question_id: Optional[str],
+        document_names: Optional[List[str]] = None,
     ) -> str:
         """Build a Cypher predicate requiring an entity seed to be locally supported."""
         conditions: List[str] = []
@@ -976,6 +1882,8 @@ Question: {question}"""),
             conditions.append("c.questionId = $question_id")
         if kg_name:
             conditions.append("d.kgName = $kg_name")
+        if document_names:
+            conditions.append("d.fileName IN $document_names")
         where_clause = " AND ".join(conditions) if conditions else "true"
         return f"""EXISTS {{
             MATCH ({entity_var})<-[:MENTIONS|HAS_ENTITY]-(c:Chunk)-[:PART_OF]->(d:Document)
@@ -987,16 +1895,34 @@ Question: {question}"""),
         *,
         kg_name: Optional[str],
         question_id: Optional[str],
+        document_names: Optional[List[str]] = None,
     ) -> str:
         """Build a Cypher predicate requiring question-local support for every path hop."""
-        if not question_id:
+        if not question_id and not document_names:
             return ""
 
-        kg_filters = ""
+        path_filters = ""
         if kg_name:
-            kg_filters = """
+            path_filters += """
                       AND d1.kgName = $kg_name
                       AND d2.kgName = $kg_name"""
+        if document_names:
+            path_filters += """
+                      AND d1.fileName IN $document_names
+                      AND d2.fileName IN $document_names"""
+
+        if not question_id:
+            node_conditions: List[str] = []
+            if kg_name:
+                node_conditions.append("d.kgName = $kg_name")
+            if document_names:
+                node_conditions.append("d.fileName IN $document_names")
+            node_where = " AND ".join(node_conditions) if node_conditions else "true"
+            return f"""
+              AND ALL(pathNode IN nodes(path) WHERE EXISTS {{
+                    MATCH (pathNode)<-[:MENTIONS|HAS_ENTITY]-(c:Chunk)-[:PART_OF]->(d:Document)
+                    WHERE {node_where}
+              }})"""
 
         return f"""
               AND ALL(idx IN range(0, length(path) - 1) WHERE (
@@ -1012,7 +1938,7 @@ Question: {question}"""),
                             coalesce(c1.chunkLocalIndex, c1.position)
                             - coalesce(c2.chunkLocalIndex, c2.position)
                           ) <= 1
-                      {kg_filters}
+                      {path_filters}
               }}))"""
 
     def _fetch_relationships_for_entity_ids(
@@ -1022,6 +1948,7 @@ Question: {question}"""),
         *,
         kg_name: Optional[str] = None,
         question_id: Optional[str] = None,
+        document_names: Optional[List[str]] = None,
     ) -> List[Dict[str, Any]]:
         """Fetch entity-to-entity relationships, optionally scoped to one question bundle."""
         if not entity_ids:
@@ -1032,12 +1959,14 @@ Question: {question}"""),
             "e2",
             kg_name=kg_name,
             question_id=question_id,
+            document_names=document_names,
             relationship_var="r",
         )
         relationship_query = f"""
         MATCH (e1:__Entity__)-[r]->(e2:__Entity__)
         WHERE e1.id IN $entity_ids
           AND e2.id IN $entity_ids
+          AND coalesce(r.confidence, 1.0) >= 0.4
           AND {pair_scope}
         RETURN DISTINCT
             e1.id AS source,
@@ -1048,6 +1977,10 @@ Question: {question}"""),
             elementId(e2) AS target_element_id,
             type(r) AS relationship_type,
             elementId(r) AS relationship_element_id,
+            coalesce(r.negated, false) AS negated,
+            r.condition AS condition,
+            r.quantitative AS quantitative,
+            coalesce(r.confidence, 1.0) AS confidence,
             coalesce(r.questionIds, []) AS question_ids,
             coalesce(r.passageKeys, []) AS passage_keys,
             coalesce(r.provenancePositions, []) AS provenance_positions
@@ -1058,8 +1991,102 @@ Question: {question}"""),
                 "entity_ids": entity_ids,
                 "kg_name": kg_name,
                 "question_id": question_id,
+                "document_names": document_names,
             },
         ) or []
+
+    # Relation types that are structural meta-edges and should always be excluded
+    # from RoG path planning (same list used in traversal WHERE clause).
+    _STRUCTURAL_REL_TYPES: frozenset = frozenset({
+        "HAS_ENTITY", "FROM_CHUNK", "PART_OF", "MENTIONED_IN", "MENTIONS", "QUALIFIES",
+    })
+
+    def _plan_relation_paths(
+        self,
+        graph,
+        seed_entity_ids: List[str],
+        query: str,
+        *,
+        kg_name: str = None,
+        question_id: str = None,
+        document_names: List[str] = None,
+        top_k: int = 10,
+        min_sim: float = 0.20,
+    ) -> Optional[List[str]]:
+        """RoG-style relation path planning.
+
+        Enumerate all relation types reachable in 1-2 hops from seed entities,
+        score each by cosine similarity between its label embedding and the query
+        embedding, and return the top-K types whose similarity exceeds min_sim.
+
+        Returns None if planning should be skipped (too few relation types found
+        or all types are structural), which signals the caller to use open traversal.
+        """
+        if not seed_entity_ids:
+            return None
+
+        scope_filters = ""
+        params: Dict[str, Any] = {"seed_ids": seed_entity_ids}
+        if kg_name:
+            params["kg_name"] = kg_name
+            scope_filters += "\n  AND (a.kgName IS NULL OR a.kgName = $kg_name)"
+        if question_id:
+            params["question_id"] = question_id
+            scope_filters += "\n  AND (a.questionId IS NULL OR a.questionId = $question_id)"
+
+        rel_query = f"""
+        MATCH (a:__Entity__)-[r]-(b:__Entity__)
+        WHERE a.id IN $seed_ids
+          {scope_filters}
+          AND NOT type(r) IN {list(self._STRUCTURAL_REL_TYPES)}
+        RETURN DISTINCT type(r) AS rel_type, count(*) AS cnt
+        ORDER BY cnt DESC
+        LIMIT 40
+        """
+        try:
+            rows = graph.query(rel_query, params) or []
+        except Exception as _e:
+            logging.debug("RoG relation planning query failed: %s", _e)
+            return None
+
+        rel_types = [row["rel_type"] for row in rows if row.get("rel_type")]
+        if not rel_types:
+            return None
+
+        # Score each relation type label against the query by cosine similarity.
+        query_emb = np.array(self._generate_query_embedding(query), dtype=np.float32)
+        qnorm = np.linalg.norm(query_emb)
+        if qnorm == 0:
+            return None
+
+        scored: List[Tuple[float, str]] = []
+        for rel_type in rel_types:
+            # Convert snake_case / ALL_CAPS label to readable words for embedding
+            readable = rel_type.replace("_", " ").lower()
+            try:
+                rel_emb = np.array(self._generate_query_embedding(readable), dtype=np.float32)
+            except Exception:
+                continue
+            rnorm = np.linalg.norm(rel_emb)
+            if rnorm == 0:
+                continue
+            sim = float(np.dot(query_emb, rel_emb) / (qnorm * rnorm))
+            scored.append((sim, rel_type))
+
+        scored.sort(reverse=True)
+        allowed = [rt for sim, rt in scored[:top_k] if sim >= min_sim]
+
+        if not allowed:
+            logging.debug("RoG planning: no relation types above sim threshold %.2f — using open traversal", min_sim)
+            return None
+
+        logging.info(
+            "RoG relation planning: %d/%d types selected (top sim=%.3f): %s",
+            len(allowed), len(rel_types),
+            scored[0][0] if scored else 0.0,
+            allowed[:5],
+        )
+        return allowed
 
     def _expand_entities_via_graph(
         self,
@@ -1069,6 +2096,8 @@ Question: {question}"""),
         max_hops: int = 2,
         max_neighbors: int = 30,
         question_id: str = None,
+        document_names: List[str] = None,
+        allowed_rel_types: Optional[List[str]] = None,
     ) -> Dict[str, Any]:
         """
         Multi-hop graph traversal from seed entities.
@@ -1108,48 +2137,39 @@ Question: {question}"""),
                 "max_neighbors": effective_max_neighbors,
             }
 
-            # Scope seeds and neighbors to the target KG when one is specified,
-            # preventing cross-KG contamination when multiple KGs share a database.
-            if kg_name:
+            seed_scope = "true"
+            neighbor_scope = ""
+            if kg_name or question_id or document_names:
                 params["kg_name"] = kg_name
-                seed_scope = """EXISTS {
-                    MATCH (seed)<-[:MENTIONS|HAS_ENTITY]-(c:Chunk)-[:PART_OF]->(d:Document {kgName: $kg_name})
-                }"""
-                kg_filter = """
-                AND EXISTS {
-                    MATCH (neighbor)<-[:MENTIONS|HAS_ENTITY]-(c2:Chunk)-[:PART_OF]->(d2:Document {kgName: $kg_name})
-                }"""
-            else:
-                seed_scope = "true"
-                kg_filter = ""
-
-            if question_id:
                 params["question_id"] = question_id
-                if kg_name:
-                    seed_scope = """EXISTS {
-                        MATCH (seed)<-[:MENTIONS|HAS_ENTITY]-(c:Chunk)-[:PART_OF]->(d:Document {kgName: $kg_name})
-                        WHERE c.questionId = $question_id
-                    }"""
-                    kg_filter = """
-                    AND EXISTS {
-                        MATCH (neighbor)<-[:MENTIONS|HAS_ENTITY]-(c2:Chunk)-[:PART_OF]->(d2:Document {kgName: $kg_name})
-                        WHERE c2.questionId = $question_id
-                    }"""
-                else:
-                    seed_scope = """EXISTS {
-                        MATCH (seed)<-[:MENTIONS|HAS_ENTITY]-(c:Chunk)
-                        WHERE c.questionId = $question_id
-                    }"""
-                    kg_filter = """
-                    AND EXISTS {
-                        MATCH (neighbor)<-[:MENTIONS|HAS_ENTITY]-(c2:Chunk)
-                        WHERE c2.questionId = $question_id
-                    }"""
+                params["document_names"] = document_names
+                seed_scope = self._question_local_entity_support_clause(
+                    "seed",
+                    kg_name=kg_name,
+                    question_id=question_id,
+                    document_names=document_names,
+                )
+                neighbor_scope = self._question_local_entity_support_clause(
+                    "neighbor",
+                    kg_name=kg_name,
+                    question_id=question_id,
+                    document_names=document_names,
+                )
+                neighbor_scope = f"\n              AND {neighbor_scope}"
 
             path_scope = self._question_local_path_support_clause(
                 kg_name=kg_name,
                 question_id=question_id,
+                document_names=document_names,
             )
+
+            # RoG-style: when an allowed relation type list is provided, constrain
+            # traversal to only follow those relation types (in addition to the
+            # standard structural-edge exclusion).
+            rog_rel_filter = ""
+            if allowed_rel_types:
+                params["rog_allowed_rel_types"] = allowed_rel_types
+                rog_rel_filter = "\n                AND type(r) IN $rog_allowed_rel_types"
 
             traversal_query = f"""
             MATCH (seed:__Entity__)
@@ -1159,17 +2179,19 @@ Question: {question}"""),
             WHERE NOT neighbor.id IN $seed_ids
               AND neighbor.id IS NOT NULL
               AND ALL(r IN relationships(path) WHERE NOT type(r) IN ['HAS_ENTITY', 'FROM_CHUNK', 'PART_OF', 'MENTIONED_IN', 'MENTIONS', 'QUALIFIES']
-                AND coalesce(r.confidence, 1.0) >= 0.4)
-              {kg_filter}
+                AND coalesce(r.confidence, 1.0) >= 0.4{rog_rel_filter})
+              {neighbor_scope}
               {path_scope}
             WITH neighbor,
                  length(path) AS hops,
                  [n IN nodes(path) | coalesce(n.name, n.id)] AS node_names,
                  [n IN nodes(path) | n.id] AS node_ids,
-                 [r IN relationships(path) | {{
+                [r IN relationships(path) | {{
                      type: type(r),
                      negated: coalesce(r.negated, false),
                      condition: r.condition,
+                     quantitative: r.quantitative,
+                     confidence: coalesce(r.confidence, 1.0),
                      question_ids: coalesce(r.questionIds, []),
                      passage_keys: coalesce(r.passageKeys, []),
                      provenance_positions: coalesce(r.provenancePositions, [])
@@ -1225,12 +2247,7 @@ Question: {question}"""),
                             if rel is None:
                                 rel_label = "RELATED"
                             elif isinstance(rel, dict):
-                                rel_label = rel.get("type") or "RELATED"
-                                if rel.get("negated"):
-                                    rel_label = f"NOT {rel_label}"
-                                cond = rel.get("condition")
-                                if cond:
-                                    rel_label = f"{rel_label} [{cond}]"
+                                rel_label = self._format_relationship_label(rel)
                             else:
                                 rel_label = str(rel) or "RELATED"
                             parts.extend([f"--{rel_label}-->", node])
@@ -1366,9 +2383,15 @@ Question: {question}"""),
                     }
 
             # Primary path: entity-first retrieval.
-            # Skipped when retrieval_mode is 'rfge' or 'vector_only'.
+            # Skipped when retrieval_mode is 'rfge' or 'vector_only', and also
+            # for comparison questions — those need parallel branch vector retrieval,
+            # not graph traversal which tends to pollute context via shared entities.
+            _qtype = self.classify_question_type(query)
+            _skip_graph_for_comparison = (_qtype == "comparison")
+            if _skip_graph_for_comparison:
+                logging.info("Comparison question detected — bypassing entity-first graph traversal")
             entity_context = None
-            if self.retrieval_mode not in ("rfge", "vector_only"):
+            if self.retrieval_mode not in ("rfge", "vector_only") and not _skip_graph_for_comparison:
                 entity_context = self._entity_first_search(
                     graph,
                     query,
@@ -1377,6 +2400,7 @@ Question: {question}"""),
                     max_hops=max_hops,
                     question_id=question_id,
                     llm=llm,
+                    document_names=document_names,
                 )
             if entity_context and entity_context["chunks"]:
                 logging.info(
@@ -1385,11 +2409,14 @@ Question: {question}"""),
                     entity_context["entity_count"],
                     entity_context["relationship_count"],
                 )
-                if self.check_vector_index():
+                if self.allow_vector_augmentation and (
+                    self.check_vector_index() or self._first_stage_late_interaction_enabled()
+                ):
                     try:
-                        vec_ctx = self._vector_similarity_search(
+                        vec_ctx = self._semantic_similarity_search(
                             graph, query, document_names, similarity_threshold,
                             candidate_chunk_limit, kg_name, max_hops=max_hops, question_id=question_id,
+                            allow_first_stage_late_interaction=self.retrieval_mode != "entity_first",
                         )
                         if vec_ctx and vec_ctx.get("chunks"):
                             if self._graph_context_is_meaningful(query, entity_context):
@@ -1433,9 +2460,9 @@ Question: {question}"""),
 
             # Second path: retriever-first graph expansion.
             # Skipped when retrieval_mode is 'entity_first' or 'vector_only',
-            # or when use_rfge toggle is False.
+            # use_rfge toggle is False, or for comparison questions (same reason as above).
             rfge_ctx = None
-            if self.retrieval_mode not in ("entity_first", "vector_only") and self.use_rfge:
+            if self.retrieval_mode not in ("entity_first", "vector_only") and self.use_rfge and not _skip_graph_for_comparison:
                 rfge_ctx = self._retriever_first_graph_expansion(
                     graph,
                     query,
@@ -1443,6 +2470,7 @@ Question: {question}"""),
                     kg_name,
                     max_hops=max_hops,
                     question_id=question_id,
+                    document_names=document_names,
                 )
             if rfge_ctx and rfge_ctx.get("chunks"):
                 logging.info(
@@ -1462,27 +2490,63 @@ Question: {question}"""),
                     retrieval_sample_id=retrieval_sample_id,
                     kg_name=kg_name,
                 )
-            logging.info("RFGE found no chunks, falling back to pure vector search")
+            logging.info("RFGE found no chunks, falling back to semantic search")
 
             # Final fallback: pure vector similarity (no graph).
             # grounding_quality=0 signals to callers that structural metrics are unreliable.
-            has_vector_index = self.check_vector_index()
+            has_semantic_backend = self.check_vector_index() or self._first_stage_late_interaction_enabled()
 
-            if has_vector_index:
-                logging.info(f"Attempting vector similarity search (kg_name: {kg_name})")
+            if self.retrieval_mode == "entity_first" and not self.allow_vector_fallback:
+                return {
+                    "query": query,
+                    "chunks": [],
+                    "entities": {},
+                    "relationships": [],
+                    "graph_neighbors": {},
+                    "traversal_paths": [],
+                    "documents": [],
+                    "total_score": 0,
+                    "entity_count": 0,
+                    "relationship_count": 0,
+                    "search_method": "entity_first",
+                    "kg_name": kg_name,
+                    "seed_entity_count": 0,
+                    "grounding_quality": 0.0,
+                    "retrieval_route": "entity_first_empty",
+                    "route_reason": "strict_no_graph_signal",
+                    "diagnostics": {
+                        "rfge_fired": False,
+                        "retrieval_mode_config": self.retrieval_mode,
+                    },
+                }
+
+            if has_semantic_backend:
+                logging.info(f"Attempting semantic similarity search (kg_name: {kg_name})")
                 try:
-                    context = self._vector_similarity_search(
-                        graph,
-                        query,
-                        document_names,
-                        similarity_threshold,
-                        candidate_chunk_limit,
-                        kg_name,
-                        max_hops=max_hops,
-                        question_id=question_id,
-                    )
+                    if self.retrieval_mode == "entity_first" and self.check_vector_index():
+                        context = self._vector_similarity_search(
+                            graph,
+                            query,
+                            document_names,
+                            similarity_threshold,
+                            candidate_chunk_limit,
+                            kg_name,
+                            max_hops=max_hops,
+                            question_id=question_id,
+                        )
+                    else:
+                        context = self._semantic_similarity_search(
+                            graph,
+                            query,
+                            document_names,
+                            similarity_threshold,
+                            candidate_chunk_limit,
+                            kg_name,
+                            max_hops=max_hops,
+                            question_id=question_id,
+                        )
                     if not context["chunks"]:
-                        logging.warning("Vector search returned no results, falling back to text search")
+                        logging.warning("Semantic search returned no results, falling back to text search")
                         ctx = self._text_similarity_search(
                             graph,
                             query,
@@ -1493,7 +2557,7 @@ Question: {question}"""),
                             question_id=question_id,
                         )
                         ctx.setdefault("grounding_quality", 0.0)
-                        ctx.setdefault("retrieval_route", "vector_only")
+                        ctx.setdefault("retrieval_route", "semantic_only")
                         ctx.setdefault("route_reason", "no_graph_signal")
                         ctx.setdefault(
                             "diagnostics",
@@ -1514,7 +2578,7 @@ Question: {question}"""),
                             kg_name=kg_name,
                         )
                     context.setdefault("grounding_quality", 0.0)
-                    context.setdefault("retrieval_route", "vector_only")
+                    context.setdefault("retrieval_route", "semantic_only")
                     context.setdefault("route_reason", "no_graph_signal")
                     context.setdefault(
                         "diagnostics",
@@ -1535,7 +2599,7 @@ Question: {question}"""),
                         kg_name=kg_name,
                     )
                 except Exception as e:
-                    logging.error(f"Vector search failed: {e}, falling back to text search")
+                    logging.error(f"Semantic search failed: {e}, falling back to text search")
                     ctx = self._text_similarity_search(
                         graph,
                         query,
@@ -1546,7 +2610,7 @@ Question: {question}"""),
                         question_id=question_id,
                     )
                     ctx.setdefault("grounding_quality", 0.0)
-                    ctx.setdefault("retrieval_route", "vector_only")
+                    ctx.setdefault("retrieval_route", "semantic_only")
                     ctx.setdefault("route_reason", "no_graph_signal")
                     ctx.setdefault(
                         "diagnostics",
@@ -1615,6 +2679,54 @@ Question: {question}"""),
     # degrades with path length and lets downstream re-ranking favour closer support.
     _HOP_SCORE = {0: 1.0, 1: 0.8, 2: 0.6}
     _HOP_SCORE_DEFAULT = 0.5  # for hops > 2
+
+    # Maximum number of chunks that may come from any single source passage
+    # (same questionId + passageIndex).  Caps graph traversal from flooding
+    # the context with many chunks from one entity-dense but answer-irrelevant
+    # passage while crowding out the single chunk that holds the actual answer.
+    _MAX_CHUNKS_PER_PASSAGE: int = 2
+
+    # Minimum cosine similarity between a traversal-discovered chunk and the
+    # query before it is admitted to the context.  Chunks from entity neighbours
+    # that are topically unrelated to the question are dropped.  Applied only to
+    # hop-1+ chunks (seed chunks are always kept).
+    # Set to 0.0 to disable.
+    _TRAVERSAL_CHUNK_MIN_SIM: float = 0.30
+
+    @staticmethod
+    def _chunk_rank_key(chunk: Dict[str, Any]) -> Tuple[float, float, int]:
+        return (
+            -float(chunk.get("score", 0.0)),
+            -int(chunk.get("linked_entity_count", 0)),
+            int(chunk.get("position") or 0),
+        )
+
+    def _apply_per_passage_chunk_cap(self, chunks: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """Keep the highest-ranked chunks from each source passage."""
+        _passage_cap = self._MAX_CHUNKS_PER_PASSAGE
+        if _passage_cap <= 0:
+            return list(chunks)
+
+        ranked_chunks = sorted(chunks, key=self._chunk_rank_key)
+        passage_counts: Dict[str, int] = {}
+        capped_chunks: List[Dict[str, Any]] = []
+        for chunk in ranked_chunks:
+            qid_val = chunk.get("question_id") or ""
+            pidx_val = chunk.get("passage_index")
+            if pidx_val is not None and qid_val:
+                pkey = f"{qid_val}::p{pidx_val}"
+            else:
+                pkey = chunk.get("chunk_id") or id(chunk)
+            count = passage_counts.get(pkey, 0)
+            if count < _passage_cap:
+                capped_chunks.append(chunk)
+                passage_counts[pkey] = count + 1
+            else:
+                logging.debug(
+                    "Entity-first: capped passage %s at %d chunks",
+                    pkey, _passage_cap,
+                )
+        return capped_chunks or ranked_chunks
 
     # Personalized PageRank parameters.
     # alpha: restart probability (fraction of walk mass that teleports back to seeds each step).
@@ -1688,16 +2800,23 @@ Question: {question}"""),
         """
         return f"""
         MATCH (e:__Entity__)
-        WITH e, toLower(coalesce(e.name, '')) AS entity_name
-        WITH e, entity_name,
+        WITH e,
+             toLower(coalesce(e.name, '')) AS entity_name,
+             toLower(coalesce(e.source_title, '')) AS source_title_lower
+        WITH e, entity_name, source_title_lower,
              [tok IN $query_tokens WHERE entity_name CONTAINS tok] AS matched_tokens,
              CASE WHEN $query_text CONTAINS entity_name THEN 1 ELSE 0 END AS exact_in_query,
-             CASE WHEN entity_name CONTAINS $query_text THEN 1 ELSE 0 END AS query_in_entity
+             CASE WHEN entity_name CONTAINS $query_text THEN 1 ELSE 0 END AS query_in_entity,
+             CASE WHEN size(source_title_lower) >= 4
+                       AND ($query_text CONTAINS source_title_lower
+                            OR source_title_lower CONTAINS $query_text)
+                  THEN 1 ELSE 0 END AS title_match
         WHERE size(entity_name) >= 4
           AND (
             exact_in_query = 1
             OR query_in_entity = 1
             OR size(matched_tokens) >= 2
+            OR title_match = 1
             OR ANY(alias IN coalesce(e.all_names, [])
                    WHERE $query_text CONTAINS toLower(alias)
                       OR toLower(alias) CONTAINS $query_text)
@@ -1715,6 +2834,7 @@ Question: {question}"""),
         ORDER BY exact_in_query DESC,
                  query_in_entity DESC,
                  token_overlap DESC,
+                 title_match DESC,
                  size(entity_name) DESC
         LIMIT $entity_lookup_limit
         """
@@ -1725,6 +2845,7 @@ Question: {question}"""),
         entity_ids: List[str],
         kg_name: str = None,
         question_id: str = None,
+        document_names: List[str] = None,
     ) -> List[Tuple[str, str]]:
         """
         Return all directed edges (src_id, tgt_id) between a set of entity IDs.
@@ -1735,17 +2856,31 @@ Question: {question}"""),
         """
         if not entity_ids:
             return []
-        params: Dict[str, Any] = {"entity_ids": entity_ids}
-        kg_filter = ""
-        if kg_name:
-            params["kg_name"] = kg_name
-            kg_filter = """
-            AND EXISTS {
-                MATCH (a)<-[:HAS_ENTITY]-(c:Chunk)-[:PART_OF]->(d:Document {kgName: $kg_name})
-            }"""
+        params: Dict[str, Any] = {
+            "entity_ids": entity_ids,
+            "kg_name": kg_name,
+            "question_id": question_id,
+            "document_names": document_names,
+        }
+        source_support = self._question_local_entity_support_clause(
+            "a",
+            kg_name=kg_name,
+            question_id=question_id,
+            document_names=document_names,
+        )
+        target_support = self._question_local_entity_support_clause(
+            "b",
+            kg_name=kg_name,
+            question_id=question_id,
+            document_names=document_names,
+        )
+        local_filters = ""
+        if kg_name or question_id or document_names:
+            local_filters = f"""
+                  AND {source_support}
+                  AND {target_support}"""
         qid_filter = ""
         if question_id:
-            params["question_id"] = question_id
             qid_filter = """
             AND ANY(pid IN coalesce(r.questionIds, []) WHERE pid = $question_id)"""
         try:
@@ -1757,14 +2892,14 @@ Question: {question}"""),
                   AND NOT type(r) IN ['HAS_ENTITY', 'FROM_CHUNK', 'PART_OF',
                                       'MENTIONED_IN', 'MENTIONS', 'QUALIFIES']
                   AND coalesce(r.confidence, 1.0) >= 0.4
-                  {kg_filter}
+                  {local_filters}
                   {qid_filter}
-                RETURN a.id AS src, b.id AS tgt
+                RETURN a.id AS src, b.id AS tgt, coalesce(r.confidence, 1.0) AS conf
                 LIMIT 2000
                 """,
                 params,
             ) or []
-            return [(row["src"], row["tgt"]) for row in rows if row["src"] and row["tgt"]]
+            return [(row["src"], row["tgt"], float(row["conf"])) for row in rows if row["src"] and row["tgt"]]
         except Exception as exc:
             logging.debug("_fetch_subgraph_edges failed (%s); PPR will fall back to hop scores.", exc)
             return []
@@ -1773,15 +2908,15 @@ Question: {question}"""),
         self,
         seed_ids: List[str],
         all_entity_ids: List[str],
-        edges: List[Tuple[str, str]],
+        edges: List[Tuple],
     ) -> Dict[str, float]:
         """
-        Approximate Personalized PageRank via power iteration.
+        Approximate Personalized PageRank via confidence-weighted power iteration.
 
-        Models the random surfer: at each step, with probability (1-alpha) teleport
-        back to a seed entity (uniform over seeds), with probability alpha follow a
-        uniformly-random edge.  After _PPR_STEPS iterations the stationary
-        distribution is a good proxy for entity relevance to the query.
+        Each edge carries a confidence weight (0.4–1.0 from the KG).  The random
+        surfer splits probability mass across neighbours proportional to edge weight
+        rather than uniformly, so high-confidence relation paths receive stronger
+        activation than low-confidence ones.
 
         Returns {entity_id: ppr_score}.  Scores sum to 1.0 over all entities.
         """
@@ -1791,14 +2926,15 @@ Question: {question}"""),
 
         idx = {eid: i for i, eid in enumerate(all_entity_ids)}
 
-        # Build undirected adjacency lists (ignore edge direction — KG edges are
-        # domain relations; going either way is meaningful for the random walk).
-        adj: List[Set[int]] = [set() for _ in range(n)]
-        for src, tgt in edges:
+        # Build weighted undirected adjacency: adj[i] = {j: weight, ...}
+        adj: List[Dict[int, float]] = [{} for _ in range(n)]
+        for edge in edges:
+            src, tgt = edge[0], edge[1]
+            weight = float(edge[2]) if len(edge) > 2 else 1.0
             i, j = idx.get(src), idx.get(tgt)
             if i is not None and j is not None and i != j:
-                adj[i].add(j)
-                adj[j].add(i)
+                adj[i][j] = max(adj[i].get(j, 0.0), weight)
+                adj[j][i] = max(adj[j].get(i, 0.0), weight)
 
         seed_indices = [idx[s] for s in seed_ids if s in idx]
         e = np.zeros(n)
@@ -1812,10 +2948,9 @@ Question: {question}"""),
             new_v = np.zeros(n)
             for i in range(n):
                 if adj[i]:
-                    neighbors = tuple(adj[i])
-                    share = v[i] / len(neighbors)
-                    for j in neighbors:
-                        new_v[j] += share
+                    total_weight = sum(adj[i].values())
+                    for j, w in adj[i].items():
+                        new_v[j] += v[i] * (w / total_weight)
                 else:
                     # Dangling nodes redistribute through the restart distribution
                     # so probability mass is preserved and scores stay comparable
@@ -1878,7 +3013,7 @@ Question: {question}"""),
         self._entity_extraction_cache[cache_key] = entities
         return entities
 
-    def _entity_first_search(self, graph, query: str, max_chunks: int = 20, kg_name: str = None, max_hops: int = 2, question_id: str = None, llm=None) -> Optional[Dict[str, Any]]:
+    def _entity_first_search(self, graph, query: str, max_chunks: int = 20, kg_name: str = None, max_hops: int = 2, question_id: str = None, llm=None, document_names: List[str] = None) -> Optional[Dict[str, Any]]:
         """
         Entity-first retrieval: find KG entities whose names appear in the question,
         walk the graph from those seeds, then retrieve the chunks those entities came from.
@@ -1901,6 +3036,7 @@ Question: {question}"""),
                 "e",
                 kg_name=kg_name,
                 question_id=question_id,
+                document_names=document_names,
             )
             kg_scope_exist = f"\n                  AND {entity_support_scope}"
 
@@ -1952,6 +3088,14 @@ Question: {question}"""),
                            END AS weighted_score
                     ORDER BY weighted_score DESC
                     """
+                    ann_scope_params: Dict[str, Any] = {
+                        "kg_name": kg_name,
+                        "use_node_specificity": self.use_node_specificity,
+                    }
+                    if question_id:
+                        ann_scope_params["question_id"] = question_id
+                    if document_names:
+                        ann_scope_params["document_names"] = document_names
 
                     # --- Per-entity embedding pass (HippoRAG-style) ---
                     query_entities: List[str] = []
@@ -1965,8 +3109,11 @@ Question: {question}"""),
                             entity_vec = self._generate_query_embedding(entity_mention)
                             rows = graph.query(
                                 emb_lookup_query,
-                                {"query_vector": entity_vec, "kg_name": kg_name, "ann_threshold": 0.72,
-                                 "use_node_specificity": self.use_node_specificity},
+                                {
+                                    **ann_scope_params,
+                                    "query_vector": entity_vec,
+                                    "ann_threshold": 0.72,
+                                },
                             ) or []
                             for row in rows:
                                 row = dict(row)
@@ -1982,8 +3129,11 @@ Question: {question}"""),
                         # Fallback: embed the full query (original behaviour)
                         emb_matched = graph.query(
                             emb_lookup_query,
-                            {"query_vector": query_embedding, "kg_name": kg_name, "ann_threshold": 0.55,
-                             "use_node_specificity": self.use_node_specificity},
+                            {
+                                **ann_scope_params,
+                                "query_vector": query_embedding,
+                                "ann_threshold": 0.55,
+                            },
                         ) or []
             except Exception as _emb_err:
                 logging.warning("Embedding entity lookup skipped: %s", _emb_err)
@@ -1994,6 +3144,8 @@ Question: {question}"""),
                 params["kg_name"] = kg_name
             if question_id:
                 params["question_id"] = question_id
+            if document_names:
+                params["document_names"] = document_names
 
             # Build a conservative content-token set for symbolic lookup.
             # Requiring either an exact phrase or at least two content-token overlaps
@@ -2114,14 +3266,28 @@ Question: {question}"""),
             if not entities:
                 return None
 
-            # Step 3: walk the graph from seed entities to discover neighbors
+            # Step 3: walk the graph from seed entities to discover neighbors.
+            # RoG-style: plan which relation types are query-relevant before
+            # expanding, so traversal is constrained to semantically useful edges.
             seed_ids = list(entities.keys())
+            allowed_rel_types = None
+            if self.use_rog_path_planning:
+                allowed_rel_types = self._plan_relation_paths(
+                    graph,
+                    seed_ids,
+                    query,
+                    kg_name=kg_name,
+                    question_id=question_id,
+                    document_names=document_names,
+                )
             expansion = self._expand_entities_via_graph(
                 graph,
                 seed_ids,
                 kg_name=kg_name,
                 max_hops=max_hops,
                 question_id=question_id,
+                document_names=document_names,
+                allowed_rel_types=allowed_rel_types,
             )
             for nid, ninfo in expansion["neighbors"].items():
                 if nid not in entities:
@@ -2147,6 +3313,9 @@ Question: {question}"""),
             if kg_name:
                 kg_chunk_filter = "AND d.kgName = $kg_name"
                 chunk_params["kg_name"] = kg_name
+            if document_names:
+                kg_chunk_filter += " AND d.fileName IN $document_names"
+                chunk_params["document_names"] = document_names
             # Scope to the current question's passages when question_id is provided.
             # This prevents cross-question entity contamination on datasets where each
             # question has its own closed passage set (source_document / retrieval_bundle).
@@ -2203,7 +3372,11 @@ Question: {question}"""),
             subgraph_edges: List[Tuple[str, str]] = []
             if self.use_ppr_scoring and seed_ids_for_ppr and len(all_entity_ids_for_ppr) > 1:
                 subgraph_edges = self._fetch_subgraph_edges(
-                    graph, all_entity_ids_for_ppr, kg_name=kg_name, question_id=question_id
+                    graph,
+                    all_entity_ids_for_ppr,
+                    kg_name=kg_name,
+                    question_id=question_id,
+                    document_names=document_names,
                 )
                 if subgraph_edges:
                     ppr_scores = self._ppr_entity_scores(
@@ -2272,15 +3445,77 @@ Question: {question}"""),
                 })
                 documents.add(row["document"])
 
+            # --- Traversal relevance gate ---
+            # Drop hop-1+ chunks whose text is not similar enough to the query.
+            # This prevents entity neighbours from flooding the context with
+            # passages that share an entity name but are topically off-target
+            # (e.g. a historical "Vicente García González" pulled in because the
+            # graph connected him to "Vicente García" the musician by name).
+            # Seed chunks (min_hop == 0) are always kept.
+            # Embeddings are fetched in a single batched query to avoid N+1 overhead.
+            _min_sim = self._TRAVERSAL_CHUNK_MIN_SIM
+            if _min_sim > 0.0 and query_embedding:
+                import numpy as np
+                qvec = np.array(query_embedding, dtype=float)
+                qnorm = np.linalg.norm(qvec)
+                # Collect element IDs of hop-1+ chunks that need similarity checks
+                traversal_eids = [
+                    c["chunk_element_id"]
+                    for c in chunks
+                    if c.get("min_hop", 1) > 0 and c.get("chunk_element_id")
+                ]
+                eid_to_sim: Dict[str, float] = {}
+                if traversal_eids and qnorm > 0:
+                    try:
+                        _emb_rows = graph.query(
+                            "MATCH (c:Chunk) WHERE elementId(c) IN $eids "
+                            "RETURN elementId(c) AS eid, c.embedding AS emb",
+                            {"eids": traversal_eids},
+                        )
+                        for _row in (_emb_rows or []):
+                            _emb = _row.get("emb")
+                            if not _emb:
+                                continue
+                            cvec = np.array(_emb, dtype=float)
+                            cnorm = np.linalg.norm(cvec)
+                            sim = float(np.dot(qvec, cvec) / (qnorm * cnorm)) if cnorm > 0 else 0.0
+                            eid_to_sim[_row["eid"]] = sim
+                    except Exception as _ge:
+                        logging.debug("Traversal relevance gate: batch embedding fetch failed: %s", _ge)
+                filtered_chunks = []
+                for c in chunks:
+                    if c.get("min_hop", 1) == 0:
+                        filtered_chunks.append(c)
+                        continue
+                    eid = c.get("chunk_element_id")
+                    sim = eid_to_sim.get(eid)
+                    if sim is None or sim >= _min_sim:
+                        # Keep if similarity unknown (no embedding stored) or above threshold
+                        filtered_chunks.append(c)
+                    else:
+                        logging.debug(
+                            "Entity-first: dropped traversal chunk (passage_index=%s, sim=%.3f < %.3f)",
+                            c.get("passage_index"), sim, _min_sim,
+                        )
+                n_before = len(chunks)
+                if filtered_chunks:
+                    chunks = filtered_chunks
+                logging.info(
+                    "Traversal relevance gate: kept %d/%d chunks (min_sim=%.2f)",
+                    len(chunks), n_before, _min_sim,
+                )
+
+            # --- Per-passage chunk cap ---
+            # Limit how many chunks from any single source passage (same
+            # questionId + passageIndex) enter the context.  A single passage
+            # may produce many entity-linked chunks; taking them all starves
+            # other passages that hold complementary evidence.
+            if self._MAX_CHUNKS_PER_PASSAGE > 0:
+                chunks = self._apply_per_passage_chunk_cap(chunks)
+
             # Sort by hop score descending so the LLM sees the most directly supported
             # chunks first (mirrors C2RAG's constraint-aligned evidence ordering).
-            chunks.sort(
-                key=lambda c: (
-                    -float(c["score"]),
-                    -int(c.get("linked_entity_count", 0)),
-                    int(c.get("position") or 0),
-                )
-            )
+            chunks.sort(key=self._chunk_rank_key)
             chunks = chunks[:max_chunks]
 
             # Step 5: relationships between all entities
@@ -2291,9 +3526,14 @@ Question: {question}"""),
                     all_entity_ids,
                     kg_name=kg_name,
                     question_id=question_id,
+                    document_names=document_names,
                 )
                 for rel in rel_results:
-                    rel_key = f"{rel['source']}-{rel['relationship_type']}-{rel['target']}"
+                    rel_key = (
+                        rel.get("relationship_element_id")
+                        or f"{rel['source']}-{rel['relationship_type']}-{rel['target']}"
+                        f"-negated={bool(rel.get('negated', False))}"
+                    )
                     relationships.append({
                         "key": rel_key,
                         "source": rel["source"],
@@ -2302,6 +3542,13 @@ Question: {question}"""),
                         "target_element_id": rel["target_element_id"],
                         "type": rel["relationship_type"],
                         "element_id": rel["relationship_element_id"],
+                        "negated": bool(rel.get("negated", False)),
+                        "condition": rel.get("condition"),
+                        "quantitative": rel.get("quantitative"),
+                        "confidence": rel.get("confidence"),
+                        "question_ids": rel.get("question_ids") or [],
+                        "passage_keys": rel.get("passage_keys") or [],
+                        "provenance_positions": rel.get("provenance_positions") or [],
                     })
 
             return {
@@ -2347,6 +3594,7 @@ Question: {question}"""),
         kg_name: str = None,
         max_hops: int = 2,
         question_id: str = None,
+        document_names: List[str] = None,
     ) -> Optional[Dict[str, Any]]:
         """
         Retriever-first graph expansion (RFGE).
@@ -2367,10 +3615,10 @@ Question: {question}"""),
         """
         try:
             # Step 1: vector retrieval — overfetch so we have enough seeds.
-            vec_ctx = self._vector_similarity_search(
+            vec_ctx = self._semantic_similarity_search(
                 graph,
                 query,
-                document_names=None,
+                document_names=document_names,
                 similarity_threshold=self._RFGE_VECTOR_THRESHOLD,
                 max_chunks=min(max_chunks * 3, 60),
                 kg_name=kg_name,
@@ -2412,6 +3660,7 @@ Question: {question}"""),
                 kg_name=kg_name,
                 max_hops=max_hops,
                 question_id=question_id,
+                document_names=document_names,
             )
 
             # Build the combined entity pool: passage seeds + graph neighbors.
@@ -2424,7 +3673,11 @@ Question: {question}"""),
             # Step 4: PPR scoring over the full entity pool.
             all_eid_list = list(all_entities.keys())
             subgraph_edges = self._fetch_subgraph_edges(
-                graph, all_eid_list, kg_name=kg_name, question_id=question_id
+                graph,
+                all_eid_list,
+                kg_name=kg_name,
+                question_id=question_id,
+                document_names=document_names,
             )
             ppr_scores: Dict[str, float] = {}
             max_ppr = 0.0
@@ -2464,6 +3717,9 @@ Question: {question}"""),
                 if kg_name:
                     scope += " AND d.kgName = $kg_name"
                     extra_params["kg_name"] = kg_name
+                if document_names:
+                    scope += " AND d.fileName IN $document_names"
+                    extra_params["document_names"] = document_names
                 if question_id:
                     scope += " AND c.questionId = $question_id"
                     extra_params["question_id"] = question_id
@@ -2517,17 +3773,32 @@ Question: {question}"""),
             relationships = []
             if all_eid_list:
                 rel_results = self._fetch_relationships_for_entity_ids(
-                    graph, all_eid_list[:40], kg_name=kg_name, question_id=question_id
+                    graph,
+                    all_eid_list[:40],
+                    kg_name=kg_name,
+                    question_id=question_id,
+                    document_names=document_names,
                 )
                 for rel in rel_results:
                     relationships.append({
-                        "key": f"{rel['source']}-{rel['relationship_type']}-{rel['target']}",
+                        "key": (
+                            rel.get("relationship_element_id")
+                            or f"{rel['source']}-{rel['relationship_type']}-{rel['target']}"
+                            f"-negated={bool(rel.get('negated', False))}"
+                        ),
                         "source": rel["source"],
                         "source_element_id": rel["source_element_id"],
                         "target": rel["target"],
                         "target_element_id": rel["target_element_id"],
                         "type": rel["relationship_type"],
                         "element_id": rel["relationship_element_id"],
+                        "negated": bool(rel.get("negated", False)),
+                        "condition": rel.get("condition"),
+                        "quantitative": rel.get("quantitative"),
+                        "confidence": rel.get("confidence"),
+                        "question_ids": rel.get("question_ids") or [],
+                        "passage_keys": rel.get("passage_keys") or [],
+                        "provenance_positions": rel.get("provenance_positions") or [],
                     })
 
             logging.info(
@@ -2687,6 +3958,7 @@ Question: {question}"""),
                 kg_name=kg_name,
                 max_hops=max_hops,
                 question_id=question_id,
+                document_names=document_names,
             )
             context["graph_neighbors"] = expansion["neighbors"]
             context["traversal_paths"] = expansion["paths"]
@@ -2713,9 +3985,14 @@ Question: {question}"""),
                     all_entity_ids,
                     kg_name=kg_name,
                     question_id=question_id,
+                    document_names=document_names,
                 )
                 for rel_result in relationship_results:
-                    rel_key = f"{rel_result['source']}-{rel_result['relationship_type']}-{rel_result['target']}"
+                    rel_key = (
+                        rel_result.get("relationship_element_id")
+                        or f"{rel_result['source']}-{rel_result['relationship_type']}-{rel_result['target']}"
+                        f"-negated={bool(rel_result.get('negated', False))}"
+                    )
                     if not any(r.get('key') == rel_key for r in context["relationships"]):
                         context["relationships"].append({
                             "key": rel_key,
@@ -2725,6 +4002,13 @@ Question: {question}"""),
                             "target_element_id": rel_result["target_element_id"],
                             "type": rel_result["relationship_type"],
                             "element_id": rel_result["relationship_element_id"],
+                            "negated": bool(rel_result.get("negated", False)),
+                            "condition": rel_result.get("condition"),
+                            "quantitative": rel_result.get("quantitative"),
+                            "confidence": rel_result.get("confidence"),
+                            "question_ids": rel_result.get("question_ids") or [],
+                            "passage_keys": rel_result.get("passage_keys") or [],
+                            "provenance_positions": rel_result.get("provenance_positions") or [],
                         })
 
             context["documents"] = list(context["documents"])
@@ -2762,12 +4046,49 @@ Question: {question}"""),
         relationships = context.get("relationships", [])
         entities = context.get("entities", {})
 
+        def _chunk_passage_key(chunk: Dict[str, Any]) -> Optional[str]:
+            qid = chunk.get("question_id")
+            if qid is None or not str(qid).strip():
+                return None
+            return f"{qid}::p{chunk.get('passage_index', -1)}"
+
+        def _chunk_supports_path(chunk: Dict[str, Any], path_info: Dict[str, Any]) -> bool:
+            chunk_positions = set()
+            pos = chunk.get("position")
+            if isinstance(pos, (int, float)):
+                chunk_positions.add(int(pos))
+            path_positions = {
+                int(p)
+                for p in (path_info.get("provenance_positions") or [])
+                if isinstance(p, (int, float))
+            }
+            if path_positions:
+                return bool(chunk_positions & path_positions)
+
+            chunk_passage_key = _chunk_passage_key(chunk)
+            path_passage_keys = {
+                str(key)
+                for key in (path_info.get("passage_keys") or [])
+                if str(key).strip()
+            }
+            if path_passage_keys and chunk_passage_key is not None:
+                return chunk_passage_key in path_passage_keys
+
+            chunk_entity_ids = set(chunk.get("linked_entity_ids") or [])
+            path_nodes = set(path_info.get("node_ids") or [])
+            if not chunk_entity_ids or not path_nodes:
+                return False
+
+            overlap = chunk_entity_ids & path_nodes
+            # When provenance metadata is absent, require at least two path
+            # entities for a chunk to count as chain support. This avoids
+            # treating a passage that merely mentions one endpoint as evidence
+            # for the whole relation/path.
+            required_overlap = min(2, len(path_nodes))
+            return len(overlap) >= required_overlap
+
         # Index chunks by their linked entities for fast lookup.
         chunk_by_id: Dict[str, Any] = {c["chunk_id"]: c for c in chunks if c.get("chunk_id")}
-        chunk_entity_sets: Dict[str, set] = {
-            c["chunk_id"]: set(c.get("linked_entity_ids") or [])
-            for c in chunks if c.get("chunk_id")
-        }
 
         # Build a unified path list from both traversal paths and direct relationships.
         # Each entry: {path_str, node_ids, hops}
@@ -2777,6 +4098,8 @@ Question: {question}"""),
                 "path_str": p.get("path", ""),
                 "node_ids": set(p.get("node_ids") or []),
                 "hops": p.get("hops", 1),
+                "provenance_positions": list(p.get("provenance_positions") or []),
+                "passage_keys": list(p.get("passage_keys") or []),
             })
         entity_name_lookup = {eid: (info.get("name") or info.get("description") or eid)
                               for eid, info in entities.items()}
@@ -2784,10 +4107,13 @@ Question: {question}"""),
         for rel in relationships[:MAX_REL_PATHS]:
             src = entity_name_lookup.get(rel["source"], rel["source"])[:50]
             tgt = entity_name_lookup.get(rel["target"], rel["target"])[:50]
+            rel_label = self._format_relationship_label(rel)
             all_paths.append({
-                "path_str": f"{src} --{rel.get('type','RELATED')}--> {tgt}",
+                "path_str": f"{src} --{rel_label}--> {tgt}",
                 "node_ids": {rel["source"], rel["target"]},
                 "hops": 1,
+                "provenance_positions": list(rel.get("provenance_positions") or []),
+                "passage_keys": list(rel.get("passage_keys") or []),
             })
 
         # Associate each chunk with up to two supporting chains so shared bridge
@@ -2795,20 +4121,23 @@ Question: {question}"""),
         chunk_chain_count: Dict[str, int] = {}
         _MAX_CHAINS_PER_CHUNK = 2
         chain_blocks: List[str] = []
+        ungrounded_paths: List[str] = []  # paths with no supporting passage
         for chain_idx, path_info in enumerate(all_paths, 1):
             path_str = path_info["path_str"]
             if not path_str:
                 continue
-            path_nodes = path_info["node_ids"]
             supporting: List[Any] = []
-            for cid, ent_set in chunk_entity_sets.items():
-                if chunk_chain_count.get(cid, 0) < _MAX_CHAINS_PER_CHUNK and ent_set & path_nodes:
-                    supporting.append(chunk_by_id[cid])
+            for cid, chunk in chunk_by_id.items():
+                if chunk_chain_count.get(cid, 0) >= _MAX_CHAINS_PER_CHUNK:
+                    continue
+                if _chunk_supports_path(chunk, path_info):
+                    supporting.append(chunk)
             if not supporting:
-                # Still emit the path even without direct passage support.
-                chain_blocks.append(
-                    f"Chain {chain_idx} ({path_info['hops']} hop{'s' if path_info['hops'] != 1 else ''}): "
-                    f"{path_str}\n  (no direct passage support retrieved)"
+                # Collect passage-unsupported paths separately; they are emitted
+                # in a clearly-labelled structural hints section so the LLM knows
+                # not to treat them as confirmed textual evidence.
+                ungrounded_paths.append(
+                    f"  {path_info['hops']} hop: {path_str}"
                 )
             else:
                 lines = [
@@ -2833,10 +4162,32 @@ Question: {question}"""),
             sections.append("REASONING CHAINS:\n" + "\n\n".join(chain_blocks))
         if additional:
             sections.append("ADDITIONAL PASSAGES:\n" + "\n\n".join(additional))
+        if ungrounded_paths:
+            # Clearly labelled so the LLM treats these as weak structural hints
+            # only, not as textual evidence.  The prompt instructs the LLM to
+            # ignore this section if passage evidence is available.
+            sections.append(
+                "STRUCTURAL HINTS (graph paths — no passage retrieved; "
+                "use only if no passage evidence addresses the question):\n"
+                + "\n".join(ungrounded_paths)
+            )
         if not sections:
             sections.append("(No evidence retrieved)")
 
         return "\n\n".join(sections)
+
+    def _build_passages_only_evidence_block(self, context: Dict[str, Any]) -> str:
+        chunks = context.get("chunks", []) or []
+        if not chunks:
+            return "(No passages retrieved)"
+        lines: List[str] = []
+        for idx, chunk in enumerate(chunks, 1):
+            text = (chunk.get("text") or "").strip()
+            if text:
+                lines.append(f"[{idx}] {text}")
+        if not lines:
+            return "(No passages retrieved)"
+        return "PASSAGES:\n" + "\n\n".join(lines)
 
     def format_context_for_llm(self, context: Dict[str, Any]) -> tuple:
         """
@@ -2873,7 +4224,7 @@ Question: {question}"""),
         for rel in context.get("relationships", [])[:MAX_RELATIONSHIPS]:
             src_name = entity_name_lookup.get(rel["source"], rel["source"])[:50]
             tgt_name = entity_name_lookup.get(rel["target"], rel["target"])[:50]
-            rel_type = rel.get("type", "CONNECTED_TO")
+            rel_type = self._format_relationship_label(rel)
             path_lines.append(f"  {src_name} --{rel_type}--> {tgt_name}")
         formatted_paths = "\n".join(path_lines) if path_lines else "(No graph relationships found)"
 
@@ -2945,9 +4296,12 @@ Question: {question}"""),
         context: Dict[str, Any],
         answer_instructions: str = "",
         extra_context_texts: Optional[List[str]] = None,
+        kg_name: Optional[str] = None,
     ) -> str:
         evidence_block, formatted_entities, formatted_paths = self.format_context_for_llm(context)
-        if not self.use_evidence_block:
+        if self._should_use_passage_only_answer_prompt(kg_name):
+            evidence_block = self._build_passages_only_evidence_block(context)
+        elif not self.use_evidence_block:
             # Flat-format fallback for ablation: just concatenated chunk texts,
             # optionally followed by graph paths for lightweight structure.
             chunk_texts = []
@@ -3160,18 +4514,20 @@ Question: {question}"""),
                 max_hops=iterative_subquestion_max_hops,
                 question_id=question_id,
                 llm=llm,
+                document_names=document_names,
             )
 
             # Hybrid retrieval for multi-hop KG-RAG:
             # even when entity-first finds chunks, we still probe vector search so
             # comparison questions and weakly grounded hops can recover attribute-
             # bearing passages the graph path missed.
-            if hop_ctx and hop_ctx.get("chunks") and self.check_vector_index():
+            if hop_ctx and hop_ctx.get("chunks") and (self.check_vector_index() or self._first_stage_late_interaction_enabled()):
                 try:
-                    vec_ctx = self._vector_similarity_search(
+                    vec_ctx = self._semantic_similarity_search(
                         graph, retrieval_query, document_names, similarity_threshold,
                         hop_retrieval_k, kg_name, max_hops=iterative_subquestion_max_hops,
                         question_id=question_id,
+                        allow_first_stage_late_interaction=self.retrieval_mode != "entity_first",
                     )
                     if vec_ctx and vec_ctx.get("chunks"):
                         secondary_limit = max(2, min(self._HYBRID_SUPPLEMENT_LIMIT, hop_retrieval_k // 2 or 1))
@@ -3202,13 +4558,14 @@ Question: {question}"""),
             # Fallback: go straight to vector search, bypassing get_rag_context so we
             # don't re-run _entity_first_search a second time for the same sub-question.
             if not hop_ctx or not hop_ctx.get("chunks"):
-                has_vec = self.check_vector_index()
+                has_vec = self.check_vector_index() or self._first_stage_late_interaction_enabled()
                 try:
                     if has_vec:
-                        hop_ctx = self._vector_similarity_search(
+                        hop_ctx = self._semantic_similarity_search(
                             graph, retrieval_query, document_names, similarity_threshold,
                             hop_retrieval_k, kg_name, max_hops=iterative_subquestion_max_hops,
                             question_id=question_id,
+                            allow_first_stage_late_interaction=self.retrieval_mode != "entity_first",
                         )
                     if not hop_ctx or not hop_ctx.get("chunks"):
                         hop_ctx = self._text_similarity_search(
@@ -3298,6 +4655,25 @@ Question: {question}"""),
                             current_sub_qs[hop_idx + 1] = next_q.replace("[BRIDGE]", raw_bridge)
                         else:
                             current_sub_qs[hop_idx + 1] = f"{next_q} (context: {raw_bridge})"
+
+                        # Entity re-seeding: extract named entities from the bridge
+                        # answer and prepend them to the next sub-question so that
+                        # _entity_first_search can seed the graph walk from the
+                        # intermediate entity rather than re-embedding the full text.
+                        if llm:
+                            try:
+                                bridge_entities = self._extract_query_entities(raw_bridge, llm)
+                                if bridge_entities:
+                                    entity_hint = ", ".join(bridge_entities[:3])
+                                    current_sub_qs[hop_idx + 1] = (
+                                        f"{entity_hint}: {current_sub_qs[hop_idx + 1]}"
+                                    )
+                                    logging.info(
+                                        "Hop %d entity re-seed: %s",
+                                        hop_idx + 1, entity_hint,
+                                    )
+                            except Exception as _ee:
+                                logging.debug("Bridge entity extraction failed: %s", _ee)
                     else:
                         logging.info(
                             "Bridge answer for hop %d rejected (empty/unhelpful): %r",
@@ -3391,6 +4767,14 @@ Question: {question}"""),
             "relationship_count": len(merged_relationships),
             "search_method": "iterative_hop",
             "kg_name": kg_name,
+            "retrieval_route": "iterative_hop",
+            "route_reason": "success",
+            "diagnostics": {
+                "rfge_fired": False,
+                "retrieval_mode_config": self.retrieval_mode,
+                "subquestion_count": len(sub_questions),
+                "active_hop_count": len(active_hops),
+            },
             # Anchored to hop-0 question-entity matches only, not bridge-induced later hops
             "seed_entity_count": _hop0_seed_count,
             "grounding_quality": _hop0_grounding,
@@ -3483,6 +4867,77 @@ Question: {question}"""),
                     llm=llm,
                 )
 
+            if self._should_run_query_fusion(question, context, max_hops=max_hops):
+                variant_queries = self._generate_query_variants(question, llm, max_hops=max_hops)
+                variant_contexts: List[Dict[str, Any]] = [context]
+                for variant_query in variant_queries:
+                    try:
+                        alt_context = self.get_rag_context(
+                            variant_query,
+                            document_names=document_names,
+                            similarity_threshold=similarity_threshold,
+                            max_chunks=max_chunks,
+                            kg_name=kg_name,
+                            max_hops=max_hops,
+                            question_id=question_id,
+                            retrieval_temperature=retrieval_temperature,
+                            retrieval_shortlist_factor=retrieval_shortlist_factor,
+                            retrieval_sample_id=retrieval_sample_id,
+                            llm=llm,
+                        )
+                    except Exception as fusion_exc:
+                        logging.debug(
+                            "Query-fusion retrieval failed for variant %r (non-fatal): %s",
+                            variant_query,
+                            fusion_exc,
+                        )
+                        continue
+                    if alt_context and alt_context.get("chunks"):
+                        variant_contexts.append(alt_context)
+                fused_context = self._fuse_contexts_with_rrf(
+                    query=question,
+                    contexts=variant_contexts,
+                    max_chunks=max_chunks,
+                    kg_name=kg_name,
+                    retrieval_temperature=retrieval_temperature,
+                    retrieval_shortlist_factor=retrieval_shortlist_factor,
+                    retrieval_sample_id=retrieval_sample_id,
+                    search_method="query_fusion_" + str(context.get("search_method") or "hybrid"),
+                )
+                if fused_context and fused_context.get("chunks"):
+                    context = fused_context
+
+            if context.get("chunks"):
+                try:
+                    context = self._append_adjacent_chunks_to_context(
+                        self._create_neo4j_connection(),
+                        context,
+                        kg_name=kg_name,
+                        question_id=question_id,
+                        document_names=document_names,
+                        max_adjacent=max_chunks,
+                    )
+                except Exception as adj_err:
+                    logging.debug("Enhanced adjacent recovery skipped (non-fatal): %s", adj_err)
+
+            li_chunks, li_meta = late_interaction_rescore_chunks_for_query(
+                question,
+                context.get("chunks", []),
+                max_chunks=max_chunks,
+            )
+            if li_chunks:
+                context["chunks"] = li_chunks
+            context["late_interaction"] = li_meta
+
+            reranked_chunks, reranker_meta = rerank_chunks_for_query(
+                question,
+                context.get("chunks", []),
+                max_chunks=max_chunks,
+            )
+            if reranked_chunks:
+                context["chunks"] = reranked_chunks
+            context["reranker"] = reranker_meta
+
             logging.info(f"Got context with {context.get('entity_count', 0)} entities")
 
             if not context["chunks"] and not extra_context_texts:
@@ -3504,10 +4959,11 @@ Question: {question}"""),
                 context=context,
                 answer_instructions=answer_instructions,
                 extra_context_texts=extra_context_texts,
+                kg_name=kg_name,
             )
 
             def _retry_with_vector_only():
-                if context.get("search_method") == "vector_similarity":
+                if self._is_pure_vector_search_method(context.get("search_method")):
                     return None
                 retry_graph = self._create_neo4j_connection()
                 retry_context = self._vector_similarity_search(
@@ -3533,6 +4989,34 @@ Question: {question}"""),
                     retrieval_sample_id=retrieval_sample_id,
                     kg_name=kg_name,
                 )
+                if retry_context.get("chunks"):
+                    try:
+                        retry_context = self._append_adjacent_chunks_to_context(
+                            retry_graph,
+                            retry_context,
+                            kg_name=kg_name,
+                            question_id=question_id,
+                            document_names=document_names,
+                            max_adjacent=max_chunks,
+                        )
+                    except Exception as adj_err:
+                        logging.debug("Vector-only adjacent recovery skipped (non-fatal): %s", adj_err)
+                retry_li_chunks, retry_li_meta = late_interaction_rescore_chunks_for_query(
+                    question,
+                    retry_context.get("chunks", []),
+                    max_chunks=max_chunks,
+                )
+                if retry_li_chunks:
+                    retry_context["chunks"] = retry_li_chunks
+                retry_context["late_interaction"] = retry_li_meta
+                retry_reranked_chunks, retry_reranker_meta = rerank_chunks_for_query(
+                    question,
+                    retry_context.get("chunks", []),
+                    max_chunks=max_chunks,
+                )
+                if retry_reranked_chunks:
+                    retry_context["chunks"] = retry_reranked_chunks
+                retry_context["reranker"] = retry_reranker_meta
                 if not retry_context.get("chunks") and not extra_context_texts:
                     return None
                 retry_response = self._invoke_answer_chain(
@@ -3541,6 +5025,7 @@ Question: {question}"""),
                     context=retry_context,
                     answer_instructions=answer_instructions,
                     extra_context_texts=extra_context_texts,
+                    kg_name=kg_name,
                 )
                 return retry_response, retry_context
 
@@ -3557,8 +5042,9 @@ Question: {question}"""),
             # If entity-first retrieval produced an "Insufficient Information" response,
             # retry with pure vector search as a floor — this ensures KG-RAG is never
             # worse than vanilla RAG on questions where graph anchoring fails.
-            if ("insufficient information" in response.lower()
-                    and context.get("search_method") not in {"vector_similarity"}):
+            if (self.allow_vector_fallback
+                    and "insufficient information" in response.lower()
+                    and not self._is_pure_vector_search_method(context.get("search_method"))):
                 logging.info("Insufficient-info response from graph-first path; retrying with vector-only")
                 _vec_retry = _retry_with_vector_only()
                 if _vec_retry:
@@ -3606,7 +5092,10 @@ Question: {question}"""),
                     "retrieval_temperature": float(retrieval_temperature or 0.0),
                     "retrieval_shortlist_factor": int(retrieval_shortlist_factor or 1),
                     "retrieval_sample_id": int(retrieval_sample_id or 0),
-                }
+                },
+                "late_interaction_stage": context.get("late_interaction_stage", {}),
+                "late_interaction": context.get("late_interaction", {}),
+                "reranker": context.get("reranker", {}),
             }
             
         except Exception as e:
@@ -3819,13 +5308,13 @@ Question: {question}"""),
             # didn't rank in the global top-N.
             # Overfetch so KG-filtered chunks aren't excluded by global top-N,
             # but cap at 500 to avoid timeouts on large statistical queries.
-            retrieval_count = min(max_chunks * 20, 500) if (kg_name or document_names) else max_chunks
+            retrieval_count = min(max_chunks * 20, 500) if (kg_name or document_names or question_id) else max_chunks
 
             if vector_index_name == "retrieval_vector":
                 if question_id:
                     where_clause = where_clause.replace(
                         "chunk.questionId = $question_id",
-                        "retrieval.questionId = $question_id",
+                        "coalesce(retrieval.questionId, chunk.questionId) = $question_id",
                     )
                 search_query = f"""
                 CALL db.index.vector.queryNodes('{vector_index_name}', {retrieval_count}, $query_vector)
@@ -3841,9 +5330,9 @@ Question: {question}"""),
                     elementId(retrieval) AS chunk_element_id,
                     chunk.id AS parent_chunk_id,
                     elementId(chunk) AS parent_chunk_element_id,
-                    retrieval.questionId AS question_id,
-                    retrieval.passageIndex AS passage_index,
-                    retrieval.chunkLocalIndex AS chunk_local_index,
+                    coalesce(retrieval.questionId, chunk.questionId) AS question_id,
+                    coalesce(retrieval.passageIndex, chunk.passageIndex) AS passage_index,
+                    coalesce(retrieval.chunkLocalIndex, chunk.chunkLocalIndex) AS chunk_local_index,
                     retrieval.retrievalLocalIndex AS retrieval_local_index,
                     chunk.position AS position,
                     chunk.source AS source,
@@ -3892,6 +5381,59 @@ Question: {question}"""),
             params["max_chunks"] = max_chunks
 
             results = graph.query(search_query, params)
+            if vector_index_name == "retrieval_vector" and question_id and not results:
+                logging.info(
+                    "No question-scoped retrieval spans found for kg=%s question_id=%s; "
+                    "falling back to parent Chunk vector index.",
+                    kg_name,
+                    question_id,
+                )
+                fallback_where_clause = where_clause.replace(
+                    "coalesce(retrieval.questionId, chunk.questionId) = $question_id",
+                    "chunk.questionId = $question_id",
+                )
+                fallback_query = f"""
+                CALL db.index.vector.queryNodes('vector', {retrieval_count}, $query_vector)
+                YIELD node AS chunk, score
+                MATCH (chunk)-[:PART_OF]->(d:Document)
+                {fallback_where_clause}
+                OPTIONAL MATCH (chunk)-[:HAS_ENTITY]->(e:__Entity__)
+                WITH chunk, score, d,
+                     collect(DISTINCT e) AS chunk_entities
+                RETURN
+                    chunk.text AS text,
+                    chunk.id AS chunk_id,
+                    elementId(chunk) AS chunk_element_id,
+                    chunk.questionId AS question_id,
+                    chunk.passageIndex AS passage_index,
+                    chunk.chunkLocalIndex AS chunk_local_index,
+                    chunk.position AS position,
+                    chunk.source AS source,
+                    score,
+                    d.fileName AS document,
+                    d.kgName AS kg_name,
+                    [entity IN chunk_entities WHERE entity IS NOT NULL | {{
+                        id: coalesce(entity.id, entity.name),
+                        element_id: elementId(entity),
+                        type: coalesce(entity.type, 'Entity'),
+                        description: coalesce(entity.name, '')
+                    }}] AS entities
+                ORDER BY score DESC
+                LIMIT $max_chunks
+                """
+                try:
+                    fallback_results = graph.query(fallback_query, params) or []
+                except Exception as fallback_exc:
+                    logging.warning(
+                        "Chunk-vector fallback failed for kg=%s question_id=%s: %s",
+                        kg_name,
+                        question_id,
+                        fallback_exc,
+                    )
+                else:
+                    if fallback_results:
+                        results = fallback_results
+                        vector_index_name = "vector"
 
             context = {
                 "query": query,
@@ -3959,6 +5501,7 @@ Question: {question}"""),
                 kg_name=kg_name,
                 max_hops=max_hops,
                 question_id=question_id,
+                document_names=document_names,
             )
             context["graph_neighbors"] = expansion["neighbors"]
             context["traversal_paths"] = expansion["paths"]
@@ -3984,9 +5527,14 @@ Question: {question}"""),
                     all_entity_ids,
                     kg_name=kg_name,
                     question_id=question_id,
+                    document_names=document_names,
                 )
                 for rel_result in relationship_results:
-                    rel_key = f"{rel_result['source']}-{rel_result['relationship_type']}-{rel_result['target']}"
+                    rel_key = (
+                        rel_result.get("relationship_element_id")
+                        or f"{rel_result['source']}-{rel_result['relationship_type']}-{rel_result['target']}"
+                        f"-negated={bool(rel_result.get('negated', False))}"
+                    )
                     if not any(r.get('key') == rel_key for r in context["relationships"]):
                         context["relationships"].append({
                             "key": rel_key,
@@ -3996,6 +5544,13 @@ Question: {question}"""),
                             "target_element_id": rel_result["target_element_id"],
                             "type": rel_result["relationship_type"],
                             "element_id": rel_result["relationship_element_id"],
+                            "negated": bool(rel_result.get("negated", False)),
+                            "condition": rel_result.get("condition"),
+                            "quantitative": rel_result.get("quantitative"),
+                            "confidence": rel_result.get("confidence"),
+                            "question_ids": rel_result.get("question_ids") or [],
+                            "passage_keys": rel_result.get("passage_keys") or [],
+                            "provenance_positions": rel_result.get("provenance_positions") or [],
                         })
 
             context["documents"] = list(context["documents"])

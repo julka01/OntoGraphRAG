@@ -17,6 +17,27 @@ import logging
 from typing import Any, Callable, Dict, List, Optional
 
 
+def _make_text_splitter(chunk_size: int, chunk_overlap: int):
+    """Return a splitter that prefers token-aware chunking but works offline."""
+    from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+    try:
+        return RecursiveCharacterTextSplitter.from_tiktoken_encoder(
+            chunk_size=chunk_size,
+            chunk_overlap=chunk_overlap,
+        )
+    except Exception as e:
+        logging.warning(
+            "chunk_text: token-aware splitter unavailable (%s); "
+            "falling back to character-based chunking",
+            e,
+        )
+        return RecursiveCharacterTextSplitter(
+            chunk_size=chunk_size,
+            chunk_overlap=chunk_overlap,
+        )
+
+
 def chunk_text(
     text: str,
     chunk_size: int,
@@ -56,13 +77,25 @@ def chunk_text(
     synthetic offsets that disagree with any character-based position computed
     on the same text (e.g. ``_detect_section_headers`` uses ``m.start()``).
     """
-    from langchain_text_splitters import RecursiveCharacterTextSplitter
-
-    splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
+    splitter = _make_text_splitter(
         chunk_size=chunk_size,
         chunk_overlap=chunk_overlap,
     )
-    raw_chunks = splitter.split_text(text)
+    try:
+        raw_chunks = splitter.split_text(text)
+    except Exception as e:
+        logging.warning(
+            "chunk_text: preferred splitter failed during split (%s); "
+            "retrying with character-based chunking",
+            e,
+        )
+        from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+        splitter = RecursiveCharacterTextSplitter(
+            chunk_size=chunk_size,
+            chunk_overlap=chunk_overlap,
+        )
+        raw_chunks = splitter.split_text(text)
     total = len(raw_chunks)
     formatted: List[Dict[str, Any]] = []
     # search_start advances after each match so we find the *next* occurrence

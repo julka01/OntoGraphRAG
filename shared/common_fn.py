@@ -11,20 +11,10 @@ def load_embedding_model(embedding_model_name: str = None):
     If no name provided, uses environment variable EMBEDDING_PROVIDER.
     Returns a tuple of (embedding_function, embedding_dimension)
     """
-    from ontographrag.providers.model_providers import get_embedding_method
+    from ontographrag.kg.utils.common_functions import load_embedding_model as _shared_loader
 
-    provider_name, embedding_function = get_embedding_method(embedding_model_name)
-
-    # Determine dimension based on provider
-    if provider_name == "openai":
-        embedding_dimension = 1536  # OpenAI ada-002 dimension
-    elif provider_name == "huggingface":
-        embedding_dimension = 384  # all-MiniLM-L6-v2 dimension
-    elif provider_name == "vertexai":
-        embedding_dimension = 768  # VertexAI textembedding-gecko dimension
-    else:
-        raise ValueError(f"Unknown embedding provider: {provider_name}")
-
+    provider_name = embedding_model_name or os.getenv("EMBEDDING_PROVIDER", "huggingface")
+    embedding_function, embedding_dimension = _shared_loader(provider_name)
     print(f"✓ Using {provider_name} embeddings with dimension {embedding_dimension}")
     return embedding_function, embedding_dimension
 

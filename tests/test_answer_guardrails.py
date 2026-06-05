@@ -42,6 +42,21 @@ def test_render_guardrail_context_limits_chunks():
     assert "third chunk" not in rendered
 
 
+def test_parse_guardrail_verdict_ambiguous_defaults_to_abstain():
+    # When LLM output contains neither "keep", "retry", nor "abstain", the
+    # conservative default must be abstain (not keep).
+    verdict = parse_guardrail_verdict("I'm not sure about this one.")
+    assert verdict["decision"] == "abstain"
+    assert verdict["answers_question"] is False
+    assert verdict["supported_by_context"] is False
+
+
+def test_parse_guardrail_verdict_keep_keyword_detected():
+    # Prose containing "keep" should resolve to keep when no JSON is present.
+    verdict = parse_guardrail_verdict("You should keep this answer.")
+    assert verdict["decision"] == "keep"
+
+
 def test_evaluate_runtime_answer_guardrail_uses_llm_json():
     llm = RunnableLambda(
         lambda _: '{"decision":"retry","answers_question":false,"supported_by_context":true,"reason":"off target"}'

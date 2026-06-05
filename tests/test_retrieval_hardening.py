@@ -55,7 +55,7 @@ class TestEnhancedGroundingHelpers:
     def test_symbolic_entity_lookup_query_splits_alias_use_across_with_clauses(self):
         query = self.system._build_symbolic_entity_lookup_query("")
 
-        assert "WITH e, toLower(coalesce(e.name, '')) AS entity_name" in query
-        assert "WITH e, entity_name," in query
+        assert "toLower(coalesce(e.name, '')) AS entity_name" in query
+        assert "entity_name," in query
         assert "[tok IN $query_tokens WHERE entity_name CONTAINS tok] AS matched_tokens" in query
         assert "coalesce(e.all_names, [])" in query

@@ -5,18 +5,10 @@ from neo4j.exceptions import TransientError
 from langchain_neo4j import Neo4jGraph
 import sys
 import os
-from typing import Dict, List
 # Import from local kg_utils
-from ontographrag.kg.utils.common_functions import create_gcs_bucket_folder_name_hashed, delete_uploaded_local_file, load_embedding_model
-from ontographrag.kg.utils.constants import BUCKET_UPLOAD, NODEREL_COUNT_QUERY_WITH_COMMUNITY, NODEREL_COUNT_QUERY_WITHOUT_COMMUNITY, MAX_COMMUNITY_LEVELS
-from ontographrag.kg.utils.source_node import sourceNode
-
-def delete_file_from_gcs(bucket, folder, filename):
-    """GCS file deletion — raises explicitly; GCS is not a supported deployment mode."""
-    raise NotImplementedError(
-        "GCS file deletion is not supported in this deployment. "
-        "Set GCS_FILE_CACHE=False or remove the GCS_FILE_CACHE env var."
-    )
+from kg_utils.common_functions import create_gcs_bucket_folder_name_hashed, delete_uploaded_local_file, load_embedding_model, delete_file_from_gcs
+from kg_utils.constants import BUCKET_UPLOAD, NODEREL_COUNT_QUERY_WITH_COMMUNITY, NODEREL_COUNT_QUERY_WITHOUT_COMMUNITY, MAX_COMMUNITY_LEVELS
+from kg_utils.source_node import sourceNode
 import json
 from dotenv import load_dotenv
 
@@ -33,7 +25,7 @@ class graphDBdataAccess:
             result = self.get_current_status_document_node(file_name)
             if len(result) > 0:
                 is_cancelled_status = result[0]['is_cancelled']
-                if is_cancelled_status:
+                if bool(is_cancelled_status) == True:
                     job_status = 'Cancelled'
             if retry_condition is not None: 
                 retry_condition = None
@@ -81,7 +73,7 @@ class graphDBdataAccess:
         except Exception as e:
             error_message = str(e)
             logging.info(f"error_message = {error_message}")
-            self.update_exception_db(obj_source_node.file_name, error_message)
+            self.update_exception_db(self, obj_source_node.file_name, error_message)
             raise Exception(error_message)
         
     def update_source_node(self, obj_source_node:sourceNode):
@@ -132,7 +124,7 @@ class graphDBdataAccess:
             self.graph.query(query,param,session_params={"database":self.graph._database})
         except Exception as e:
             error_message = str(e)
-            self.update_exception_db(obj_source_node.file_name, error_message)
+            self.update_exception_db(self,self.file_name,error_message)
             raise Exception(error_message)
     
     def get_source_list(self):
@@ -661,7 +653,7 @@ class graphDBdataAccess:
                 source_types=json.dumps(source_types),
                 deleteEntities=str(delete_entities).lower(),
                 merged_dir=temp_dir,
-                uri=""
+                uri="mock_uri"  # This won't be used for non-GCS files
             )
 
         logging.info(f"Deleted KG '{kg_name}' with {deleted_count} documents")
@@ -701,326 +693,3 @@ class graphDBdataAccess:
 
         result = self.execute_query(query, param if kg_name else None)
         return [entry for entry in result]
-
-    # ========== Named KG Management Methods ==========
-    
-    def create_kg(self, kg_name: str, description: str = None, data_source: str = None) -> Dict:
-        """
-        Create a new named Knowledge Graph in the database.
-        
-        Args:
-            kg_name: Unique name for the KG
-            description: Optional description of the KG
-            data_source: Source of the data (e.g., 'pubmedqa', 'mimic', 'guidelines')
-            
-        Returns:
-            Dictionary with kg_name and creation status
-        """
-        import uuid
-        from datetime import datetime
-        
-        kg_id = str(uuid.uuid4())
-        created_at = datetime.now().isoformat()
-        
-        query = """
-        CREATE (k:KG {
-            id: $kg_id,
-            name: $kg_name,
-            description: $description,
-            data_source: $data_source,
-            created_at: $created_at,
-            updated_at: $created_at
-        })
-        RETURN k
-        """
-        
-        try:
-            result = self.graph.query(query, {
-                "kg_id": kg_id,
-                "kg_name": kg_name,
-                "description": description or f"Knowledge Graph: {kg_name}",
-                "data_source": data_source,
-                "created_at": created_at
-            }, session_params={"database": self.graph._database})
-            
-            logging.info(f"Created KG: {kg_name}")
-            return {
-                "kg_name": kg_name,
-                "kg_id": kg_id,
-                "created_at": created_at,
-                "status": "created"
-            }
-        except Exception as e:
-            logging.error(f"Error creating KG {kg_name}: {e}")
-            raise
-
-    def get_kg(self, kg_name: str) -> Dict:
-        """
-        Get a named Knowledge Graph by name.
-        
-        Args:
-            kg_name: Name of the KG to retrieve
-            
-        Returns:
-            Dictionary with KG metadata or None if not found
-        """
-        query = """
-        MATCH (k:KG {name: $kg_name})
-        RETURN k
-        """
-        
-        result = self.execute_query(query, {"kg_name": kg_name})
-        
-        if result and len(result) > 0:
-            kg_node = result[0]['k']
-            return {
-                "kg_name": kg_node.get("name"),
-                "kg_id": kg_node.get("id"),
-                "description": kg_node.get("description"),
-                "data_source": kg_node.get("data_source"),
-                "created_at": kg_node.get("created_at"),
-                "updated_at": kg_node.get("updated_at")
-            }
-        return None
-
-    def list_kgs(self) -> List[Dict]:
-        """
-        List all named Knowledge Graphs in the database.
-        
-        Returns:
-            List of dictionaries with KG metadata
-        """
-        query = """
-        MATCH (k:KG)
-        RETURN k
-        ORDER BY k.created_at DESC
-        """
-        
-        result = self.execute_query(query)
-        
-        kgs = []
-        for record in result:
-            kg_node = record['k']
-            kgs.append({
-                "kg_name": kg_node.get("name"),
-                "kg_id": kg_node.get("id"),
-                "description": kg_node.get("description"),
-                "data_source": kg_node.get("data_source"),
-                "created_at": kg_node.get("created_at"),
-                "updated_at": kg_node.get("updated_at")
-            })
-        
-        return kgs
-
-    def update_kg(self, kg_name: str, description: str = None, data_source: str = None) -> Dict:
-        """
-        Update a Knowledge Graph's metadata.
-        
-        Args:
-            kg_name: Name of the KG to update
-            description: New description (optional)
-            data_source: New data source (optional)
-            
-        Returns:
-            Updated KG metadata
-        """
-        from datetime import datetime
-        
-        updates = []
-        params = {"kg_name": kg_name}
-        
-        if description is not None:
-            updates.append("k.description = $description")
-            params["description"] = description
-            
-        if data_source is not None:
-            updates.append("k.data_source = $data_source")
-            params["data_source"] = data_source
-            
-        updates.append("k.updated_at = $updated_at")
-        params["updated_at"] = datetime.now().isoformat()
-        
-        if not updates:
-            return self.get_kg(kg_name)
-        
-        query = f"""
-        MATCH (k:KG {{name: $kg_name}})
-        SET {', '.join(updates)}
-        RETURN k
-        """
-        
-        result = self.execute_query(query, params)
-        
-        if result and len(result) > 0:
-            return self.get_kg(kg_name)
-        raise ValueError(f"KG '{kg_name}' not found")
-
-    def delete_kg_by_name(self, kg_name: str, delete_entities: bool = True) -> int:
-        """
-        Delete a named Knowledge Graph and optionally its entities.
-        
-        Args:
-            kg_name: Name of the KG to delete
-            delete_entities: If True, delete entities linked to this KG
-            
-        Returns:
-            Number of documents deleted
-        """
-        from datetime import datetime
-        
-        # First, get the KG node to verify it exists
-        kg = self.get_kg(kg_name)
-        if not kg:
-            logging.warning(f"KG '{kg_name}' not found")
-            return 0
-        
-        # Get all documents in this KG
-        docs_query = """
-        MATCH(d:Document {kgName: $kg_name})
-        RETURN d.fileName AS fileName, d.fileSource AS fileSource
-        """
-        docs_result = self.execute_query(docs_query, {"kg_name": kg_name})
-
-        deleted_count = 0
-        if docs_result:
-            filenames = [doc['fileName'] for doc in docs_result]
-            source_types = [doc['fileSource'] or "None" for doc in docs_result]
-            
-            import tempfile
-            with tempfile.TemporaryDirectory() as temp_dir:
-                deleted_count = self.delete_file_from_graph(
-                    filenames=json.dumps(filenames),
-                    source_types=json.dumps(source_types),
-                    deleteEntities=str(delete_entities).lower(),
-                    merged_dir=temp_dir,
-                    uri=""
-                )
-
-        # Delete the KG node itself
-        kg_delete_query = """
-        MATCH (k:KG {name: $kg_name})
-        DETACH DELETE k
-        """
-        self.execute_query(kg_delete_query, {"kg_name": kg_name})
-        
-        logging.info(f"Deleted KG '{kg_name}' and {deleted_count} documents")
-        return deleted_count
-
-    def get_kg_entities(self, kg_name: str, limit: int = 100) -> List[Dict]:
-        """
-        Get all entities belonging to a specific KG.
-        
-        Args:
-            kg_name: Name of the KG
-            limit: Maximum number of entities to return
-            
-        Returns:
-            List of entity dictionaries
-        """
-        # First verify KG exists
-        kg = self.get_kg(kg_name)
-        if not kg:
-            return []
-        
-        # Get documents in this KG, then their entities
-        query = """
-        MATCH (d:Document {kgName: $kg_name})-[:PART_OF]->(c:Chunk)-[:HAS_ENTITY|MENTIONS]->(e)
-        WHERE NOT e:Chunk AND NOT e:Document
-        RETURN DISTINCT e
-        LIMIT $limit
-        """
-        
-        result = self.execute_query(query, {"kg_name": kg_name, "limit": limit})
-        
-        entities = []
-        for record in result:
-            entity = record['e']
-            entities.append({
-                "id": entity.get("id"),
-                "name": entity.get("name"),
-                "type": entity.get("type"),
-                "description": entity.get("description"),
-                "labels": list(entity.labels) if hasattr(entity, 'labels') else []
-            })
-        
-        return entities
-
-    def get_kg_chunks(self, kg_name: str, limit: int = 100) -> List[Dict]:
-        """
-        Get all chunks belonging to a specific KG.
-        
-        Args:
-            kg_name: Name of the KG
-            limit: Maximum number of chunks to return
-            
-        Returns:
-            List of chunk dictionaries
-        """
-        # First verify KG exists
-        kg = self.get_kg(kg_name)
-        if not kg:
-            return []
-        
-        query = """
-        MATCH (d:Document {kgName: $kg_name})-[:PART_OF]->(c:Chunk)
-        RETURN c
-        ORDER BY c.position
-        LIMIT $limit
-        """
-        
-        result = self.execute_query(query, {"kg_name": kg_name, "limit": limit})
-        
-        chunks = []
-        for record in result:
-            chunk = record['c']
-            chunks.append({
-                "id": chunk.get("id"),
-                "text": chunk.get("text"),
-                "position": chunk.get("position"),
-                "start_pos": chunk.get("start_pos"),
-                "end_pos": chunk.get("end_pos")
-            })
-        
-        return chunks
-
-    def add_document_to_kg(self, kg_name: str, file_name: str) -> bool:
-        """
-        Add an existing document to a named KG.
-        
-        Args:
-            kg_name: Name of the KG
-            file_name: File name of the document to add
-            
-        Returns:
-            True if successful
-        """
-        # Verify KG exists
-        kg = self.get_kg(kg_name)
-        if not kg:
-            raise ValueError(f"KG '{kg_name}' not found")
-        
-        # Update the document's kgName
-        query = """
-        MATCH (d:Document {fileName: $file_name})
-        SET d.kgName = $kg_name
-        RETURN d
-        """
-        
-        result = self.execute_query(query, {"kg_name": kg_name, "file_name": file_name})
-        
-        if result and len(result) > 0:
-            logging.info(f"Added document '{file_name}' to KG '{kg_name}'")
-            return True
-        return False
-
-    def kg_exists(self, kg_name: str) -> bool:
-        """
-        Check if a KG exists by name.
-        
-        Args:
-            kg_name: Name of the KG to check
-            
-        Returns:
-            True if KG exists
-        """
-        return self.get_kg(kg_name) is not None

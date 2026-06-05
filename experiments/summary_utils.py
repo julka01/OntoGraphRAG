@@ -228,3 +228,122 @@ def accumulate_track_accuracy(
             "kg_macro_accuracy": sum(ta["kg_acc"]) / n if n else None,
         })
     return result
+
+
+def _system_metric_prefix(system_name: str) -> str:
+    if system_name == "vanilla_rag":
+        return "vanilla"
+    if system_name == "kg_rag":
+        return "kg"
+    raise ValueError(f"Unsupported system_name={system_name!r}")
+
+
+def _candidate_rank_tuple(cfg_res: Dict[str, Any], system_name: str) -> Tuple[float, float, float, int, float]:
+    prefix = _system_metric_prefix(system_name)
+    return (
+        float(cfg_res.get(f"{prefix}_accuracy", 0.0) or 0.0),
+        float(cfg_res.get(f"{prefix}_answer_f1", 0.0) or 0.0),
+        float(cfg_res.get(f"{prefix}_answer_em", 0.0) or 0.0),
+        int(cfg_res.get(f"{prefix}_answered_questions", 0) or 0),
+        float(cfg_res.get(f"{prefix}_accuracy_raw", 0.0) or 0.0),
+    )
+
+
+def select_best_retrieval_configs(
+    dataset_blocks: List[Dict[str, Any]],
+) -> Dict[str, Any]:
+    """
+    Pick the strongest config per dataset and overall for vanilla and KG-RAG.
+
+    Ranking priority:
+      1. clean accuracy
+      2. answer F1
+      3. answer EM
+      4. answered-question count
+      5. raw accuracy
+    """
+    per_dataset: Dict[str, Dict[str, Any]] = {}
+    macro_rows: Dict[str, Dict[str, Dict[str, List[float]]]] = {
+        "vanilla_rag": {},
+        "kg_rag": {},
+    }
+
+    for block in dataset_blocks:
+        dataset_name = str(block.get("dataset", "unknown"))
+        config_results = list(block.get("config_results", []))
+        if not config_results:
+            continue
+
+        per_dataset[dataset_name] = {}
+        for system_name in ("vanilla_rag", "kg_rag"):
+            prefix = _system_metric_prefix(system_name)
+            best_cfg = max(
+                config_results,
+                key=lambda cfg: (_candidate_rank_tuple(cfg, system_name), str(cfg.get("config", {}).get("name", ""))),
+            )
+            per_dataset[dataset_name][system_name] = {
+                "config_name": best_cfg.get("config", {}).get("name", "default"),
+                "accuracy": float(best_cfg.get(f"{prefix}_accuracy", 0.0) or 0.0),
+                "answer_f1": float(best_cfg.get(f"{prefix}_answer_f1", 0.0) or 0.0),
+                "answer_em": float(best_cfg.get(f"{prefix}_answer_em", 0.0) or 0.0),
+                "answered_questions": int(best_cfg.get(f"{prefix}_answered_questions", 0) or 0),
+                "accuracy_raw": float(best_cfg.get(f"{prefix}_accuracy_raw", 0.0) or 0.0),
+            }
+
+            for cfg_res in config_results:
+                cfg_name = str(cfg_res.get("config", {}).get("name", "default"))
+                row = macro_rows[system_name].setdefault(
+                    cfg_name,
+                    {
+                        "datasets": [],
+                        "accuracy": [],
+                        "answer_f1": [],
+                        "answer_em": [],
+                        "answered_questions": [],
+                        "accuracy_raw": [],
+                    },
+                )
+                row["datasets"].append(dataset_name)
+                row["accuracy"].append(float(cfg_res.get(f"{prefix}_accuracy", 0.0) or 0.0))
+                row["answer_f1"].append(float(cfg_res.get(f"{prefix}_answer_f1", 0.0) or 0.0))
+                row["answer_em"].append(float(cfg_res.get(f"{prefix}_answer_em", 0.0) or 0.0))
+                row["answered_questions"].append(int(cfg_res.get(f"{prefix}_answered_questions", 0) or 0))
+                row["accuracy_raw"].append(float(cfg_res.get(f"{prefix}_accuracy_raw", 0.0) or 0.0))
+
+    overall: Dict[str, Any] = {}
+    for system_name, cfg_map in macro_rows.items():
+        candidates: List[Dict[str, Any]] = []
+        for cfg_name, row in cfg_map.items():
+            n = max(1, len(row["datasets"]))
+            candidates.append({
+                "config_name": cfg_name,
+                "num_datasets": len(row["datasets"]),
+                "datasets": list(row["datasets"]),
+                "macro_accuracy": sum(row["accuracy"]) / n,
+                "macro_answer_f1": sum(row["answer_f1"]) / n,
+                "macro_answer_em": sum(row["answer_em"]) / n,
+                "macro_answered_questions": sum(row["answered_questions"]) / n,
+                "macro_accuracy_raw": sum(row["accuracy_raw"]) / n,
+            })
+        if not candidates:
+            continue
+        best = max(
+            candidates,
+            key=lambda row: (
+                float(row["macro_accuracy"]),
+                float(row["macro_answer_f1"]),
+                float(row["macro_answer_em"]),
+                float(row["macro_answered_questions"]),
+                float(row["macro_accuracy_raw"]),
+                str(row["config_name"]),
+            ),
+        )
+        overall[system_name] = {
+            "best_config": best,
+            "all_configs": sorted(candidates, key=lambda row: str(row["config_name"])),
+        }
+
+    return {
+        "per_dataset": per_dataset,
+        "overall": overall,
+    }

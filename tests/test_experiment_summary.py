@@ -28,6 +28,7 @@ from experiments.summary_utils import (
     accumulate_track_accuracy,
     compute_accuracy_breakdown,
     compute_hop_accuracy_breakdown,
+    select_best_retrieval_configs,
 )
 
 
@@ -135,6 +136,117 @@ class TestTrackAggregates:
         assert "multihop" in agg
         assert agg["biomedical"][0]["kg_macro_accuracy"] == pytest.approx(0.7)
         assert agg["multihop"][0]["kg_macro_accuracy"]   == pytest.approx(0.5)
+
+
+class TestRetrievalConfigSelection:
+
+    def test_selects_best_config_per_dataset_and_system(self):
+        blocks = [
+            _dataset_block(
+                "pubmedqa",
+                "biomedical",
+                {
+                    "config": {"name": "dense_floor"},
+                    "vanilla_accuracy": 0.70,
+                    "kg_accuracy": 0.68,
+                    "vanilla_answer_f1": 0.70,
+                    "kg_answer_f1": 0.68,
+                    "vanilla_answer_em": 0.70,
+                    "kg_answer_em": 0.68,
+                    "vanilla_answered_questions": 20,
+                    "kg_answered_questions": 20,
+                    "vanilla_accuracy_raw": 0.70,
+                    "kg_accuracy_raw": 0.68,
+                },
+                {
+                    "config": {"name": "kg_hybrid"},
+                    "vanilla_accuracy": 0.72,
+                    "kg_accuracy": 0.81,
+                    "vanilla_answer_f1": 0.72,
+                    "kg_answer_f1": 0.82,
+                    "vanilla_answer_em": 0.72,
+                    "kg_answer_em": 0.81,
+                    "vanilla_answered_questions": 20,
+                    "kg_answered_questions": 20,
+                    "vanilla_accuracy_raw": 0.72,
+                    "kg_accuracy_raw": 0.81,
+                },
+            ),
+        ]
+
+        selection = select_best_retrieval_configs(blocks)
+
+        assert selection["per_dataset"]["pubmedqa"]["vanilla_rag"]["config_name"] == "kg_hybrid"
+        assert selection["per_dataset"]["pubmedqa"]["kg_rag"]["config_name"] == "kg_hybrid"
+
+    def test_macro_selection_uses_clean_accuracy_then_f1(self):
+        blocks = [
+            _dataset_block(
+                "pubmedqa",
+                "biomedical",
+                {
+                    "config": {"name": "cfg_a"},
+                    "vanilla_accuracy": 0.70,
+                    "kg_accuracy": 0.75,
+                    "vanilla_answer_f1": 0.70,
+                    "kg_answer_f1": 0.75,
+                    "vanilla_answer_em": 0.70,
+                    "kg_answer_em": 0.75,
+                    "vanilla_answered_questions": 20,
+                    "kg_answered_questions": 20,
+                    "vanilla_accuracy_raw": 0.70,
+                    "kg_accuracy_raw": 0.75,
+                },
+                {
+                    "config": {"name": "cfg_b"},
+                    "vanilla_accuracy": 0.70,
+                    "kg_accuracy": 0.75,
+                    "vanilla_answer_f1": 0.74,
+                    "kg_answer_f1": 0.80,
+                    "vanilla_answer_em": 0.70,
+                    "kg_answer_em": 0.75,
+                    "vanilla_answered_questions": 20,
+                    "kg_answered_questions": 20,
+                    "vanilla_accuracy_raw": 0.70,
+                    "kg_accuracy_raw": 0.75,
+                },
+            ),
+            _dataset_block(
+                "hotpotqa",
+                "multihop",
+                {
+                    "config": {"name": "cfg_a"},
+                    "vanilla_accuracy": 0.66,
+                    "kg_accuracy": 0.71,
+                    "vanilla_answer_f1": 0.66,
+                    "kg_answer_f1": 0.71,
+                    "vanilla_answer_em": 0.66,
+                    "kg_answer_em": 0.71,
+                    "vanilla_answered_questions": 20,
+                    "kg_answered_questions": 20,
+                    "vanilla_accuracy_raw": 0.66,
+                    "kg_accuracy_raw": 0.71,
+                },
+                {
+                    "config": {"name": "cfg_b"},
+                    "vanilla_accuracy": 0.66,
+                    "kg_accuracy": 0.71,
+                    "vanilla_answer_f1": 0.71,
+                    "kg_answer_f1": 0.78,
+                    "vanilla_answer_em": 0.66,
+                    "kg_answer_em": 0.71,
+                    "vanilla_answered_questions": 20,
+                    "kg_answered_questions": 20,
+                    "vanilla_accuracy_raw": 0.66,
+                    "kg_accuracy_raw": 0.71,
+                },
+            ),
+        ]
+
+        selection = select_best_retrieval_configs(blocks)
+
+        assert selection["overall"]["vanilla_rag"]["best_config"]["config_name"] == "cfg_b"
+        assert selection["overall"]["kg_rag"]["best_config"]["config_name"] == "cfg_b"
 
 
 # ---------------------------------------------------------------------------

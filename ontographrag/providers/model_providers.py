@@ -8,6 +8,7 @@ from huggingface_hub import InferenceClient
 from typing import Dict, Any
 
 from langchain_core.runnables.base import Runnable
+from ontographrag.kg.utils.common_functions import _resolve_huggingface_embedding_model
 
 class ModelProvider(ABC):
     @abstractmethod
@@ -279,8 +280,9 @@ def get_embedding_model(provider="huggingface"):
                         raise
 
             print("✓ Importing HuggingFaceEmbeddings...")
+            model_name = _resolve_huggingface_embedding_model()
             embedder = HuggingFaceEmbeddings(
-                model_name="sentence-transformers/all-MiniLM-L6-v2",
+                model_name=model_name,
                 model_kwargs={'device': 'cpu'},  # Use CPU by default for compatibility
                 encode_kwargs={'normalize_embeddings': True}
             )
@@ -291,10 +293,14 @@ def get_embedding_model(provider="huggingface"):
             raise ImportError("huggingface embeddings not available. Install with: pip install sentence-transformers transformers torch")
     elif provider == "openai":
         from langchain_openai import OpenAIEmbeddings
-        return OpenAIEmbeddings()
+        return OpenAIEmbeddings(
+            model=os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small").strip()
+        )
     elif provider == "vertexai":
         from langchain_google_vertexai import VertexAIEmbeddings
-        return VertexAIEmbeddings(model_name="textembedding-gecko")
+        return VertexAIEmbeddings(
+            model=os.getenv("VERTEXAI_EMBEDDING_MODEL", "text-embedding-005").strip()
+        )
     else:
         raise ValueError(f"Unsupported embedding provider: {provider}. Choose from 'huggingface', 'openai', 'vertexai'")
 

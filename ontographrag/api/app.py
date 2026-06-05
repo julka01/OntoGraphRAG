@@ -91,6 +91,23 @@ def get_rag_system(embedding_model: str | None = None) -> EnhancedRAGSystem:
             _rag_system_embedding = resolved
     return _rag_system
 
+
+def invalidate_rag_system(reason: str = "") -> None:
+    """Drop the singleton retrieval system after KG mutations."""
+    global _rag_system, _rag_system_embedding
+    with _rag_system_lock:
+        if _rag_system is not None:
+            clear_fn = getattr(_rag_system, "clear_retrieval_caches", None)
+            if callable(clear_fn):
+                try:
+                    clear_fn()
+                except Exception as exc:
+                    logger.warning("Failed to clear retrieval caches before reset: %s", exc)
+        _rag_system = None
+        _rag_system_embedding = None
+    if reason:
+        logger.info("Invalidated RAG system singleton: %s", reason)
+
 from csv_processor import MedicalReportCSVProcessor
 
 # Configuration constants for input validation
@@ -638,6 +655,7 @@ async def delete_kg(kg_name: str, delete_entities: bool = Query(True)):
 
         db_access = graphDBdataAccess(graph)
         deleted_count = db_access.delete_kg_by_name(kg_name, delete_entities)
+        invalidate_rag_system(f"KG deleted: {kg_name}")
         
         return JSONResponse(content={
             "status": "success",
@@ -774,6 +792,7 @@ async def load_kg_from_file(
             kg_creator.generate_knowledge_graph,
             text_content, llm, file.filename, model, None, _kg_name, None, None,
         )
+        invalidate_rag_system(f"KG built: {_kg_name}")
 
         # Read back the nodes scoped to this KG from Neo4j
         driver = get_graphDB_driver(_neo4j_uri, _neo4j_user, _neo4j_password, _neo4j_database)
@@ -1008,6 +1027,7 @@ async def create_ontology_guided_kg(  # noqa: C901
             neo4j_database=neo4j_database,
             embedding_model=embedding_model or "sentence_transformers",
             enable_coreference_resolution=enable_coreference_resolution,
+            strict_ontology=bool(ontology_path),
         )
 
         logger.debug(
@@ -1024,6 +1044,7 @@ async def create_ontology_guided_kg(  # noqa: C901
             kg_creator.generate_knowledge_graph,
             text_content, llm, file.filename, model, max_chunks, kg_name, None, doc_hash, provider,
         )
+        invalidate_rag_system(f"KG built: {kg_name}")
 
         # Log results like test script
         entities = kg.get('metadata', {}).get('total_entities', 0)
@@ -1409,6 +1430,7 @@ async def clear_kg(kg_name: str = Form(None)):
                 record = result.single()
                 deleted_count = record["deleted_count"] if record else 0
                 logger.info("Deleted %d nodes for KG '%s'", deleted_count, kg_name)
+                invalidate_rag_system(f"KG cleared: {kg_name}")
 
                 return JSONResponse(content={
                     "message": f"KG '{kg_name}' deleted successfully! Removed {deleted_count} nodes.",
@@ -1462,6 +1484,7 @@ async def clear_kg(kg_name: str = Form(None)):
                 pass  # APOC not available — non-fatal
 
         logger.info("Neo4j knowledge graph cleared successfully")
+        invalidate_rag_system("KG cleared: full database wipe")
 
         return JSONResponse(content={
             "message": f"Knowledge graph cleared successfully! Deleted {deleted_count} nodes and all relationships.",
@@ -1901,6 +1924,7 @@ async def bulk_process_csv(
             llm=llm,
             kg_name=resolved_kg_name,
         )
+        invalidate_rag_system(f"KG bulk build: {resolved_kg_name}")
 
         metadata = bulk_result.get("metadata", {})
         kg_id = str(uuid.uuid4())

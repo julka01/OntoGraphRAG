@@ -85,6 +85,9 @@ mkdir -p MIRAGE/rawdata/{pubmedqa/data,hotpotqa,2wikimultihopqa,musique,multihop
 # HotpotQA — https://hotpotqa.github.io/
 wget http://curtis.ml.cmu.edu/datasets/hotpot/hotpot_dev_fullwiki_v1.json \
   -O MIRAGE/rawdata/hotpotqa/hotpot_dev_fullwiki_v1.json
+# Optional shared-corpus FullWiki variant for corpus-level retrieval:
+python experiments/prepare_hotpotqa_fullwiki_corpus.py \
+  --num-samples 250 --subset-seed 42 --overwrite
 
 # 2WikiMultiHopQA — https://github.com/Alab-NII/2wikimultihop
 # Download dev.json from the GitHub release and place at:
@@ -567,6 +570,7 @@ python experiments/experiment.py \
 | `pubmedqa` | Biomedical yes/no/maybe over source abstracts | [pubmedqa/pubmedqa](https://github.com/pubmedqa/pubmedqa) |
 | `realmedqa` | Clinical recommendation QA over NICE guidance | [RealMedQA on Hugging Face](https://huggingface.co/datasets/k2141255/RealMedQA) |
 | `hotpotqa` | Multi-hop Wikipedia QA | [HotpotQA](https://hotpotqa.github.io/) |
+| `hotpotqa_fullwiki` | HotpotQA over a prepared shared FullWiki retrieved-context corpus | [HotpotQA](https://hotpotqa.github.io/) |
 | `2wikimultihopqa` | Multi-hop Wikipedia QA | [2WikiMultiHopQA](https://github.com/Alab-NII/2wikimultihop) |
 | `musique` | Compositional multi-hop QA | [MuSiQue](https://github.com/StonyBrookNLP/musique) |
 | `multihoprag` | Multi-hop RAG benchmark with shared corpus | [MultiHop-RAG](https://github.com/yixuantt/MultiHop-RAG) |

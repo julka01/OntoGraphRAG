@@ -4,6 +4,7 @@ from experiments.dataset_adapters import (
     TaskType,
     adapt_2wikimultihopqa,
     adapt_bioasq,
+    adapt_hotpotqa,
     adapt_medqa,
     adapt_medhop,
     adapt_multihoprag,
@@ -286,3 +287,22 @@ def test_build_passage_corpus_preserves_question_local_duplicates_when_requested
     assert len(deduped) == 3
     assert len(question_scoped) == 4
     assert [p.question_id for p in question_scoped if p.text == "Shared passage"] == ["q1", "q2"]
+
+
+def test_build_passage_corpus_preserves_structured_titles_with_periods():
+    raw = {
+        "_id": "hp1",
+        "question": "Which film starred James Bond?",
+        "answer": "dr. no",
+        "type": "bridge",
+        "context": [
+            ["Dr. No", ["James Bond appears in the film."]],
+        ],
+    }
+
+    inf, _ = adapt_hotpotqa(raw)
+    passages = build_passage_corpus([inf], dedupe_across_questions=False)
+
+    assert len(passages) == 1
+    assert passages[0].text.startswith("Dr. No. James Bond")
+    assert passages[0].source_title == "Dr. No"

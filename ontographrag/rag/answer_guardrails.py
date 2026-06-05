@@ -44,8 +44,12 @@ def parse_guardrail_verdict(raw: str) -> Dict[str, Any]:
             decision = "abstain"
         elif "retry" in lowered:
             decision = "retry"
-        else:
+        elif "keep" in lowered:
             decision = "keep"
+        else:
+            # Ambiguous LLM response — default to abstain rather than keep to
+            # avoid surfacing unsupported answers.
+            decision = "abstain"
 
     def _boolish(value: Any, default: bool) -> bool:
         if isinstance(value, bool):
@@ -110,9 +114,9 @@ def evaluate_runtime_answer_guardrail(
     except Exception as exc:
         logging.warning("Runtime answer guardrail failed: %s", exc)
         return {
-            "decision": "keep",
-            "answers_question": True,
-            "supported_by_context": True,
+            "decision": "retry",
+            "answers_question": False,
+            "supported_by_context": False,
             "reason": f"guardrail_error:{exc}",
             "raw": "",
         }

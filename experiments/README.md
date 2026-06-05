@@ -52,6 +52,108 @@ python experiments/experiment.py \
   --evaluation-mode full_metrics
 ```
 
+## Small Retrieval Study
+
+Use this when you want a cheap retrieval-method selection pass before the final benchmark. It expands one threshold / `k` setting into a small fixed family of retrieval variants:
+
+- `dense_floor`: no query fusion, no late interaction, no reranker, KG in `vector_only`
+- `modern_vector`: query fusion + late interaction + reranker, KG in `vector_only`
+- `kg_entity_first`: same modern stack, KG in `entity_first`
+- `kg_rfge`: same modern stack, KG in `rfge`
+- `kg_hybrid`: same modern stack, KG in `hybrid_auto`
+
+All variants keep the same embedding profile as the KG/query runtime you launched with. That makes the study a retrieval-stack comparison rather than an embedding-model comparison. If you want to compare embedding profiles, rebuild the KG per profile and run separate studies.
+
+Recommended command:
+
+```bash
+python experiments/experiment.py \
+  --datasets pubmedqa realmedqa hotpotqa 2wikimultihopqa \
+  --num-samples 30 \
+  --subset-seed 42 \
+  --evaluation-mode accuracy_only \
+  --similarity-thresholds 0.1 \
+  --max-chunks-values 10 \
+  --retrieval-study small
+```
+
+The final `mirage_evaluation_summary.json` includes a `retrieval_selection` block with the best config per dataset and the macro-best config overall for `vanilla_rag` and `kg_rag`.
+
+## Final Hypothesis Pair
+
+Use this when you already know the final comparison you want to run and do not
+want the broader retrieval sweep. It keeps the exact live definitions from
+`experiment.py` and only expands:
+
+- `dense_floor`: the final vanilla baseline
+- `kg_entity_first`: the final KG comparison system
+
+In this profile, the runner now executes only the canonical pairing for each
+config:
+
+- `dense_floor` runs `vanilla_rag` only
+- `kg_entity_first` runs `kg_rag` only
+
+This keeps the paper-facing comparison unchanged while avoiding the wasteful
+cross-combinations (`dense_floor + kg_rag`, `kg_entity_first + vanilla_rag`).
+
+Recommended command:
+
+```bash
+python experiments/experiment.py \
+  --datasets hotpotqa 2wikimultihopqa \
+  --num-samples 100 \
+  --subset-seed 42 \
+  --evaluation-mode full_metrics \
+  --kg-builder-profile full \
+  --similarity-thresholds 0.1 \
+  --max-chunks-values 10 \
+  --retrieval-study final_pair
+```
+
+The `full` builder profile now enables the strongest in-repo KG construction path:
+
+- self-consistency extraction and richer few-shot schema guidance
+- low-confidence triple reverification and biomedical UMLS linking when relevant
+- soft entity linking / stricter canonicalisation
+- fragmentation repair via conservative soft bridges
+- component summaries, graph-level summaries, and claim records
+
+## Full RealMedQA Reuse Run
+
+Use this when you want to evaluate the full local RealMedQA slice while
+reusing the existing shared-corpus KG instead of forcing a rebuild.
+
+```bash
+bash experiments/run_full_realmedqa_reuse_kg.sh
+```
+
+Equivalent direct command:
+
+```bash
+python experiments/experiment.py \
+  --datasets realmedqa \
+  --num-samples 230 \
+  --subset-seed 42 \
+  --entropy-samples 5 \
+  --evaluation-mode full_metrics \
+  --retrieval-study final_pair \
+  --kg-builder-profile full \
+  --similarity-thresholds 0.1 \
+  --max-chunks-values 10 \
+  --dataset-kg-scope evaluation_subset \
+  --output-dir results/latest_kg_design_final_metrics
+```
+
+Important:
+- this intentionally omits `--rebuild-kg`
+- this intentionally keeps `--dataset-kg-scope evaluation_subset` because the
+  current RealMedQA paper-facing KG metadata uses that scope
+- this now uses `--kg-builder-profile full`, which carries the strongest
+  current extraction profile rather than a stripped-down build
+- the runner will still rebuild if other KG-contract settings changed
+  (chunking, extraction model, embeddings, corpus policy, or stored metadata)
+
 ## Current Flags
 
 These are the live flags supported by [experiment.py](experiment.py).
@@ -73,10 +175,14 @@ These are the live flags supported by [experiment.py](experiment.py).
 | `--no-llm-judge` | off | Disable LLM-as-judge and use heuristic matching only |
 | `--judge-provider` | generation provider | Separate provider for the answer judge |
 | `--judge-model` | generation model | Separate model for the answer judge |
+| `--kg-builder-profile` | `auto` | `full` = strongest current builder; `lightweight` = cheap retrieval-study build |
 | `--temperature` | `1.0` | Generation temperature |
+| `--retrieval-temperature-values` | `0.0` | Final-stage retrieval sampling temperatures to sweep |
+| `--retrieval-shortlist-factor` | `4` | Shortlist multiplier for stochastic retrieval selection |
+| `--retrieval-study` | unset | Expand each threshold / `k` point into a built-in retrieval profile such as `small` or `final_pair` |
 | `--multi-temperature` | off | Also run T=0, 0.5, 1.0 sweeps for uncertainty analysis |
 | `--evaluation-mode` | `full_metrics` | `accuracy_only` or `full_metrics` |
-| `--output-dir` | `results` | CLI argument accepted; run artifacts are currently written under `results/runs/<run_id>/` |
+| `--output-dir` | `results` | Root directory for run artifacts; runs are written under `<output-dir>/runs/<run_id>/` |
 
 Important removals:
 - there is no `--skip-kg-build`
@@ -193,14 +299,14 @@ Current high-level flow:
 5. Run vanilla RAG and KG-RAG on the same selected questions
 6. Score correctness plus optional official-style `EM/F1`
 7. If enabled, collect extra samples and compute uncertainty metrics
-8. Save run artifacts under `results/runs/<run_id>/`
+8. Save run artifacts under `<output-dir>/runs/<run_id>/`
 
 ## Outputs
 
 Each run writes under:
 
 ```text
-results/runs/<run_id>/
+<output-dir>/runs/<run_id>/
 ├── manifest.json
 ├── mirage_evaluation_summary.json
 └── questions/

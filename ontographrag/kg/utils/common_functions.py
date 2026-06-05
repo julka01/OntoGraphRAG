@@ -20,31 +20,123 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
+_OPENAI_EMBEDDING_DIMENSIONS = {
+    "text-embedding-3-small": 1536,
+    "text-embedding-3-large": 3072,
+    "text-embedding-ada-002": 1536,
+}
+
+_VERTEXAI_EMBEDDING_DIMENSIONS = {
+    "text-embedding-005": 768,
+    "text-multilingual-embedding-002": 768,
+    "gemini-embedding-001": 3072,
+}
+
+_HF_EMBEDDING_DEFAULTS_BY_PROFILE = {
+    "balanced": "sentence-transformers/all-MiniLM-L6-v2",
+    "accuracy": "BAAI/bge-base-en-v1.5",
+}
+
+
+def _resolve_openai_embedding_config():
+    model_name = os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small").strip()
+    dimensions_env = os.getenv("OPENAI_EMBEDDING_DIMENSION", "").strip()
+    kwargs = {"model": model_name}
+    if dimensions_env:
+        dimension = int(dimensions_env)
+        kwargs["dimensions"] = dimension
+        return kwargs, dimension
+
+    dimension = _OPENAI_EMBEDDING_DIMENSIONS.get(model_name)
+    if dimension is None:
+        logging.warning(
+            "Unknown OpenAI embedding model '%s'; defaulting dimension to 1536. "
+            "Set OPENAI_EMBEDDING_DIMENSION explicitly if needed.",
+            model_name,
+        )
+        dimension = 1536
+    return kwargs, dimension
+
+
+def _resolve_vertexai_embedding_config():
+    model_name = os.getenv("VERTEXAI_EMBEDDING_MODEL", "text-embedding-005").strip()
+    dimensions_env = os.getenv("VERTEXAI_EMBEDDING_DIMENSION", "").strip()
+    kwargs = {"model": model_name}
+    if dimensions_env:
+        return kwargs, int(dimensions_env)
+
+    dimension = _VERTEXAI_EMBEDDING_DIMENSIONS.get(model_name)
+    if dimension is None:
+        logging.warning(
+            "Unknown Vertex AI embedding model '%s'; defaulting dimension to 768. "
+            "Set VERTEXAI_EMBEDDING_DIMENSION explicitly if needed.",
+            model_name,
+        )
+        dimension = 768
+    return kwargs, dimension
+
+
+def _resolve_huggingface_embedding_model(explicit_model_name: str = "") -> str:
+    normalized = str(explicit_model_name or "").strip()
+    normalized_lower = normalized.lower()
+    if normalized and normalized_lower not in {"sentence_transformers", "huggingface"}:
+        return normalized
+
+    env_model = os.getenv("HUGGINGFACE_EMBEDDING_MODEL", "").strip()
+    if env_model:
+        return env_model
+
+    profile = str(os.getenv("ONTOGRAPHRAG_RETRIEVAL_PROFILE", "balanced")).strip().lower()
+    if profile in {"accuracy", "quality", "high_accuracy"}:
+        return _HF_EMBEDDING_DEFAULTS_BY_PROFILE["accuracy"]
+    return _HF_EMBEDDING_DEFAULTS_BY_PROFILE["balanced"]
+
 def load_embedding_model(embedding_model_name: str):
     """
     Load embedding model based on the model name
     Returns embeddings object and dimension
     """
-    if embedding_model_name == "openai":
-        embeddings = OpenAIEmbeddings()
-        dimension = 1536
-        logging.info(f"Embedding: Using OpenAI Embeddings , Dimension:{dimension}")
-    elif embedding_model_name == "vertexai":
-        embeddings = VertexAIEmbeddings(
-            model="textembedding-gecko@003"
+    normalized = str(embedding_model_name or "").strip()
+    normalized_lower = normalized.lower()
+
+    if normalized_lower in {"openai"} or normalized in _OPENAI_EMBEDDING_DIMENSIONS:
+        kwargs, dimension = _resolve_openai_embedding_config()
+        if normalized in _OPENAI_EMBEDDING_DIMENSIONS:
+            kwargs["model"] = normalized
+            dimension = _OPENAI_EMBEDDING_DIMENSIONS[normalized]
+        embeddings = OpenAIEmbeddings(**kwargs)
+        logging.info(
+            "Embedding: Using OpenAI Embeddings model=%s, Dimension:%s",
+            kwargs["model"],
+            dimension,
         )
-        dimension = 768
-        logging.info(f"Embedding: Using Vertex AI Embeddings , Dimension:{dimension}")
-    elif embedding_model_name == "titan":
+    elif normalized_lower in {"vertexai"} or normalized in _VERTEXAI_EMBEDDING_DIMENSIONS:
+        kwargs, dimension = _resolve_vertexai_embedding_config()
+        if normalized in _VERTEXAI_EMBEDDING_DIMENSIONS:
+            kwargs["model"] = normalized
+            dimension = _VERTEXAI_EMBEDDING_DIMENSIONS[normalized]
+        embeddings = VertexAIEmbeddings(**kwargs)
+        logging.info(
+            "Embedding: Using Vertex AI Embeddings model=%s, Dimension:%s",
+            kwargs["model"],
+            dimension,
+        )
+    elif normalized_lower == "titan":
         embeddings = get_bedrock_embeddings()
         dimension = 1536
         logging.info(f"Embedding: Using bedrock titan Embeddings , Dimension:{dimension}")
     else:
+        model_name = _resolve_huggingface_embedding_model(normalized)
         embeddings = HuggingFaceEmbeddings(
-            model_name="all-MiniLM-L6-v2"#, cache_folder="/embedding_model"
+            model_name=model_name#, cache_folder="/embedding_model"
         )
-        dimension = 384
-        logging.info(f"Embedding: Using Langchain HuggingFaceEmbeddings , Dimension:{dimension}")
+        sample_vector = embeddings.embed_query("embedding readiness probe")
+        dimension = len(sample_vector)
+        logging.info(
+            "Embedding: Using Langchain HuggingFaceEmbeddings model=%s, Dimension:%s",
+            model_name,
+            dimension,
+        )
     return embeddings, dimension
 
 def create_graph_database_connection(uri, userName, password, database):

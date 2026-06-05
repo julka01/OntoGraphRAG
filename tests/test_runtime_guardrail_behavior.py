@@ -131,3 +131,49 @@ def test_enhanced_abstention_zeroes_confidence(monkeypatch):
 
     assert result["response"] == RUNTIME_GUARDRAIL_ABSTENTION
     assert result["confidence"] == 0.0
+
+
+def test_enhanced_retrieval_span_context_does_not_retry_vector_only(monkeypatch):
+    system = EnhancedRAGSystem.__new__(EnhancedRAGSystem)
+    context = {
+        **_base_context(),
+        "entities": {},
+        "relationships": [],
+        "entity_count": 0,
+        "relationship_count": 0,
+        "search_method": "retrieval_span_similarity",
+    }
+
+    monkeypatch.setattr(system, "get_rag_context", lambda *_, **__: context)
+    monkeypatch.setattr(system, "_invoke_answer_chain", lambda **_: "Insufficient Information")
+    monkeypatch.setattr(
+        system,
+        "_apply_runtime_answer_guardrail",
+        lambda **kwargs: (
+            kwargs["response"],
+            kwargs["context"],
+            {"enabled": False, "final_decision": "keep"},
+        ),
+    )
+    monkeypatch.setattr(
+        system,
+        "_vector_similarity_search",
+        lambda *_, **__: pytest.fail("pure vector context should not retry vector-only"),
+    )
+    monkeypatch.setattr(
+        system,
+        "_extract_used_entities_and_chunks",
+        lambda response, context: {
+            "used_entities": [],
+            "used_chunks": [],
+            "reasoning_edges": [],
+        },
+    )
+
+    result = system.generate_response(
+        "Question?",
+        llm=object(),
+        max_hops=1,
+    )
+
+    assert result["response"] == "Insufficient Information"

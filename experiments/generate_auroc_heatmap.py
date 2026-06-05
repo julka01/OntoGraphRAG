@@ -4,6 +4,7 @@ Saves to paper/figures/auroc_heatmap.pdf (and .png for preview).
 """
 
 import json
+import os
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
@@ -36,6 +37,10 @@ MEASURES = [
     ("sd_uq",                         "SD-UQ",          "output"),
     # Structural measures
     ("graph_path_support",            "GPS",            "structural"),
+    ("graph_path_disagreement",       "GPD",            "structural"),
+    ("competing_answer_alternatives", "CAA",            "structural"),
+    ("evidence_vn_entropy",           "EVN-Ent.",       "structural"),
+    ("subgraph_informativeness",      "SGI",            "structural"),
     ("subgraph_perturbation_stability", "SPS-UQ",       "structural"),
     # Grounding measures
     ("support_entailment_uncertainty","SEU",            "grounding"),
@@ -49,15 +54,48 @@ FAMILY_COLORS = {
 }
 
 DATASET_ORDER = ["BioASQ", "RealMedQA", "PubMedQA", "2Wiki", "HotpotQA", "MultiHopRAG"]
+PREFERRED_CONFIG_NAME = os.environ.get("MIRAGE_CONFIG_NAME")
+
+
+def _select_config_result(path, results_doc):
+    config_results = results_doc.get("config_results", [])
+    if not config_results:
+        raise ValueError(f"{path} contains no config_results")
+    if len(config_results) == 1:
+        return config_results[0]
+
+    if PREFERRED_CONFIG_NAME:
+        for cfg_res in config_results:
+            if cfg_res.get("config", {}).get("name") == PREFERRED_CONFIG_NAME:
+                return cfg_res
+
+    for cfg_res in config_results:
+        if cfg_res.get("config", {}).get("name") == "default":
+            return cfg_res
+
+    config_names = [cfg.get("config", {}).get("name", "<unnamed>") for cfg in config_results]
+    raise ValueError(
+        f"{path} contains multiple configs {config_names}; "
+        "set MIRAGE_CONFIG_NAME to choose one explicitly"
+    )
 
 
 def load_auroc(path, system):
     """Return {measure_key: auroc_value} for a system ('vanilla_rag' or 'kg_rag')."""
-    d = json.load(open(path))
-    cfg = d["config_results"][0]
+    with open(path) as f:
+        d = json.load(f)
+    cfg = _select_config_result(path, d)
     auroc_block = cfg.get("auroc_aurec", {}).get(system, {})
-    return {k.replace("_auroc", ""): v
-            for k, v in auroc_block.items() if k.endswith("_auroc")}
+    out = {
+        k.replace("_auroc", ""): v
+        for k, v in auroc_block.items()
+        if k.endswith("_auroc")
+    }
+    for structural_key in ("graph_path_support", "subgraph_perturbation_stability"):
+        non_null_key = f"{structural_key}_auroc_non_null"
+        if non_null_key in auroc_block:
+            out[structural_key] = auroc_block[non_null_key]
+    return out
 
 
 def build_matrix(system):
@@ -70,10 +108,7 @@ def build_matrix(system):
         except Exception:
             continue
         for i, (key, _, family) in enumerate(MEASURES):
-            if system == "vanilla_rag" and family == "structural":
-                mat[i, j] = np.nan  # structural measures are KG-side only
-            else:
-                mat[i, j] = auroc.get(key, np.nan)
+            mat[i, j] = auroc.get(key, np.nan)
     return mat
 
 

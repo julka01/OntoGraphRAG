@@ -15,6 +15,7 @@ Run from project root:
 """
 
 import json
+import os
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -45,7 +46,7 @@ METRICS: List[Tuple[str, str, str, bool]] = [
     ("sd_uq",                          "SD-UQ",       "output",     False),
     # Structural measures
     ("graph_path_support",             "GPS",         "structural", False),
-    ("subgraph_perturbation_stability","SPS-UQ",      "structural", True),
+    ("subgraph_perturbation_stability","SPS-UQ",      "structural", False),
     # Grounding measures
     ("support_entailment_uncertainty", "SEU",         "grounding",  False),
     ("evidence_conflict_uncertainty",  "ECU",         "grounding",  False),
@@ -66,13 +67,38 @@ SYSTEM_PREFIX = "kg"
 SINGLE_HOP_DATASETS = {"BioASQ", "RealMedQA", "PubMedQA"}
 # HotpotQA is 2-hop by design even though hop_count metadata is absent
 HOTPOTQA_DEFAULT_HOP = 2
+PREFERRED_CONFIG_NAME = os.environ.get("MIRAGE_CONFIG_NAME")
 
 
 # ── Data loading ───────────────────────────────────────────────────────────────
 
+def _select_config_result(path: str, results_doc: Dict) -> Dict:
+    config_results = results_doc.get("config_results", [])
+    if not config_results:
+        raise ValueError(f"{path} contains no config_results")
+    if len(config_results) == 1:
+        return config_results[0]
+
+    if PREFERRED_CONFIG_NAME:
+        for cfg_res in config_results:
+            if cfg_res.get("config", {}).get("name") == PREFERRED_CONFIG_NAME:
+                return cfg_res
+
+    for cfg_res in config_results:
+        if cfg_res.get("config", {}).get("name") == "default":
+            return cfg_res
+
+    config_names = [cfg.get("config", {}).get("name", "<unnamed>") for cfg in config_results]
+    raise ValueError(
+        f"{path} contains multiple configs {config_names}; "
+        "set MIRAGE_CONFIG_NAME to choose one explicitly"
+    )
+
+
 def load_details(path: str) -> List[Dict]:
-    d = json.load(open(path))
-    return d["config_results"][0].get("details", [])
+    with open(path) as f:
+        results_doc = json.load(f)
+    return _select_config_result(path, results_doc).get("details", [])
 
 
 def hop_label(hop: Optional[int], ds_name: str) -> str:
@@ -121,23 +147,63 @@ def baseline_error_rate(y_true: np.ndarray) -> float:
     return float(np.mean(y_true == 0)) if len(y_true) > 0 else float("nan")
 
 
-def compute_stats(details: List[Dict], hop_label_: str, ds_name: str, ppv_frac: float = 0.20) -> Dict:
+def compute_stats(
+    details: List[Dict],
+    hop_label_: str,
+    ds_name: str,
+    ppv_frac: float = 0.20,
+    system_prefix: str = SYSTEM_PREFIX,
+) -> Dict:
     """For a slice of details (same hop bucket), compute AUROC and PPV for each metric."""
     results = {}
-    y_true_global = np.array([1.0 if d.get(f"{SYSTEM_PREFIX}_correct", False) else 0.0
-                               for d in details])
-    results["n"] = len(details)
+    clean_details = [
+        d for d in details
+        if not bool(d.get(f"{system_prefix}_generation_failed", False))
+    ]
+    y_true_global = np.array([
+        1.0 if d.get(f"{system_prefix}_correct", False) else 0.0
+        for d in clean_details
+    ])
+    results["n"] = len(clean_details)
     results["error_rate"] = baseline_error_rate(y_true_global)
 
     for key, label, family, higher_is_certain in METRICS:
-        raw = np.array([float(d.get(f"{SYSTEM_PREFIX}_{key}", float("nan"))) for d in details])
+        metric_details = clean_details
+        if key == "graph_path_support":
+            metric_details = [
+                d for d in clean_details
+                if not str(d.get(f"{system_prefix}_graph_path_support_null_reason", ""))
+            ]
+        elif key == "subgraph_perturbation_stability":
+            null_key = f"{system_prefix}_subgraph_perturbation_stability_null_reason"
+            if any(null_key in d for d in clean_details):
+                metric_details = [
+                    d for d in clean_details
+                    if not str(d.get(null_key, ""))
+                ]
+            else:
+                metric_details = []
+                for d in clean_details:
+                    legacy_value = d.get(f"{system_prefix}_{key}")
+                    try:
+                        if legacy_value is not None and abs(float(legacy_value) - 0.5) > 1e-12:
+                            metric_details.append(d)
+                    except (TypeError, ValueError):
+                        continue
+        raw = np.array([
+            float(d.get(f"{system_prefix}_{key}", float("nan")))
+            for d in metric_details
+        ])
         valid = ~np.isnan(raw)
         if valid.sum() < 4:
             results[key] = {"auroc": float("nan"), "ppv": float("nan"),
                             "label": label, "family": family}
             continue
         unc = np.where(valid, np.vectorize(lambda s: to_uncertainty(s, higher_is_certain))(raw), float("nan"))
-        yt = y_true_global[valid]
+        yt = np.array([
+            1.0 if d.get(f"{system_prefix}_correct", False) else 0.0
+            for d in metric_details
+        ])[valid]
         un = unc[valid]
         results[key] = {
             "auroc": auroc(yt, un),
@@ -299,7 +365,7 @@ def print_ppv_story(rows: List[Dict]) -> None:
 
 # ── Plotting ───────────────────────────────────────────────────────────────────
 
-def plot_hop_auroc(rows: List[Dict], out_dir: Path) -> None:
+def plot_hop_auroc(rows: List[Dict], out_dir: Path, filename_stem: str = "hop_auroc") -> None:
     """Main figure: 3-family AUROC grouped by hop bucket with dataset scatter."""
     try:
         import matplotlib
@@ -368,13 +434,13 @@ def plot_hop_auroc(rows: List[Dict], out_dir: Path) -> None:
 
     fig.tight_layout()
     out_dir.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out_dir / "hop_auroc.pdf", dpi=200, bbox_inches="tight")
-    fig.savefig(out_dir / "hop_auroc.png", dpi=160, bbox_inches="tight")
+    fig.savefig(out_dir / f"{filename_stem}.pdf", dpi=200, bbox_inches="tight")
+    fig.savefig(out_dir / f"{filename_stem}.png", dpi=160, bbox_inches="tight")
     plt.close(fig)
-    print(f"Saved {out_dir}/hop_auroc.pdf")
+    print(f"Saved {out_dir}/{filename_stem}.pdf")
 
 
-def plot_ppv_bars(rows: List[Dict], out_dir: Path) -> None:
+def plot_ppv_bars(rows: List[Dict], out_dir: Path, filename_stem: str = "hop_ppv") -> None:
     """PPV@20% comparison: single-hop vs multi-hop, per family."""
     try:
         import matplotlib
@@ -434,13 +500,13 @@ def plot_ppv_bars(rows: List[Dict], out_dir: Path) -> None:
 
     fig.tight_layout()
     out_dir.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out_dir / "hop_ppv.pdf", dpi=200, bbox_inches="tight")
-    fig.savefig(out_dir / "hop_ppv.png", dpi=160, bbox_inches="tight")
+    fig.savefig(out_dir / f"{filename_stem}.pdf", dpi=200, bbox_inches="tight")
+    fig.savefig(out_dir / f"{filename_stem}.png", dpi=160, bbox_inches="tight")
     plt.close(fig)
-    print(f"Saved {out_dir}/hop_ppv.pdf")
+    print(f"Saved {out_dir}/{filename_stem}.pdf")
 
 
-def plot_per_metric_detail(rows_detail: List[Dict], out_dir: Path) -> None:
+def plot_per_metric_detail(rows_detail: List[Dict], out_dir: Path, filename_stem: str = "hop_auroc_detail") -> None:
     """Appendix figure: per-metric AUROC heatmap across (metric × hop bucket)."""
     try:
         import matplotlib
@@ -502,10 +568,119 @@ def plot_per_metric_detail(rows_detail: List[Dict], out_dir: Path) -> None:
 
     fig.tight_layout()
     out_dir.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out_dir / "hop_auroc_detail.pdf", dpi=200, bbox_inches="tight")
-    fig.savefig(out_dir / "hop_auroc_detail.png", dpi=160, bbox_inches="tight")
+    fig.savefig(out_dir / f"{filename_stem}.pdf", dpi=200, bbox_inches="tight")
+    fig.savefig(out_dir / f"{filename_stem}.png", dpi=160, bbox_inches="tight")
     plt.close(fig)
-    print(f"Saved {out_dir}/hop_auroc_detail.pdf")
+    print(f"Saved {out_dir}/{filename_stem}.pdf")
+
+
+def run_hop_stratified_analysis(
+    details_by_dataset: Dict[str, List[Dict]],
+    output_dir: str = "paper/figures",
+    system_prefix: str = SYSTEM_PREFIX,
+    figure_suffix: str = "",
+) -> Dict:
+    """Callable API — run the full hop-stratified analysis on in-memory details.
+
+    Parameters
+    ----------
+    details_by_dataset : mapping of dataset_name → list of per-question detail dicts.
+        Each dict must contain the same keys written by experiment.py (e.g.
+        ``kg_correct``, ``kg_semantic_entropy``, ``hop_count``, etc.).
+    output_dir : directory where PDF/PNG figures are written.
+    system_prefix : prefix for metric keys in detail dicts (default "kg").
+
+    Returns
+    -------
+    dict with keys:
+        "rows"         — hop-summary rows (one per dataset × hop bucket)
+        "rows_detail"  — per-metric rows
+        "saved_figures"— list of written file paths
+    """
+    # Build per-bucket stats from in-memory dicts (avoids re-reading JSON files)
+    rows: List[Dict] = []
+    rows_detail: List[Dict] = []
+
+    for ds_name, details in details_by_dataset.items():
+        # Group by hop bucket
+        buckets: Dict[str, List[Dict]] = defaultdict(list)
+        for d in details:
+            hc = d.get("hop_count")
+            hl = hop_label(hc, ds_name)
+            if hl != "unknown":
+                buckets[hl].append(d)
+
+        for hl, bucket_details in sorted(buckets.items()):
+            stats = compute_stats(
+                bucket_details,
+                hl,
+                ds_name,
+                system_prefix=system_prefix,
+            )
+            fa = family_avg(stats, "auroc")
+            fp = family_avg(stats, "ppv")
+            rows.append({
+                "dataset":          ds_name,
+                "hop_label":        hl,
+                "n":                stats["n"],
+                "error_rate":       stats["error_rate"],
+                "output_auroc":     fa.get("output",     float("nan")),
+                "structural_auroc": fa.get("structural", float("nan")),
+                "grounding_auroc":  fa.get("grounding",  float("nan")),
+                "output_ppv":       fp.get("output",     float("nan")),
+                "structural_ppv":   fp.get("structural", float("nan")),
+                "grounding_ppv":    fp.get("grounding",  float("nan")),
+                "_stats":           stats,
+            })
+            for key, label, family, _ in METRICS:
+                if key not in stats:
+                    continue
+                rows_detail.append({
+                    "dataset":    ds_name,
+                    "hop_label":  hl,
+                    "metric":     label,
+                    "family":     family,
+                    "n":          stats["n"],
+                    "auroc":      stats[key]["auroc"],
+                    "ppv":        stats[key]["ppv"],
+                    "error_rate": stats["error_rate"],
+                })
+
+    out_path = Path(output_dir)
+    saved: List[str] = []
+    suffix = f"_{figure_suffix}" if figure_suffix else ""
+
+    if rows:
+        print_table(rows)
+        print_narrative(rows)
+        print_ppv_story(rows)
+
+        plot_hop_auroc(rows, out_path, filename_stem=f"hop_auroc{suffix}")
+        hop_auroc_pdf = str(out_path / f"hop_auroc{suffix}.pdf")
+        hop_auroc_png = str(out_path / f"hop_auroc{suffix}.png")
+        if Path(hop_auroc_pdf).exists():
+            saved.append(hop_auroc_pdf)
+        if Path(hop_auroc_png).exists():
+            saved.append(hop_auroc_png)
+
+        plot_ppv_bars(rows, out_path, filename_stem=f"hop_ppv{suffix}")
+        ppv_pdf = str(out_path / f"hop_ppv{suffix}.pdf")
+        ppv_png = str(out_path / f"hop_ppv{suffix}.png")
+        if Path(ppv_pdf).exists():
+            saved.append(ppv_pdf)
+        if Path(ppv_png).exists():
+            saved.append(ppv_png)
+
+    if rows_detail:
+        try:
+            plot_per_metric_detail(rows_detail, out_path, filename_stem=f"hop_auroc_detail{suffix}")
+            detail_pdf = str(out_path / f"hop_auroc_detail{suffix}.pdf")
+            if Path(detail_pdf).exists():
+                saved.append(detail_pdf)
+        except Exception as e:
+            print(f"  [warn] hop_auroc_detail failed: {e}")
+
+    return {"rows": rows, "rows_detail": rows_detail, "saved_figures": saved}
 
 
 # ── Entry point ────────────────────────────────────────────────────────────────

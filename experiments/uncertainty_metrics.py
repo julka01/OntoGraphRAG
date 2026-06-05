@@ -59,8 +59,10 @@ Structural-based (novel — this work):
 """
 
 import logging
+import re
 import threading
 import time
+from difflib import SequenceMatcher
 from typing import Dict, Any, List, Optional
 
 import numpy as np
@@ -73,6 +75,321 @@ _SENTENCE_TRANSFORMER_CACHE_LOCK = threading.Lock()
 _NLI_MODEL_CACHE: Dict[str, Any] = {}
 _NLI_TOKENIZER_CACHE: Dict[str, Any] = {}
 _NLI_CACHE_LOCK = threading.Lock()
+
+
+def _question_local_entity_support_predicate(
+    entity_var: str,
+    *,
+    kg_name: Optional[str],
+    question_id: Optional[str],
+) -> str:
+    """Require an entity to be supported inside the active KG/question scope."""
+    conditions: List[str] = []
+    if question_id:
+        conditions.append("c.questionId = $question_id")
+    if kg_name:
+        conditions.append("d.kgName = $kg_name")
+    where_clause = " AND ".join(conditions) if conditions else "true"
+    return f"""EXISTS {{
+        MATCH ({entity_var})<-[:MENTIONS|HAS_ENTITY]-(c:Chunk)-[:PART_OF]->(d:Document)
+        WHERE {where_clause}
+    }}"""
+
+
+def _question_local_pair_support_predicate(
+    left_var: str,
+    right_var: str,
+    *,
+    kg_name: Optional[str],
+    question_id: Optional[str],
+    relationship_var: Optional[str] = None,
+) -> str:
+    """Require two entities to be jointly supported inside one question bundle."""
+    if not question_id:
+        return "true"
+
+    kg_filters = ""
+    if kg_name:
+        kg_filters = """
+          AND d1.kgName = $kg_name
+          AND d2.kgName = $kg_name"""
+
+    direct_edge_scope = ""
+    if relationship_var:
+        direct_edge_scope = (
+            f"$question_id IN coalesce({relationship_var}.questionIds, []) OR "
+        )
+
+    return f"""{direct_edge_scope}EXISTS {{
+        MATCH ({left_var})<-[:MENTIONS|HAS_ENTITY]-(c1:Chunk)-[:PART_OF]->(d1:Document)
+        MATCH ({right_var})<-[:MENTIONS|HAS_ENTITY]-(c2:Chunk)-[:PART_OF]->(d2:Document)
+        WHERE c1.questionId = $question_id
+          AND c2.questionId = $question_id
+          AND coalesce(c1.passageIndex, -1) = coalesce(c2.passageIndex, -1)
+          AND abs(
+                coalesce(c1.chunkLocalIndex, c1.position)
+                - coalesce(c2.chunkLocalIndex, c2.position)
+              ) <= 1
+              {kg_filters}
+    }}"""
+
+
+def _question_local_path_support_predicate(
+    *,
+    path_var: str,
+    kg_name: Optional[str],
+    question_id: Optional[str],
+) -> str:
+    """Require every hop in a path to stay inside one question bundle."""
+    if not question_id:
+        return ""
+
+    kg_filters = ""
+    if kg_name:
+        kg_filters = """
+                  AND d1.kgName = $kg_name
+                  AND d2.kgName = $kg_name"""
+
+    return f"""
+          AND ALL(idx IN range(0, length({path_var}) - 1) WHERE (
+                $question_id IN coalesce(relationships({path_var})[idx].questionIds, [])
+                OR EXISTS {{
+                    WITH nodes({path_var})[idx] AS a, nodes({path_var})[idx + 1] AS b
+                    MATCH (a)<-[:MENTIONS|HAS_ENTITY]-(c1:Chunk)-[:PART_OF]->(d1:Document)
+                    MATCH (b)<-[:MENTIONS|HAS_ENTITY]-(c2:Chunk)-[:PART_OF]->(d2:Document)
+                    WHERE c1.questionId = $question_id
+                      AND c2.questionId = $question_id
+                      AND coalesce(c1.passageIndex, -1) = coalesce(c2.passageIndex, -1)
+                      AND abs(
+                            coalesce(c1.chunkLocalIndex, c1.position)
+                            - coalesce(c2.chunkLocalIndex, c2.position)
+                          ) <= 1
+                          {kg_filters}
+                }}
+          ))"""
+
+
+def _normalize_structural_text(value: Any) -> str:
+    """Normalize text for conservative entity mention matching."""
+    normalized = re.sub(r"[^a-z0-9]+", " ", str(value or "").strip().lower())
+    return re.sub(r"\s+", " ", normalized).strip()
+
+
+def _candidate_structural_spans(
+    text: str,
+    *,
+    min_name_length: int,
+    max_tokens: int = 8,
+    max_spans: int = 128,
+) -> List[str]:
+    """Generate normalized contiguous spans for lightweight entity matching."""
+    normalized = _normalize_structural_text(text)
+    if not normalized:
+        return []
+
+    tokens = normalized.split()
+    spans = {normalized} if len(normalized) >= min_name_length else set()
+    for start in range(len(tokens)):
+        for end in range(start + 1, min(len(tokens), start + max_tokens) + 1):
+            span = " ".join(tokens[start:end]).strip()
+            if len(span) >= min_name_length:
+                spans.add(span)
+            if len(spans) >= max_spans:
+                break
+        if len(spans) >= max_spans:
+            break
+    return sorted(spans, key=lambda span: (-len(span.split()), -len(span), span))
+
+
+def _entity_surface_forms(row: Dict[str, Any], *, min_name_length: int) -> List[str]:
+    """Return normalized names / aliases / synonyms worth matching."""
+    surface_forms = set()
+    for key in ("name",):
+        normalized = _normalize_structural_text(row.get(key, ""))
+        if len(normalized) >= min_name_length:
+            surface_forms.add(normalized)
+    for key in ("aliases", "original_ids", "synonyms"):
+        values = row.get(key) or []
+        if not isinstance(values, list):
+            continue
+        for value in values:
+            normalized = _normalize_structural_text(value)
+            if len(normalized) >= min_name_length:
+                surface_forms.add(normalized)
+    return sorted(surface_forms, key=lambda value: (-len(value.split()), -len(value), value))
+
+
+def _entity_match_score(
+    *,
+    text_normalized: str,
+    candidate_spans: List[str],
+    surface_forms: List[str],
+) -> float:
+    """Score how plausibly an entity is mentioned in text."""
+    if not text_normalized or not candidate_spans or not surface_forms:
+        return 0.0
+
+    candidate_span_set = set(candidate_spans)
+    best_score = 0.0
+    for surface_form in surface_forms:
+        if surface_form in candidate_span_set:
+            return 5.0 + min(len(surface_form.split()), 8) * 0.2 + min(len(surface_form), 64) / 64.0
+        if surface_form and surface_form in text_normalized:
+            best_score = max(
+                best_score,
+                4.0 + min(len(surface_form.split()), 8) * 0.2 + min(len(surface_form), 64) / 64.0,
+            )
+            continue
+        for span in candidate_spans:
+            if abs(len(span.split()) - len(surface_form.split())) > 1:
+                continue
+            ratio = SequenceMatcher(None, span, surface_form).ratio()
+            if ratio >= 0.92:
+                best_score = max(best_score, 3.0 + ratio)
+                break
+    return best_score
+
+
+def _load_scoped_entities(
+    session: Any,
+    *,
+    entity_scope: str,
+    kg_name: Optional[str],
+    question_id: Optional[str],
+    min_name_length: int,
+    limit: int = 4000,
+) -> List[Dict[str, Any]]:
+    """Fetch entities visible inside the active KG/question scope."""
+    scoped_entity_query = f"""
+    MATCH (e:__Entity__)
+    WHERE size(e.name) >= $min_len
+      AND {entity_scope}
+    RETURN DISTINCT e.id AS id,
+           e.name AS name,
+           coalesce(e.aliases, []) AS aliases,
+           coalesce(e.original_ids, []) AS original_ids,
+           coalesce(e.synonyms, []) AS synonyms
+    LIMIT {int(limit)}
+    """
+    params = {"min_len": min_name_length}
+    if kg_name:
+        params["kg_name"] = kg_name
+    if question_id:
+        params["question_id"] = question_id
+    return [dict(row) for row in session.run(scoped_entity_query, params)]
+
+
+def _match_scoped_entities_to_text(
+    text: str,
+    scoped_entities: List[Dict[str, Any]],
+    *,
+    min_name_length: int,
+    max_entities: int = 5,
+) -> List[Dict[str, Any]]:
+    """Select the most plausible KG entities mentioned in text."""
+    text_normalized = _normalize_structural_text(text)
+    candidate_spans = _candidate_structural_spans(
+        text_normalized,
+        min_name_length=min_name_length,
+    )
+    if not candidate_spans:
+        return []
+
+    scored: List[tuple] = []
+    for row in scoped_entities:
+        surface_forms = _entity_surface_forms(row, min_name_length=min_name_length)
+        score = _entity_match_score(
+            text_normalized=text_normalized,
+            candidate_spans=candidate_spans,
+            surface_forms=surface_forms,
+        )
+        if score <= 0.0:
+            continue
+        scored.append((score, len(surface_forms[0]) if surface_forms else 0, str(row.get("id", "")), row))
+
+    scored.sort(key=lambda item: (-item[0], -item[1], item[2]))
+    matched: List[Dict[str, Any]] = []
+    seen_ids = set()
+    for _, _, entity_id, row in scored:
+        if entity_id in seen_ids:
+            continue
+        matched.append(row)
+        seen_ids.add(entity_id)
+        if len(matched) >= max_entities:
+            break
+    return matched
+
+
+def _primary_answer_span(answer: str) -> str:
+    """Use the first sentence / first 150 chars to avoid explanatory spillover."""
+    first_sentence = str(answer or "").split(".")[0].strip()
+    if first_sentence and len(first_sentence) <= 150:
+        return first_sentence
+    return str(answer or "")[:150]
+
+
+def _resolve_structural_entities(
+    session: Any,
+    *,
+    question: str,
+    answer: str,
+    entity_scope: str,
+    kg_name: Optional[str],
+    question_id: Optional[str],
+    min_name_length: int,
+) -> Dict[str, Any]:
+    """Resolve question / answer entities and retain non-self support sources."""
+    scoped_entities = _load_scoped_entities(
+        session,
+        entity_scope=entity_scope,
+        kg_name=kg_name,
+        question_id=question_id,
+        min_name_length=min_name_length,
+    )
+    if not scoped_entities:
+        return {"null_reason": "no_q_entities"}
+
+    question_entities = _match_scoped_entities_to_text(
+        question,
+        scoped_entities,
+        min_name_length=min_name_length,
+    )
+    if not question_entities:
+        return {"null_reason": "no_q_entities"}
+
+    answer_entities = _match_scoped_entities_to_text(
+        _primary_answer_span(answer),
+        scoped_entities,
+        min_name_length=min_name_length,
+    )
+    if not answer_entities:
+        return {"null_reason": "no_a_entities"}
+
+    question_entity_ids = [str(row.get("id")) for row in question_entities if row.get("id")]
+    if not question_entity_ids:
+        return {"null_reason": "no_q_entities"}
+
+    effective_answer_ids: List[str] = []
+    question_sources_by_answer: Dict[str, List[str]] = {}
+    for row in answer_entities:
+        answer_id = str(row.get("id"))
+        if not answer_id:
+            continue
+        source_q_ids = [q_id for q_id in question_entity_ids if q_id != answer_id]
+        if not source_q_ids:
+            continue
+        effective_answer_ids.append(answer_id)
+        question_sources_by_answer[answer_id] = source_q_ids
+
+    if not effective_answer_ids:
+        return {"null_reason": "trivial_overlap"}
+
+    return {
+        "null_reason": None,
+        "question_entity_ids": question_entity_ids,
+        "answer_entity_ids": effective_answer_ids,
+        "question_sources_by_answer": question_sources_by_answer,
+    }
 
 
 def _safe_prob_entropy(probabilities: np.ndarray) -> float:
@@ -811,6 +1128,7 @@ def compute_graph_path_support(
     neo4j_password: str,
     neo4j_database: str = "neo4j",
     kg_name: str = None,
+    question_id: Optional[str] = None,
     max_hops: int = 3,
     min_name_length: int = 4,
 ) -> float:
@@ -865,73 +1183,86 @@ def compute_graph_path_support(
     if not question or not answer:
         return 0.5
 
+    return compute_graph_path_support_detailed(
+        question=question,
+        answer=answer,
+        neo4j_uri=neo4j_uri,
+        neo4j_user=neo4j_user,
+        neo4j_password=neo4j_password,
+        neo4j_database=neo4j_database,
+        kg_name=kg_name,
+        question_id=question_id,
+        max_hops=max_hops,
+        min_name_length=min_name_length,
+    )["score"]
+
+
+def compute_graph_path_support_detailed(
+    question: str,
+    answer: str,
+    neo4j_uri: str,
+    neo4j_user: str,
+    neo4j_password: str,
+    neo4j_database: str = "neo4j",
+    kg_name: str = None,
+    question_id: Optional[str] = None,
+    max_hops: int = 3,
+    min_name_length: int = 4,
+) -> Dict[str, Any]:
+    """Like compute_graph_path_support but returns a dict with score AND null_reason.
+
+    Keys:
+      score       float  — the GPS uncertainty score (0.0–1.0, or 0.5 when undefined)
+      null_reason str|None — why 0.5 was returned, or None when a real score was computed
+                   "no_q_entities"  : no KG entities matched the question text
+                   "no_a_entities"  : no KG entities matched the answer text
+                   "trivial_overlap": all answer entities also appeared in the question
+                   "neo4j_unavailable" : driver import failed
+                   "error"          : unexpected exception
+
+    The null_reason field lets callers exclude undefined rows from AUROC instead of
+    treating them as a real 0.5 score, which would inflate discrimination estimates.
+    """
+    try:
+        from neo4j import GraphDatabase as _GDB
+    except ImportError:
+        logger.warning("neo4j driver not available — skipping graph path support")
+        return {"score": 0.5, "null_reason": "neo4j_unavailable"}
+
+    if not question or not answer:
+        return {"score": 0.5, "null_reason": "no_input"}
+
     driver = None
     try:
         driver = _GDB.driver(neo4j_uri, auth=(neo4j_user, neo4j_password))
-        question_lower = question.lower()
-
-        # Use only the primary answer span — the first sentence or first 150 chars,
-        # whichever is shorter.  This prevents explanatory text (e.g. "William Nigh,
-        # born 1881, directed...") from polluting the answer-entity search: those
-        # secondary entities are always reachable from their films, so they produce
-        # GPS = 0.0 for every response regardless of correctness, killing
-        # discrimination on comparison questions.
-        first_sentence = answer.split(".")[0].strip()
-        answer_primary = first_sentence if len(first_sentence) <= 150 else answer[:150]
-        answer_lower = answer_primary.lower()
 
         with driver.session(database=neo4j_database) as session:
-            # Step 1: Find question entities
-            kg_filter = "AND EXISTS { MATCH (e)<-[:HAS_ENTITY|MENTIONS]-(c:Chunk)-[:PART_OF]->(d:Document {kgName: $kg_name}) }" if kg_name else ""
-            q_entity_query = f"""
-            MATCH (e:__Entity__)
-            WHERE size(e.name) >= $min_len
-              AND $question_lower CONTAINS toLower(e.name)
-              {kg_filter}
-            RETURN DISTINCT e.id AS id, e.name AS name
-            LIMIT 5
-            """
-            q_params = {"question_lower": question_lower, "min_len": min_name_length}
-            if kg_name:
-                q_params["kg_name"] = kg_name
-            q_result = session.run(q_entity_query, q_params)
-            question_entity_ids = [r["id"] for r in q_result]
-
-            if not question_entity_ids:
+            entity_scope = _question_local_entity_support_predicate(
+                "e",
+                kg_name=kg_name,
+                question_id=question_id,
+            )
+            path_scope = _question_local_path_support_predicate(
+                path_var="p",
+                kg_name=kg_name,
+                question_id=question_id,
+            )
+            resolved = _resolve_structural_entities(
+                session,
+                question=question,
+                answer=answer,
+                entity_scope=entity_scope,
+                kg_name=kg_name,
+                question_id=question_id,
+                min_name_length=min_name_length,
+            )
+            null_reason = str(resolved.get("null_reason") or "")
+            if null_reason:
                 driver.close()
-                return 0.5
-
-            # Step 2: Find answer entities
-            a_entity_query = f"""
-            MATCH (e:__Entity__)
-            WHERE size(e.name) >= $min_len
-              AND $answer_lower CONTAINS toLower(e.name)
-              {kg_filter}
-            RETURN DISTINCT e.id AS id, e.name AS name
-            LIMIT 5
-            """
-            a_params = {"answer_lower": answer_lower, "min_len": min_name_length}
-            if kg_name:
-                a_params["kg_name"] = kg_name
-            a_result = session.run(a_entity_query, a_params)
-            answer_entity_ids = [r["id"] for r in a_result]
-
-            if not answer_entity_ids:
-                driver.close()
-                return 0.5
-
-            # Remove question entities from answer entities (trivial self-paths and
-            # direct-choice answers).  When the answer entity also appears in the
-            # question (e.g. "Which film, A or B?" → answer "B"), the graph cannot
-            # distinguish the correct choice from the incorrect one — GPS is undefined.
-            # Returning 0.5 here is correct: it signals "no structural information",
-            # which is the honest answer for comparison questions.
-            q_id_set = set(question_entity_ids)
-            answer_entity_ids = [eid for eid in answer_entity_ids if eid not in q_id_set]
-
-            if not answer_entity_ids:
-                driver.close()
-                return 0.5
+                return {"score": 0.5, "null_reason": null_reason}
+            question_entity_ids = list(resolved["question_entity_ids"])
+            answer_entity_ids = list(resolved["answer_entity_ids"])
+            question_sources_by_answer = dict(resolved["question_sources_by_answer"])
 
             # Step 3: Check reachability per answer entity with LIMIT 1 each.
             # Running one query per answer entity (capped at 5) lets us use
@@ -944,28 +1275,34 @@ def compute_graph_path_support(
             MATCH (a_e:__Entity__ {{id: $a_id}})
             MATCH p = (q_e)-[*1..{max_hops}]-(a_e)
             WHERE ALL(r IN relationships(p) WHERE coalesce(r.confidence, 1.0) >= 0.4)
+              {path_scope}
             RETURN a_e.id AS reachable_id
             LIMIT 1
             """
             for a_id in answer_entity_ids:
-                res = list(session.run(per_pair_query, {
-                    "q_ids": question_entity_ids,
+                params = {
+                    "q_ids": question_sources_by_answer.get(a_id, question_entity_ids),
                     "a_id": a_id,
-                }, timeout=20))
+                }
+                if kg_name:
+                    params["kg_name"] = kg_name
+                if question_id:
+                    params["question_id"] = question_id
+                res = list(session.run(per_pair_query, params, timeout=20))
                 if res:
                     reachable_ids.add(a_id)
 
         driver.close()
 
         support = len(reachable_ids) / len(answer_entity_ids)
-        return float(1.0 - support)
+        return {"score": float(1.0 - support), "null_reason": None}
 
     except Exception as e:
         logger.warning(f"Graph path support failed: {e}")
         if driver is not None:
             try: driver.close()
             except Exception: pass
-        return 0.5
+        return {"score": 0.5, "null_reason": "error"}
 
 
 def compute_graph_path_disagreement(
@@ -975,6 +1312,7 @@ def compute_graph_path_disagreement(
     neo4j_password: str,
     neo4j_database: str = "neo4j",
     kg_name: str = None,
+    question_id: Optional[str] = None,
     max_hops: int = 2,
     min_name_length: int = 4,
 ) -> float:
@@ -1032,19 +1370,30 @@ def compute_graph_path_disagreement(
         question_lower = question.lower()
 
         with driver.session(database=neo4j_database) as session:
+            entity_scope = _question_local_entity_support_predicate(
+                "e",
+                kg_name=kg_name,
+                question_id=question_id,
+            )
+            path_scope = _question_local_path_support_predicate(
+                path_var="path",
+                kg_name=kg_name,
+                question_id=question_id,
+            )
             # Step 1: Find question entities
-            kg_filter = "AND EXISTS { MATCH (e)<-[:HAS_ENTITY|MENTIONS]-(c:Chunk)-[:PART_OF]->(d:Document {kgName: $kg_name}) }" if kg_name else ""
             q_entity_query = f"""
             MATCH (e:__Entity__)
             WHERE size(e.name) >= $min_len
               AND $question_lower CONTAINS toLower(e.name)
-              {kg_filter}
+              AND {entity_scope}
             RETURN DISTINCT e.id AS id
             LIMIT 20
             """
             q_params = {"question_lower": question_lower, "min_len": min_name_length}
             if kg_name:
                 q_params["kg_name"] = kg_name
+            if question_id:
+                q_params["question_id"] = question_id
             q_result = session.run(q_entity_query, q_params)
             question_entity_ids = [r["id"] for r in q_result]
 
@@ -1054,12 +1403,21 @@ def compute_graph_path_disagreement(
 
             # Step 2: Walk max_hops from question entities, count neighbor frequencies
             walk_query = f"""
-            MATCH (q_e:__Entity__)-[*1..{max_hops}]->(neighbor:__Entity__)
+            MATCH (q_e:__Entity__)
             WHERE q_e.id IN $q_ids
+            MATCH path = (q_e)-[*1..{max_hops}]->(neighbor:__Entity__)
+            WHERE NOT q_e.id = neighbor.id
               AND NOT neighbor.id IN $q_ids
-            RETURN neighbor.id AS nid, count(*) AS freq
+              AND ALL(r IN relationships(path) WHERE coalesce(r.confidence, 1.0) >= 0.4)
+              {path_scope}
+            RETURN neighbor.id AS nid, count(path) AS freq
             """
-            walk_result = session.run(walk_query, {"q_ids": question_entity_ids})
+            walk_params = {"q_ids": question_entity_ids}
+            if kg_name:
+                walk_params["kg_name"] = kg_name
+            if question_id:
+                walk_params["question_id"] = question_id
+            walk_result = session.run(walk_query, walk_params)
             rows = [(r["nid"], r["freq"]) for r in walk_result]
 
         driver.close()
@@ -1095,6 +1453,7 @@ def compute_evidence_vn_entropy(
     neo4j_password: str,
     neo4j_database: str = "neo4j",
     kg_name: str = None,
+    question_id: Optional[str] = None,
     max_hops: int = 2,
     min_name_length: int = 4,
     n_triples: int = 20,
@@ -1183,20 +1542,38 @@ def compute_evidence_vn_entropy(
         question_lower = question.lower()
 
         with driver.session(database=neo4j_database) as session:
-            kg_filter = "AND EXISTS { MATCH (e)<-[:HAS_ENTITY|MENTIONS]-(c:Chunk)-[:PART_OF]->(d:Document {kgName: $kg_name}) }" if kg_name else ""
+            entity_scope = _question_local_entity_support_predicate(
+                "e",
+                kg_name=kg_name,
+                question_id=question_id,
+            )
+            pair_scope = _question_local_pair_support_predicate(
+                "h",
+                "t",
+                kg_name=kg_name,
+                question_id=question_id,
+                relationship_var="r",
+            )
+            path_scope = _question_local_path_support_predicate(
+                path_var="path",
+                kg_name=kg_name,
+                question_id=question_id,
+            )
 
             # Step 1: Find question entities
             q_entity_query = f"""
             MATCH (e:__Entity__)
             WHERE size(e.name) >= $min_len
               AND $question_lower CONTAINS toLower(e.name)
-              {kg_filter}
+              AND {entity_scope}
             RETURN DISTINCT e.id AS id
             LIMIT 20
             """
             q_params = {"question_lower": question_lower, "min_len": min_name_length}
             if kg_name:
                 q_params["kg_name"] = kg_name
+            if question_id:
+                q_params["question_id"] = question_id
             q_result = session.run(q_entity_query, q_params)
             question_entity_ids = [r["id"] for r in q_result]
 
@@ -1207,20 +1584,33 @@ def compute_evidence_vn_entropy(
             # Step 2: Retrieve triples in max_hops neighbourhood
             triple_query = f"""
             MATCH (h:__Entity__)-[r]->(t:__Entity__)
-            WHERE h.id IN $q_ids
+            WHERE (
+                  h.id IN $q_ids
                OR t.id IN $q_ids
                OR EXISTS {{
-                   MATCH (q_e:__Entity__)-[*1..{max_hops}]-(h)
+                   MATCH path = (q_e:__Entity__)-[*1..{max_hops}]-(h)
                    WHERE q_e.id IN $q_ids
+                     AND ALL(rel IN relationships(path) WHERE coalesce(rel.confidence, 1.0) >= 0.4)
+                     {path_scope}
                 }}
                OR EXISTS {{
-                   MATCH (q_e:__Entity__)-[*1..{max_hops}]-(t)
+                   MATCH path = (q_e:__Entity__)-[*1..{max_hops}]-(t)
                    WHERE q_e.id IN $q_ids
+                     AND ALL(rel IN relationships(path) WHERE coalesce(rel.confidence, 1.0) >= 0.4)
+                     {path_scope}
                }}
+            )
+              AND coalesce(r.confidence, 1.0) >= 0.4
+              AND {pair_scope}
             RETURN h.name AS head, type(r) AS rel, t.name AS tail
             LIMIT {n_triples}
             """
-            triple_result = session.run(triple_query, {"q_ids": question_entity_ids})
+            triple_params = {"q_ids": question_entity_ids}
+            if kg_name:
+                triple_params["kg_name"] = kg_name
+            if question_id:
+                triple_params["question_id"] = question_id
+            triple_result = session.run(triple_query, triple_params)
             triples = [(r["head"], r["rel"], r["tail"]) for r in triple_result
                        if r["head"] and r["rel"] and r["tail"]]
 
@@ -1278,6 +1668,7 @@ def compute_competing_answer_alternatives(
     neo4j_password: str,
     neo4j_database: str = "neo4j",
     kg_name: str = None,
+    question_id: Optional[str] = None,
     min_name_length: int = 4,
 ) -> float:
     """
@@ -1356,20 +1747,40 @@ def compute_competing_answer_alternatives(
         answer_lower = answer.lower()
 
         with driver.session(database=neo4j_database) as session:
-            kg_filter = "AND EXISTS { MATCH (e)<-[:HAS_ENTITY|MENTIONS]-(c:Chunk)-[:PART_OF]->(d:Document {kgName: $kg_name}) }" if kg_name else ""
+            entity_scope = _question_local_entity_support_predicate(
+                "e",
+                kg_name=kg_name,
+                question_id=question_id,
+            )
+            pair_scope_rel = _question_local_pair_support_predicate(
+                "q_e",
+                "a_e",
+                kg_name=kg_name,
+                question_id=question_id,
+                relationship_var="r",
+            )
+            pair_scope_alt = _question_local_pair_support_predicate(
+                "q_e",
+                "alt",
+                kg_name=kg_name,
+                question_id=question_id,
+                relationship_var="r",
+            )
 
             # Step 1: Find question entities
             q_entity_query = f"""
             MATCH (e:__Entity__)
             WHERE size(e.name) >= $min_len
               AND $question_lower CONTAINS toLower(e.name)
-              {kg_filter}
+              AND {entity_scope}
             RETURN DISTINCT e.id AS id, e.name AS name
             LIMIT 20
             """
             q_params = {"question_lower": question_lower, "min_len": min_name_length}
             if kg_name:
                 q_params["kg_name"] = kg_name
+            if question_id:
+                q_params["question_id"] = question_id
             q_result = session.run(q_entity_query, q_params)
             question_entity_ids = [r["id"] for r in q_result]
 
@@ -1382,7 +1793,7 @@ def compute_competing_answer_alternatives(
             MATCH (e:__Entity__)
             WHERE size(e.name) >= $min_len
               AND $answer_lower CONTAINS toLower(e.name)
-              {kg_filter}
+              AND {entity_scope}
             RETURN DISTINCT e.id AS id, e.name AS name, size(e.name) AS name_len
             ORDER BY name_len DESC
             LIMIT 5
@@ -1390,6 +1801,8 @@ def compute_competing_answer_alternatives(
             a_params = {"answer_lower": answer_lower, "min_len": min_name_length}
             if kg_name:
                 a_params["kg_name"] = kg_name
+            if question_id:
+                a_params["question_id"] = question_id
             a_result = session.run(a_entity_query, a_params)
             answer_entity_rows = [(r["id"], r["name"]) for r in a_result]
 
@@ -1407,49 +1820,69 @@ def compute_competing_answer_alternatives(
                 return 0.0
 
             # Step 3: Find relation types connecting question entities → answer entity
-            rel_type_query = """
+            rel_type_query = f"""
             MATCH (q_e:__Entity__)-[r]->(a_e:__Entity__)
             WHERE q_e.id IN $q_ids
               AND a_e.id IN $a_ids
+              AND coalesce(r.confidence, 1.0) >= 0.4
+              AND {pair_scope_rel}
             RETURN DISTINCT type(r) AS rel_type
             LIMIT 10
             """
-            rel_result = session.run(rel_type_query, {
-                "q_ids": question_entity_ids,
-                "a_ids": answer_entity_ids,
-            })
-            rel_types = [r["rel_type"] for r in rel_result]
+            rel_params = {"q_ids": question_entity_ids, "a_ids": answer_entity_ids}
+            if kg_name:
+                rel_params["kg_name"] = kg_name
+            if question_id:
+                rel_params["question_id"] = question_id
+            rel_result = session.run(rel_type_query, rel_params)
+            relation_patterns = [(r["rel_type"], "forward") for r in rel_result]
 
-            if not rel_types:
+            if not relation_patterns:
                 # Also try reverse direction (answer → question)
-                rel_type_query_rev = """
+                rel_type_query_rev = f"""
                 MATCH (a_e:__Entity__)-[r]->(q_e:__Entity__)
                 WHERE q_e.id IN $q_ids
                   AND a_e.id IN $a_ids
+                  AND coalesce(r.confidence, 1.0) >= 0.4
+                  AND {pair_scope_rel}
                 RETURN DISTINCT type(r) AS rel_type
                 LIMIT 10
                 """
-                rel_result_rev = session.run(rel_type_query_rev, {
-                    "q_ids": question_entity_ids,
-                    "a_ids": answer_entity_ids,
-                })
-                rel_types = [r["rel_type"] for r in rel_result_rev]
+                rel_result_rev = session.run(rel_type_query_rev, rel_params)
+                relation_patterns = [(r["rel_type"], "reverse") for r in rel_result_rev]
 
-            if not rel_types:
+            if not relation_patterns:
                 driver.close()
                 return 0.0
 
             # Step 4: Count all entities reachable from question entities via those
             # relation types — these are the "competing answer alternatives"
             competing_count = 0
-            for rel_type in rel_types:
-                alt_query = f"""
-                MATCH (q_e:__Entity__)-[r:{rel_type}]->(alt:__Entity__)
-                WHERE q_e.id IN $q_ids
-                  AND NOT alt.id IN $q_ids
-                RETURN count(DISTINCT alt) AS n
-                """
-                alt_result = session.run(alt_query, {"q_ids": question_entity_ids})
+            for rel_type, direction in relation_patterns:
+                if direction == "reverse":
+                    alt_query = f"""
+                    MATCH (alt:__Entity__)-[r:{rel_type}]->(q_e:__Entity__)
+                    WHERE q_e.id IN $q_ids
+                      AND NOT alt.id IN $q_ids
+                      AND coalesce(r.confidence, 1.0) >= 0.4
+                      AND {pair_scope_alt}
+                    RETURN count(DISTINCT alt) AS n
+                    """
+                else:
+                    alt_query = f"""
+                    MATCH (q_e:__Entity__)-[r:{rel_type}]->(alt:__Entity__)
+                    WHERE q_e.id IN $q_ids
+                      AND NOT alt.id IN $q_ids
+                      AND coalesce(r.confidence, 1.0) >= 0.4
+                      AND {pair_scope_alt}
+                    RETURN count(DISTINCT alt) AS n
+                    """
+                alt_params = {"q_ids": question_entity_ids}
+                if kg_name:
+                    alt_params["kg_name"] = kg_name
+                if question_id:
+                    alt_params["question_id"] = question_id
+                alt_result = session.run(alt_query, alt_params)
                 row = alt_result.single()
                 if row:
                     competing_count = max(competing_count, row["n"])
@@ -1478,6 +1911,7 @@ def compute_subgraph_perturbation_stability(
     neo4j_password: str,
     neo4j_database: str = "neo4j",
     kg_name: str = None,
+    question_id: Optional[str] = None,
     max_hops: int = 3,
     min_name_length: int = 4,
     n_perturbations: int = 16,
@@ -1486,6 +1920,43 @@ def compute_subgraph_perturbation_stability(
     max_paths: int = 500,
     seed: int = 42,
 ) -> float:
+    """Backward-compatible scalar SPS-UQ wrapper."""
+    return compute_subgraph_perturbation_stability_detailed(
+        question=question,
+        answer=answer,
+        neo4j_uri=neo4j_uri,
+        neo4j_user=neo4j_user,
+        neo4j_password=neo4j_password,
+        neo4j_database=neo4j_database,
+        kg_name=kg_name,
+        question_id=question_id,
+        max_hops=max_hops,
+        min_name_length=min_name_length,
+        n_perturbations=n_perturbations,
+        min_dropout=min_dropout,
+        max_dropout=max_dropout,
+        max_paths=max_paths,
+        seed=seed,
+    )["score"]
+
+
+def compute_subgraph_perturbation_stability_detailed(
+    question: str,
+    answer: str,
+    neo4j_uri: str,
+    neo4j_user: str,
+    neo4j_password: str,
+    neo4j_database: str = "neo4j",
+    kg_name: str = None,
+    question_id: Optional[str] = None,
+    max_hops: int = 3,
+    min_name_length: int = 4,
+    n_perturbations: int = 16,
+    min_dropout: float = 0.10,
+    max_dropout: float = 0.40,
+    max_paths: int = 500,
+    seed: int = 42,
+) -> Dict[str, Any]:
     """
     Subgraph Perturbation Stability (SPS-UQ) — Structural uncertainty (novel).
 
@@ -1506,65 +1977,54 @@ def compute_subgraph_perturbation_stability(
     Return values:
       0.0  -> highly stable support under perturbations (low uncertainty)
       1.0  -> highly fragile support (high uncertainty)
-      0.5  -> undefined/fallback (entity extraction failure, DB issues)
+      {"score": 0.5, "null_reason": "..."} -> undefined/abstained
+
+    Null reasons mirror GPS where possible:
+      no_input, no_q_entities, no_a_entities, trivial_overlap,
+      neo4j_unavailable, error.
     """
     try:
         from neo4j import GraphDatabase as _GDB
     except ImportError:
         logger.warning("neo4j driver not available — skipping sps_uq")
-        return 0.5
+        return {"score": 0.5, "null_reason": "neo4j_unavailable"}
 
     if not question or not answer:
-        return 0.5
+        return {"score": 0.5, "null_reason": "no_input"}
 
     driver = None
     try:
         import zlib
 
         driver = _GDB.driver(neo4j_uri, auth=(neo4j_user, neo4j_password))
-        question_lower = question.lower()
-        answer_lower = answer.lower()
 
         with driver.session(database=neo4j_database) as session:
-            kg_filter = "AND EXISTS { MATCH (e)<-[:HAS_ENTITY|MENTIONS]-(c:Chunk)-[:PART_OF]->(d:Document {kgName: $kg_name}) }" if kg_name else ""
-
-            # 1) question entities
-            q_query = f"""
-            MATCH (e:__Entity__)
-            WHERE size(e.name) >= $min_len
-              AND $question_lower CONTAINS toLower(e.name)
-              {kg_filter}
-            RETURN DISTINCT e.id AS id
-            LIMIT 5
-            """
-            q_params = {"question_lower": question_lower, "min_len": min_name_length}
-            if kg_name:
-                q_params["kg_name"] = kg_name
-            q_ids = [r["id"] for r in session.run(q_query, q_params)]
-            if not q_ids:
+            entity_scope = _question_local_entity_support_predicate(
+                "e",
+                kg_name=kg_name,
+                question_id=question_id,
+            )
+            path_scope = _question_local_path_support_predicate(
+                path_var="p",
+                kg_name=kg_name,
+                question_id=question_id,
+            )
+            resolved = _resolve_structural_entities(
+                session,
+                question=question,
+                answer=answer,
+                entity_scope=entity_scope,
+                kg_name=kg_name,
+                question_id=question_id,
+                min_name_length=min_name_length,
+            )
+            null_reason = str(resolved.get("null_reason") or "")
+            if null_reason:
                 driver.close()
-                return 0.5
-
-            # 2) answer entities
-            a_query = f"""
-            MATCH (e:__Entity__)
-            WHERE size(e.name) >= $min_len
-              AND $answer_lower CONTAINS toLower(e.name)
-              {kg_filter}
-            RETURN DISTINCT e.id AS id
-            LIMIT 5
-            """
-            a_params = {"answer_lower": answer_lower, "min_len": min_name_length}
-            if kg_name:
-                a_params["kg_name"] = kg_name
-            a_ids = [r["id"] for r in session.run(a_query, a_params)]
-
-            # Remove trivial overlaps
-            q_set = set(q_ids)
-            a_ids = [eid for eid in a_ids if eid not in q_set]
-            if not a_ids:
-                driver.close()
-                return 0.5
+                return {"score": 0.5, "null_reason": null_reason}
+            q_ids = list(resolved["question_entity_ids"])
+            a_ids = list(resolved["answer_entity_ids"])
+            question_sources_by_answer = dict(resolved["question_sources_by_answer"])
 
             # 3) supporting paths with relationship IDs — capped at max_paths
             path_query = f"""
@@ -1573,27 +2033,40 @@ def compute_subgraph_perturbation_stability(
             MATCH p = (q)-[*1..{max_hops}]-(a:__Entity__)
             WHERE a.id IN $a_ids
               AND ALL(r IN relationships(p) WHERE coalesce(r.confidence, 1.0) >= 0.4)
+              {path_scope}
             RETURN a.id AS a_id,
                    [rel IN relationships(p) | id(rel)] AS rel_ids
             LIMIT {max_paths}
             """
-            path_rows = [dict(r) for r in session.run(path_query, {"q_ids": q_ids, "a_ids": a_ids}, timeout=20)]
+            path_rows: List[Dict[str, Any]] = []
+            for a_id in a_ids:
+                path_params = {
+                    "q_ids": question_sources_by_answer.get(a_id, q_ids),
+                    "a_ids": [a_id],
+                }
+                if kg_name:
+                    path_params["kg_name"] = kg_name
+                if question_id:
+                    path_params["question_id"] = question_id
+                path_rows.extend(
+                    dict(r) for r in session.run(path_query, path_params, timeout=20)
+                )
 
         driver.close()
 
         # No support paths => maximally uncertain for this answer wrt KG
         if not path_rows:
-            return 1.0
+            return {"score": 1.0, "null_reason": None}
 
         answer_count = max(1, len(a_ids))
         baseline_reachable = len({row["a_id"] for row in path_rows}) / answer_count
         if baseline_reachable <= 0:
-            return 1.0
+            return {"score": 1.0, "null_reason": None}
 
         rel_universe = sorted({rid for row in path_rows for rid in (row.get("rel_ids") or [])})
         if not rel_universe:
             # Degenerate case: treat as unsupported if we cannot identify edges.
-            return 1.0
+            return {"score": 1.0, "null_reason": None}
 
         # Deterministic RNG per (question, answer)
         pair_seed = seed ^ zlib.crc32(f"{question}||{answer}".encode("utf-8"))
@@ -1627,14 +2100,14 @@ def compute_subgraph_perturbation_stability(
 
         stability = float(np.mean(stability_terms)) if stability_terms else float(baseline_reachable)
         uncertainty = 1.0 - stability
-        return float(np.clip(uncertainty, 0.0, 1.0))
+        return {"score": float(np.clip(uncertainty, 0.0, 1.0)), "null_reason": None}
 
     except Exception as e:
         logger.warning(f"Counterfactual subgraph stability failed: {e}")
         if driver is not None:
             try: driver.close()
             except Exception: pass
-        return 0.5
+        return {"score": 0.5, "null_reason": "error"}
 
 
 # =============================================================================
@@ -1658,6 +2131,15 @@ _HIGHER_IS_MORE_UNCERTAIN = {
 # Metrics where HIGHER value = MORE certain (confidence score).
 # For AUROC we use the value directly; for AUREC we sort descending on -score.
 _HIGHER_IS_MORE_CERTAIN = {"p_true"}
+_GPS_NULL_REASON_ORDER = (
+    "no_q_entities",
+    "no_a_entities",
+    "trivial_overlap",
+    "neo4j_unavailable",
+    "no_input",
+    "error",
+)
+_SPS_NULL_REASON_ORDER = _GPS_NULL_REASON_ORDER
 
 
 def compute_subgraph_informativeness(
@@ -1667,6 +2149,7 @@ def compute_subgraph_informativeness(
     neo4j_password: str,
     neo4j_database: str = "neo4j",
     kg_name: str = None,
+    question_id: Optional[str] = None,
     max_hops: int = 2,
     min_name_length: int = 4,
     embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2",
@@ -1764,10 +2247,15 @@ def compute_subgraph_informativeness(
         question_lower = question.lower()
 
         with driver.session(database=neo4j_database) as session:
-            kg_filter = (
-                "AND EXISTS { MATCH (e)<-[:HAS_ENTITY|MENTIONS]-(c:Chunk)"
-                "-[:PART_OF]->(d:Document {kgName: $kg_name}) }"
-                if kg_name else ""
+            entity_scope = _question_local_entity_support_predicate(
+                "e",
+                kg_name=kg_name,
+                question_id=question_id,
+            )
+            path_scope = _question_local_path_support_predicate(
+                path_var="path",
+                kg_name=kg_name,
+                question_id=question_id,
             )
 
             # Step 1: find question entities
@@ -1775,13 +2263,15 @@ def compute_subgraph_informativeness(
             MATCH (e:__Entity__)
             WHERE size(e.name) >= $min_len
               AND $question_lower CONTAINS toLower(e.name)
-              {kg_filter}
+              AND {entity_scope}
             RETURN DISTINCT e.id AS id, e.name AS name
             LIMIT 20
             """
             q_params: dict = {"question_lower": question_lower, "min_len": min_name_length}
             if kg_name:
                 q_params["kg_name"] = kg_name
+            if question_id:
+                q_params["question_id"] = question_id
 
             q_result = session.run(q_entity_query, q_params)
             question_entity_ids = [r["id"] for r in q_result]
@@ -1795,9 +2285,10 @@ def compute_subgraph_informativeness(
             walk_query = f"""
             MATCH (seed:__Entity__)
             WHERE seed.id IN $seed_ids
-              {kg_filter}
             MATCH path = (seed)-[*1..{max_hops}]->(candidate:__Entity__)
             WHERE NOT candidate.id IN $seed_ids
+              AND ALL(r IN relationships(path) WHERE coalesce(r.confidence, 1.0) >= 0.4)
+              {path_scope}
             UNWIND relationships(path) AS rel
             RETURN DISTINCT
                 candidate.id   AS candidate_id,
@@ -1809,6 +2300,8 @@ def compute_subgraph_informativeness(
             walk_params: dict = {"seed_ids": question_entity_ids}
             if kg_name:
                 walk_params["kg_name"] = kg_name
+            if question_id:
+                walk_params["question_id"] = question_id
 
             walk_result = session.run(walk_query, walk_params)
             rows = [dict(r) for r in walk_result]
@@ -2047,9 +2540,235 @@ def compute_evidence_conflict_uncertainty(
     return float(conflict / total) if total > 0 else 0.0
 
 
+def compute_precision_at_k(
+    details: List[Dict[str, Any]],
+    metric_names: Optional[List[str]] = None,
+    k_fractions: tuple = (0.1, 0.2, 0.3),
+    exclude_generation_failures: bool = True,
+) -> Dict[str, Dict[str, float]]:
+    """Precision@k (PPV@k) — fraction of top-k% most uncertain questions that are wrong.
+
+    AUROC measures global ranking quality. PPV@k measures what happens at the
+    operating point you actually care about: when you abstain on the most uncertain
+    k% of predictions, how often are those abstained questions actually wrong?
+
+    A good uncertainty metric has PPV@k >> baseline_error_rate:
+    e.g. baseline error 40%, PPV@20% = 0.70 means the flagged 20% contains 75%
+    of errors — a strong filter.
+
+    ALGORITHM
+    ---------
+    For each metric and k-fraction:
+      1. Sort questions by descending uncertainty score.
+      2. Take the top ceil(n * k) questions.
+      3. PPV@k = fraction of those top-k that are incorrect.
+
+    Returns
+    -------
+    {
+      "vanilla_rag": {
+          "semantic_entropy_ppv@10": float,
+          "semantic_entropy_ppv@20": float,
+          "semantic_entropy_ppv@30": float,
+          ...
+      },
+      "kg_rag": { ... },
+      "baseline": {"error_rate_vanilla": float, "error_rate_kg": float},
+    }
+    NaN when fewer than 4 questions available.
+    """
+    if not details:
+        return {}
+
+    if metric_names is None:
+        metric_names = [
+            "semantic_entropy", "discrete_semantic_entropy",
+            "sre_uq", "p_true", "selfcheckgpt", "vn_entropy", "sd_uq",
+            "graph_path_support", "graph_path_disagreement",
+            "competing_answer_alternatives", "evidence_vn_entropy",
+            "subgraph_informativeness", "subgraph_perturbation_stability",
+            "support_entailment_uncertainty", "evidence_conflict_uncertainty",
+        ]
+
+    output: Dict[str, Dict[str, float]] = {"vanilla_rag": {}, "kg_rag": {}, "baseline": {}}
+
+    for system, prefix in (("vanilla_rag", "vanilla"), ("kg_rag", "kg")):
+        system_details = details
+        if exclude_generation_failures:
+            system_details = [
+                d for d in details
+                if not bool(d.get(f"{prefix}_generation_failed", False))
+            ]
+        if len(system_details) < 4:
+            continue
+
+        y_true = np.array([
+            1.0 if d.get(f"{prefix}_correct", False) else 0.0
+            for d in system_details
+        ])
+        n = len(y_true)
+        output["baseline"][f"error_rate_{prefix}"] = float(1.0 - y_true.mean())
+
+        for metric in metric_names:
+            metric_details = system_details
+            if metric == "graph_path_support":
+                metric_details = [
+                    d for d in system_details
+                    if not str(d.get(f"{prefix}_graph_path_support_null_reason", ""))
+                ]
+            elif metric == "subgraph_perturbation_stability":
+                metric_details = [
+                    d for d in system_details
+                    if not str(d.get(f"{prefix}_subgraph_perturbation_stability_null_reason", ""))
+                ]
+            if len(metric_details) < 4:
+                for frac in k_fractions:
+                    pct = int(round(frac * 100))
+                    output[system][f"{metric}_ppv@{pct}"] = float("nan")
+                continue
+
+            y_metric = np.array([
+                1.0 if d.get(f"{prefix}_correct", False) else 0.0
+                for d in metric_details
+            ])
+            raw = np.array([float(d.get(f"{prefix}_{metric}", 0.0)) for d in metric_details])
+            if metric in _HIGHER_IS_MORE_CERTAIN:
+                uncertainty = -raw
+            else:
+                uncertainty = raw
+
+            order = np.argsort(-uncertainty)  # most uncertain first
+
+            for frac in k_fractions:
+                k = max(1, int(np.ceil(len(y_metric) * frac)))
+                top_k_correct = y_metric[order[:k]]
+                ppv = float(np.mean(top_k_correct == 0))  # fraction wrong in top-k
+                pct = int(round(frac * 100))
+                output[system][f"{metric}_ppv@{pct}"] = ppv
+
+    return output
+
+
+def compute_ece(
+    details: List[Dict[str, Any]],
+    metric_names: Optional[List[str]] = None,
+    n_bins: int = 10,
+    exclude_generation_failures: bool = True,
+) -> Dict[str, Dict[str, float]]:
+    """Expected Calibration Error proxy for each uncertainty metric and RAG system.
+
+    This computes a probability-like calibration proxy after converting each metric
+    into a confidence score with within-run min-max scaling. It is not a
+    train/validation-calibrated confidence model; it is a descriptive check of
+    whether higher-confidence regions are empirically more accurate.
+
+    ALGORITHM
+    ---------
+    For each metric:
+      1. Convert the metric to uncertainty (higher = less certain).
+      2. Min-max scale uncertainty to [0, 1], then map to confidence = 1 - scaled_uncertainty.
+      3. Bin questions into n_bins equal-width bins by confidence score.
+      4. In each bin: compute mean_confidence and empirical accuracy.
+      5. ECE = weighted average of |mean_confidence - accuracy| over bins,
+         weighted by bin size (# questions in bin / total questions).
+
+    Metrics where HIGHER = MORE CERTAIN (p_true) are flipped before scaling so
+    that the score always represents uncertainty (higher = less certain).
+
+    Returns
+    -------
+    {
+      "vanilla_rag": {"semantic_entropy_ece": float, "p_true_ece": float, ...},
+      "kg_rag":      {"semantic_entropy_ece": float, ...},
+    }
+    NaN when too few bins are populated or all scores are identical.
+    """
+    if not details:
+        return {}
+
+    if metric_names is None:
+        metric_names = [
+            "semantic_entropy", "discrete_semantic_entropy",
+            "sre_uq", "p_true", "selfcheckgpt", "vn_entropy", "sd_uq",
+            "graph_path_support", "graph_path_disagreement",
+            "competing_answer_alternatives", "evidence_vn_entropy",
+            "subgraph_informativeness", "subgraph_perturbation_stability",
+            "support_entailment_uncertainty", "evidence_conflict_uncertainty",
+        ]
+
+    output: Dict[str, Dict[str, float]] = {"vanilla_rag": {}, "kg_rag": {}}
+
+    for system, prefix in (("vanilla_rag", "vanilla"), ("kg_rag", "kg")):
+        system_details = details
+        if exclude_generation_failures:
+            system_details = [
+                d for d in details
+                if not bool(d.get(f"{prefix}_generation_failed", False))
+            ]
+        if not system_details:
+            continue
+
+        for metric in metric_names:
+            metric_details = system_details
+            if metric == "graph_path_support":
+                metric_details = [
+                    d for d in system_details
+                    if not str(d.get(f"{prefix}_graph_path_support_null_reason", ""))
+                ]
+            elif metric == "subgraph_perturbation_stability":
+                metric_details = [
+                    d for d in system_details
+                    if not str(d.get(f"{prefix}_subgraph_perturbation_stability_null_reason", ""))
+                ]
+            if len(metric_details) < 4:
+                output[system][f"{metric}_ece"] = float("nan")
+                continue
+
+            y_true = np.array([
+                1.0 if d.get(f"{prefix}_correct", False) else 0.0
+                for d in metric_details
+            ])
+            key = f"{prefix}_{metric}"
+            raw = np.array([float(d.get(key, 0.0)) for d in metric_details])
+
+            # Flip certainty-scored metrics so higher always = more uncertain
+            if metric in _HIGHER_IS_MORE_CERTAIN:
+                raw = -raw
+
+            # Min-max scale to [0, 1]; skip if all values identical
+            r_min, r_max = raw.min(), raw.max()
+            if r_max - r_min < 1e-12:
+                output[system][f"{metric}_ece"] = float("nan")
+                continue
+            scaled_uncertainty = (raw - r_min) / (r_max - r_min)
+            confidence = 1.0 - scaled_uncertainty
+
+            # Equal-width binning
+            bin_edges = np.linspace(0.0, 1.0, n_bins + 1)
+            bin_indices = np.digitize(confidence, bin_edges[1:-1])  # 0-based bucket
+
+            total_n = len(y_true)
+            ece = 0.0
+            populated = 0
+            for b in range(n_bins):
+                mask = bin_indices == b
+                n_b = int(mask.sum())
+                if n_b == 0:
+                    continue
+                populated += 1
+                mean_conf = float(confidence[mask].mean())
+                accuracy = float(y_true[mask].mean())
+                ece += (n_b / total_n) * abs(mean_conf - accuracy)
+
+            output[system][f"{metric}_ece"] = ece if populated >= max(2, n_bins // 2) else float("nan")
+
+    return output
+
+
 def compute_auroc_aurec(
     details: List[Dict[str, Any]],
     metric_names: Optional[List[str]] = None,
+    exclude_generation_failures: bool = True,
 ) -> Dict[str, Dict[str, float]]:
     """Compute AUROC and AUREC for each uncertainty metric and each RAG system.
 
@@ -2058,6 +2777,9 @@ def compute_auroc_aurec(
     details : list of per-question dicts containing {vanilla_correct, kg_correct,
               vanilla_<metric>, kg_<metric>} entries.
     metric_names : metrics to evaluate. Defaults to all 8 standard metrics.
+    exclude_generation_failures : when True, selective-prediction metrics are
+              computed on the same clean-evaluation population as headline
+              accuracy, excluding rows where generation failed.
 
     Returns
     -------
@@ -2097,6 +2819,7 @@ def compute_auroc_aurec(
             "graph_path_support", "graph_path_disagreement",
             "competing_answer_alternatives", "evidence_vn_entropy",
             "subgraph_informativeness", "subgraph_perturbation_stability",
+            "support_entailment_uncertainty", "evidence_conflict_uncertainty",
         ]
 
     def _auroc(y_true: np.ndarray, uncertainty: np.ndarray) -> float:
@@ -2130,13 +2853,36 @@ def compute_auroc_aurec(
     output: Dict[str, Dict[str, float]] = {"vanilla_rag": {}, "kg_rag": {}}
 
     for system, prefix in (("vanilla_rag", "vanilla"), ("kg_rag", "kg")):
-        y_true = np.array([
-            1.0 if d.get(f"{prefix}_correct", False) else 0.0
-            for d in details
-        ])
+        system_details = details
+        if exclude_generation_failures:
+            system_details = [
+                d for d in details
+                if not bool(d.get(f"{prefix}_generation_failed", False))
+            ]
+
         for metric in metric_names:
+            metric_details = system_details
+            if metric == "graph_path_support":
+                metric_details = [
+                    d for d in system_details
+                    if not str(d.get(f"{prefix}_graph_path_support_null_reason", ""))
+                ]
+            elif metric == "subgraph_perturbation_stability":
+                metric_details = [
+                    d for d in system_details
+                    if not str(d.get(f"{prefix}_subgraph_perturbation_stability_null_reason", ""))
+                ]
+            if len(metric_details) < 2:
+                output[system][f"{metric}_auroc"] = float("nan")
+                output[system][f"{metric}_aurec"] = float("nan")
+                continue
+
+            y_true = np.array([
+                1.0 if d.get(f"{prefix}_correct", False) else 0.0
+                for d in metric_details
+            ])
             key = f"{prefix}_{metric}"
-            raw_scores = np.array([float(d.get(key, 0.0)) for d in details])
+            raw_scores = np.array([float(d.get(key, 0.0)) for d in metric_details])
 
             # Normalise to an "uncertainty" score (higher = less certain)
             if metric in _HIGHER_IS_MORE_CERTAIN:
@@ -2146,6 +2892,79 @@ def compute_auroc_aurec(
 
             output[system][f"{metric}_auroc"] = _auroc(y_true, uncertainty)
             output[system][f"{metric}_aurec"] = _aurec(y_true, uncertainty)
+
+        # GPS null-rate: fraction of rows where GPS returned an undefined 0.5.
+        # Track every observed reason explicitly so per-reason totals stay in sync
+        # with the overall null-rate even as new categories are introduced.
+        # A high null-rate means AUROC for GPS is measured on a small effective sample.
+        gps_null_key = f"{prefix}_graph_path_support_null_reason"
+        null_reasons = [str(d.get(gps_null_key, "")) for d in system_details]
+        n_total = len(null_reasons)
+        if n_total > 0:
+            observed_reasons = [
+                reason
+                for reason in _GPS_NULL_REASON_ORDER
+                if any(r == reason for r in null_reasons)
+            ]
+            for reason in sorted({r for r in null_reasons if r} - set(observed_reasons)):
+                observed_reasons.append(reason)
+            for reason in observed_reasons:
+                count = sum(1 for r in null_reasons if r == reason)
+                output[system][f"graph_path_support_null_{reason}"] = count / n_total
+            total_null = sum(1 for r in null_reasons if r)
+            output[system]["graph_path_support_null_rate"] = total_null / n_total
+            # AUROC computed on non-null GPS rows only (more honest estimate)
+            non_null_details = [
+                d for d in system_details
+                if not str(d.get(gps_null_key, ""))
+            ]
+            if len(non_null_details) >= 2:
+                y_nn = np.array([
+                    1.0 if d.get(f"{prefix}_correct", False) else 0.0
+                    for d in non_null_details
+                ])
+                gps_nn = np.array([
+                    float(d.get(f"{prefix}_graph_path_support", 0.0))
+                    for d in non_null_details
+                ])
+                output[system]["graph_path_support_auroc_non_null"] = _auroc(y_nn, gps_nn)
+                output[system]["graph_path_support_aurec_non_null"] = _aurec(y_nn, gps_nn)
+
+        # SPS-UQ null-rate: same abstention accounting as GPS.  The default
+        # subgraph_perturbation_stability_auroc above is already conditional
+        # on these non-null rows; the *_non_null aliases keep old analysis
+        # notebooks explicit.
+        sps_null_key = f"{prefix}_subgraph_perturbation_stability_null_reason"
+        null_reasons = [str(d.get(sps_null_key, "")) for d in system_details]
+        n_total = len(null_reasons)
+        if n_total > 0:
+            observed_reasons = [
+                reason
+                for reason in _SPS_NULL_REASON_ORDER
+                if any(r == reason for r in null_reasons)
+            ]
+            for reason in sorted({r for r in null_reasons if r} - set(observed_reasons)):
+                observed_reasons.append(reason)
+            for reason in observed_reasons:
+                count = sum(1 for r in null_reasons if r == reason)
+                output[system][f"subgraph_perturbation_stability_null_{reason}"] = count / n_total
+            total_null = sum(1 for r in null_reasons if r)
+            output[system]["subgraph_perturbation_stability_null_rate"] = total_null / n_total
+            non_null_details = [
+                d for d in system_details
+                if not str(d.get(sps_null_key, ""))
+            ]
+            if len(non_null_details) >= 2:
+                y_nn = np.array([
+                    1.0 if d.get(f"{prefix}_correct", False) else 0.0
+                    for d in non_null_details
+                ])
+                sps_nn = np.array([
+                    float(d.get(f"{prefix}_subgraph_perturbation_stability", 0.0))
+                    for d in non_null_details
+                ])
+                output[system]["subgraph_perturbation_stability_auroc_non_null"] = _auroc(y_nn, sps_nn)
+                output[system]["subgraph_perturbation_stability_aurec_non_null"] = _aurec(y_nn, sps_nn)
 
     return output
 

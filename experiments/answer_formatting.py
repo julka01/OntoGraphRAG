@@ -1,7 +1,7 @@
 """Task-aware answer formatting instructions for experiment-time generation."""
 
 import re
-from typing import Dict, Iterable, Optional
+from typing import Callable, Dict, Iterable, Optional
 
 SHORT_ANSWER_DATASETS = {
     "hotpotqa",
@@ -9,6 +9,39 @@ SHORT_ANSWER_DATASETS = {
     "musique",
     "multihoprag",
 }
+
+_BINARY_QUESTION_PREFIXES = (
+    "is ",
+    "are ",
+    "does ",
+    "do ",
+    "can ",
+    "should ",
+    "was ",
+    "were ",
+    "has ",
+    "have ",
+    "did ",
+)
+
+_MONTH_PATTERN = (
+    r"(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|"
+    r"jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)"
+)
+
+_DATE_PATTERNS = (
+    rf"\b{_MONTH_PATTERN}\s+\d{{1,2}}(?:\s*(?:and|-)\s*\d{{1,2}})?(?:,)?\s+\d{{4}}\b",
+    rf"\b\d{{1,2}}(?:\s*(?:and|-)\s*\d{{1,2}})?\s+{_MONTH_PATTERN}\s+\d{{4}}\b",
+    rf"\b{_MONTH_PATTERN}\s+\d{{4}}\b",
+    r"\b\d{4}\b",
+)
+
+_NUMERIC_PATTERNS = (
+    r"\b\d+(?:\.\d+)?(?:\s*%|\s*(?:mg|g|kg|ml|l|cm|mm|m|km|years?|months?|days?))?(?=\W|$)",
+    r"\b(?:one|two|three|four|five|six|seven|eight|nine|ten)\b",
+)
+
+_QUESTION_NORMALIZERS: Dict[str, Callable[[str, str, str], str]] = {}
 
 
 def _extract_leading_label(response: str, labels: Iterable[str]) -> str:
@@ -65,6 +98,200 @@ def _strip_short_answer_wrapper(response: str) -> str:
     return text
 
 
+def _extract_leading_short_label(response: str) -> str:
+    """Collapse short-answer labels like yes/no when they lead the response."""
+    return _extract_leading_label(
+        response,
+        ("yes", "no", "maybe", "insufficient information"),
+    )
+
+
+def _is_binary_question(question: str) -> bool:
+    text = str(question or "").strip().lower()
+    return any(text.startswith(prefix) for prefix in _BINARY_QUESTION_PREFIXES)
+
+
+def _extract_date_like_span(response: str, question: str) -> str:
+    """Return a likely date span when the question is asking for one."""
+    q = str(question or "").strip().lower()
+    if not (
+        q.startswith("when ")
+        or " what month" in q
+        or q.startswith("what month")
+        or " what year" in q
+        or q.startswith("what year")
+        or " what date" in q
+        or q.startswith("what date")
+    ):
+        return ""
+
+    text = str(response or "").strip()
+    if not text:
+        return ""
+
+    for pattern in _DATE_PATTERNS:
+        matches = list(re.finditer(pattern, text, flags=re.IGNORECASE))
+        if matches:
+            # Prefer the longest/most specific match. Ties go to the last span.
+            matches.sort(key=lambda m: (len(m.group(0)), m.start()))
+            return matches[-1].group(0).strip().strip(" .")
+    return ""
+
+
+def _normalize_football_club_answer(response: str, question: str) -> str:
+    """Trim club-specific suffixes for benchmark answers when safe to do so."""
+    q = str(question or "").strip().lower()
+    if "football club" not in q and "club" not in q:
+        return str(response or "").strip()
+
+    text = str(response or "").strip()
+    if not text or len(text.split()) > 6:
+        return text
+
+    patterns = [
+        r"\s+football club\.?$",
+        r"\s+f\.c\.?$",
+        r"\s+fc\.?$",
+    ]
+    normalized = text
+    for pattern in patterns:
+        normalized = re.sub(pattern, "", normalized, flags=re.IGNORECASE)
+    return normalized.strip().strip(" .") or text
+
+
+def _normalize_multihop_short_answer(response: str, question: str, task_type: str) -> str:
+    """Question-aware canonicalizer for short-answer multi-hop benchmarks."""
+    text = _strip_short_answer_wrapper(response)
+    if not text:
+        return text
+
+    # Many benchmark questions are yes/no but still routed through free-text.
+    if task_type == "binary" or _is_binary_question(question):
+        label = _extract_leading_short_label(text)
+        if label:
+            return label
+
+    date_span = _extract_date_like_span(text, question)
+    if date_span:
+        return date_span
+
+    first_line = next((line.strip() for line in text.splitlines() if line.strip()), text)
+    first_sentence = re.split(r"(?<=[.!?])\s+", first_line, maxsplit=1)[0].strip()
+    if 0 < len(first_sentence.split()) <= 6:
+        text = first_sentence.strip().strip(" .")
+    else:
+        text = first_line
+
+    text = _normalize_football_club_answer(text, question)
+    return text
+
+
+def _extract_numeric_span(response: str, question: str) -> str:
+    """Return a likely count/measurement span when the question asks for one."""
+    q = str(question or "").strip().lower()
+    if not (
+        q.startswith("how many")
+        or q.startswith("how much")
+        or " how many " in q
+        or " how much " in q
+    ):
+        return ""
+
+    text = str(response or "").strip()
+    if not text:
+        return ""
+
+    for pattern in _NUMERIC_PATTERNS:
+        match = re.search(pattern, text, flags=re.IGNORECASE)
+        if match:
+            return match.group(0).strip().strip(" .")
+    return ""
+
+
+def _extract_subject_before_copula(text: str) -> str:
+    """Extract a short subject phrase from 'X is/was ...' style answers."""
+    match = re.match(
+        r"^\s*(.+?)\s+(?:is|was|are|were|refers to|stands for)\b",
+        str(text or "").strip(),
+        flags=re.IGNORECASE,
+    )
+    if not match:
+        return ""
+    candidate = match.group(1).strip().strip(" ,.;:")
+    if 0 < len(candidate.split()) <= 8:
+        return candidate
+    return ""
+
+
+def _normalize_bioasq_answer(response: str, question: str, task_type: str) -> str:
+    """Dataset-specific BioASQ canonicalizer for factoid-style free-text answers."""
+    text = _strip_short_answer_wrapper(response)
+    if not text:
+        return text
+
+    label = _extract_leading_short_label(text)
+    if task_type == "binary" and label:
+        return label
+
+    date_span = _extract_date_like_span(text, question)
+    if date_span:
+        return date_span
+
+    numeric_span = _extract_numeric_span(text, question)
+    if numeric_span:
+        return numeric_span
+
+    first_line = next((line.strip() for line in text.splitlines() if line.strip()), text)
+    first_sentence = re.split(r"(?<=[.!?])\s+", first_line, maxsplit=1)[0].strip()
+
+    subject = _extract_subject_before_copula(first_sentence)
+    if subject:
+        return subject
+
+    first_clause = re.split(r"\s*[,:;]\s*", first_sentence, maxsplit=1)[0].strip()
+    if 0 < len(first_clause.split()) <= 8:
+        return first_clause.strip(" .")
+
+    if 0 < len(first_sentence.split()) <= 8:
+        return first_sentence.strip(" .")
+
+    return first_line
+
+
+def _normalize_realmedqa_answer(response: str, question: str, task_type: str) -> str:
+    """Dataset-specific recommendation-style canonicalizer for RealMedQA."""
+    del question, task_type
+    text = _strip_short_answer_wrapper(response)
+    if not text:
+        return text
+
+    lowered = text.lower().strip()
+    if lowered.startswith("insufficient information"):
+        return "Insufficient Information."
+
+    sentences = [s.strip() for s in re.split(r"(?<=[.!?])\s+", text) if s.strip()]
+    if not sentences:
+        return text
+
+    return " ".join(sentences[:3]).strip()
+
+
+def _normalize_generic_answer(response: str, question: str, task_type: str) -> str:
+    """Conservative fallback suitable for chat-like free-form tasks."""
+    del question, task_type
+    return _strip_short_answer_wrapper(response)
+
+
+def _register_normalizer(dataset_names: Iterable[str], fn: Callable[[str, str, str], str]) -> None:
+    for name in dataset_names:
+        _QUESTION_NORMALIZERS[str(name).strip().lower()] = fn
+
+
+_register_normalizer(SHORT_ANSWER_DATASETS, _normalize_multihop_short_answer)
+_register_normalizer({"bioasq"}, _normalize_bioasq_answer)
+_register_normalizer({"realmedqa"}, _normalize_realmedqa_answer)
+
+
 def build_answer_instructions(
     dataset_name: str,
     task_type: str,
@@ -113,7 +340,7 @@ def build_answer_instructions(
             "Answer with a concise clinical recommendation in 1 to 3 sentences.",
             "Do not answer with a single entity, label, or fragment.",
             "Stay close to the retrieved guideline wording and do not invent extra recommendations.",
-            "If the retrieved guideline text is insufficient, respond exactly: Insufficient Information.",
+            'Use "Insufficient Information." only as a last resort when the retrieved guideline text contains no plausible grounded recommendation to return.',
         ])
         return "\n".join(lines)
 
@@ -134,7 +361,8 @@ def build_answer_instructions(
             "Answer with the shortest correct entity, title, date, number, or phrase grounded in the retrieved documents.",
             "Do not write an explanatory sentence.",
             "If the question compares two candidates, return only the selected candidate.",
-            "If the provided context is insufficient, respond exactly: Insufficient Information.",
+            'Prefer returning the shortest best-supported answer span from the retrieved evidence.',
+            'Use "Insufficient Information." only as a last resort when no plausible answer candidate is grounded at all.',
         ])
         if task == "binary":
             lines.append("For binary questions, begin your response with exactly Yes or No.")
@@ -168,6 +396,7 @@ def normalize_answer_to_contract(
     dataset_name: str,
     task_type: str,
     response: str,
+    question: str = "",
 ) -> str:
     """
     Canonicalize model outputs for strict-label tasks without changing semantics.
@@ -189,7 +418,12 @@ def normalize_answer_to_contract(
         label = _extract_leading_label(text, ("yes", "no"))
         return label or text
 
-    if dataset in SHORT_ANSWER_DATASETS and task == "free_text":
-        return _strip_short_answer_wrapper(text)
+    if task == "binary":
+        label = _extract_leading_short_label(text)
+        return label or text
 
-    return text
+    if dataset in _QUESTION_NORMALIZERS:
+        normalizer = _QUESTION_NORMALIZERS.get(dataset, _normalize_generic_answer)
+        return normalizer(text, question, task)
+
+    return _normalize_generic_answer(text, question, task)

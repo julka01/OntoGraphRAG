@@ -30,15 +30,27 @@ except ImportError:
     print("Warning: wandb not installed. Will skip wandb logging.")
 
 
-DEFAULT_UNCERTAINTY_METRICS = [
-    'semantic_entropy',
-    'discrete_semantic_entropy',
-    'sre_uq',
-    'p_true',
-    'selfcheckgpt',
-    'vn_entropy',
-    'sd_uq',
+UNCERTAINTY_METRIC_SPECS = [
+    ("semantic_entropy", "Semantic Entropy", "SE", True),
+    ("discrete_semantic_entropy", "Discrete Sem. Entropy", "DSE", True),
+    ("sre_uq", "SRE-UQ", "SRE-UQ", True),
+    ("p_true", "P(True)", "P(True)", False),
+    ("selfcheckgpt", "SelfCheckGPT", "SelfCheckGPT", True),
+    ("vn_entropy", "VN-Entropy", "VN-Ent", True),
+    ("sd_uq", "SD-UQ", "SD-UQ", True),
+    ("graph_path_support", "Graph Path Support", "GPS", True),
+    ("graph_path_disagreement", "Graph Path Disagreement", "GPD", True),
+    ("competing_answer_alternatives", "Competing Answer Alternatives", "CAA", True),
+    ("evidence_vn_entropy", "Evidence VN-Entropy", "EVN-Ent", True),
+    ("subgraph_informativeness", "Subgraph Informativeness", "SGI", True),
+    ("subgraph_perturbation_stability", "Subgraph Perturbation Stability", "SPS-UQ", True),
+    ("support_entailment_uncertainty", "Support Entailment Uncertainty", "SEU", True),
+    ("evidence_conflict_uncertainty", "Evidence Conflict Uncertainty", "ECU", True),
 ]
+DEFAULT_UNCERTAINTY_METRICS = [name for name, _, _, _ in UNCERTAINTY_METRIC_SPECS]
+METRIC_DISPLAY_NAMES = {name: display for name, display, _, _ in UNCERTAINTY_METRIC_SPECS}
+METRIC_SHORT_LABELS = {name: short for name, _, short, _ in UNCERTAINTY_METRIC_SPECS}
+METRIC_LOWER_IS_BETTER = {name: lower_is_better for name, _, _, lower_is_better in UNCERTAINTY_METRIC_SPECS}
 
 
 def _has_new_summary_schema(results: dict) -> bool:
@@ -381,9 +393,9 @@ def plot_metric_bar_charts(
     output_dir: str = "results/visualizations",
     wandb_run=None,
 ) -> list:
-    """Bar charts: Vanilla RAG vs KG-RAG on accuracy + all 8 uncertainty metrics.
+    """Bar charts: Vanilla RAG vs KG-RAG on accuracy + all live uncertainty metrics.
 
-    Layout: 3×3 grid (9 panels). Each panel shows one metric with one grouped
+    Layout: dynamic grid. Each panel shows one metric with one grouped
     bar pair per (dataset, config). Saved locally as PNG and logged to W&B.
     Returns list of saved PNG paths.
     """
@@ -391,37 +403,40 @@ def plot_metric_bar_charts(
         print("Skipping bar charts (matplotlib not available)")
         return []
 
-    # (panel title, vanilla key, kg key, lower-is-better)
-    PANELS = [
-        ("Accuracy",                    "vanilla_accuracy",                       "kg_accuracy",                        False),
-        ("Semantic Entropy",            "vanilla_avg_semantic_entropy",           "kg_avg_semantic_entropy",            True),
-        ("Discrete Sem. Entropy",       "vanilla_avg_discrete_semantic_entropy",  "kg_avg_discrete_semantic_entropy",   True),
-        ("SRE-UQ (Vipulanandan)",       "vanilla_avg_sre_uq",                     "kg_avg_sre_uq",                      True),
-        ("P(True) — NLI",               "vanilla_avg_p_true",                     "kg_avg_p_true",                      False),
-        ("SelfCheckGPT",                "vanilla_avg_selfcheckgpt",               "kg_avg_selfcheckgpt",                True),
-        ("VN-Entropy (ours)",           "vanilla_avg_vn_entropy",                 "kg_avg_vn_entropy",                  True),
-        ("SD-UQ (ours)",                "vanilla_avg_sd_uq",                      "kg_avg_sd_uq",                       True),
-    ]
+    panels = [("Accuracy", "vanilla_accuracy", "kg_accuracy", False)]
+    for metric_name, display_name, _, lower_is_better in UNCERTAINTY_METRIC_SPECS:
+        panels.append((
+            display_name,
+            f"vanilla_avg_{metric_name}",
+            f"kg_avg_{metric_name}",
+            lower_is_better,
+        ))
 
     Path(output_dir).mkdir(parents=True, exist_ok=True)
 
     # Collect (label, vanilla_val, kg_val) per panel
-    bar_data = {title: {"labels": [], "vanilla": [], "kg": []} for title, *_ in PANELS}
+    bar_data = {title: {"labels": [], "vanilla": [], "kg": []} for title, *_ in panels}
 
     for dataset_block in all_results:
         dataset_name = dataset_block.get("dataset", "unknown")
         for cfg_res in dataset_block.get("config_results", []):
             cfg_name = cfg_res.get("config", {}).get("name", "default")
             label = f"{dataset_name} / {cfg_name}"
-            for title, v_key, k_key, _ in PANELS:
+            for title, v_key, k_key, _ in panels:
+                vanilla_val = cfg_res.get(v_key)
+                kg_val = cfg_res.get(k_key)
                 bar_data[title]["labels"].append(label)
-                bar_data[title]["vanilla"].append(float(cfg_res.get(v_key, 0.0)))
-                bar_data[title]["kg"].append(float(cfg_res.get(k_key, 0.0)))
+                bar_data[title]["vanilla"].append(
+                    float(vanilla_val) if vanilla_val is not None else np.nan
+                )
+                bar_data[title]["kg"].append(
+                    float(kg_val) if kg_val is not None else np.nan
+                )
 
-    n_cols = 3
-    n_rows = 4
-    fig, axes = plt.subplots(n_rows, n_cols, figsize=(13, 14))
-    axes = axes.flatten()
+    n_cols = 4
+    n_rows = ceil(len(panels) / n_cols)
+    fig, axes = plt.subplots(n_rows, n_cols, figsize=(18, max(10, n_rows * 3.2)))
+    axes = np.atleast_1d(axes).flatten()
 
     fig.suptitle("Vanilla RAG vs KG-RAG — All Uncertainty Metrics",
                  fontsize=13, fontweight="bold")
@@ -430,7 +445,7 @@ def plot_metric_bar_charts(
     width = 0.35
     colors = {"vanilla": "#4C72B0", "kg": "#DD8452"}
 
-    for idx, (title, v_key, k_key, lower_is_better) in enumerate(PANELS):
+    for idx, (title, v_key, k_key, lower_is_better) in enumerate(panels):
         ax = axes[idx]
         data = bar_data[title]
         labels = data["labels"]
@@ -462,6 +477,9 @@ def plot_metric_bar_charts(
         if idx == 0:
             ax.legend(fontsize=8, loc="upper right")
 
+    for ax in axes[len(panels):]:
+        ax.set_visible(False)
+
     out_path = str(Path(output_dir) / "metric_bar_charts.png")
     fig.savefig(out_path, dpi=100)
     print(f"Saved metric bar charts → {out_path}")
@@ -486,7 +504,7 @@ def plot_auroc_aurec_heatmaps(
 
     Layout
     ------
-    Rows    : 8 uncertainty metrics
+    Rows    : all live uncertainty metrics
     Columns : one column per (dataset, config, system) combination,
               grouped as vanilla | kg pairs
     Left    : AUROC heatmap  (higher = better, centre = 0.5 random baseline)
@@ -499,16 +517,7 @@ def plot_auroc_aurec_heatmaps(
         print("Skipping heatmap (matplotlib not available)")
         return []
 
-    METRIC_LABELS = {
-        "semantic_entropy":           "Semantic Entropy",
-        "discrete_semantic_entropy":  "Discrete Sem. Entropy",
-        "sre_uq":                     "SRE-UQ (Vipulanandan)",
-        "p_true":                     "P(True) — NLI",
-        "selfcheckgpt":               "SelfCheckGPT",
-        "vn_entropy":                 "VN-Entropy (ours)",
-        "sd_uq":                      "SD-UQ (ours)",
-    }
-    METRIC_ORDER = list(METRIC_LABELS.keys())
+    metric_order = DEFAULT_UNCERTAINTY_METRICS
 
     Path(output_dir).mkdir(parents=True, exist_ok=True)
     saved_paths = []
@@ -531,19 +540,19 @@ def plot_auroc_aurec_heatmaps(
                 sys_data = auroc_aurec.get(system_key, {})
                 col_labels.append(sys_label)
                 col_groups.append(group)
-                auroc_cols.append({m: sys_data.get(f"{m}_auroc", float("nan")) for m in METRIC_ORDER})
-                aurec_cols.append({m: sys_data.get(f"{m}_aurec", float("nan")) for m in METRIC_ORDER})
+                auroc_cols.append({m: _display_eval_metric_value(sys_data, m, "auroc") for m in metric_order})
+                aurec_cols.append({m: _display_eval_metric_value(sys_data, m, "aurec") for m in metric_order})
 
     if not col_labels:
         return []
 
-    n_metrics = len(METRIC_ORDER)
+    n_metrics = len(metric_order)
     n_cols    = len(col_labels)
 
     def _build_matrix(col_dicts):
         mat = np.full((n_metrics, n_cols), np.nan)
         for c, col in enumerate(col_dicts):
-            for r, m in enumerate(METRIC_ORDER):
+            for r, m in enumerate(metric_order):
                 mat[r, c] = col.get(m, np.nan)
         return mat
 
@@ -555,7 +564,7 @@ def plot_auroc_aurec_heatmaps(
     fig.suptitle("Uncertainty Metric Quality: AUROC & AUREC\n(Vanilla RAG vs KG-RAG)",
                  fontsize=13, fontweight="bold", y=1.01)
 
-    row_labels = [METRIC_LABELS[m] for m in METRIC_ORDER]
+    row_labels = [METRIC_SHORT_LABELS[m] for m in metric_order]
     # Build combined x-axis labels showing group above system label
     xtick_labels = []
     for i, (lbl, grp) in enumerate(zip(col_labels, col_groups)):
@@ -640,7 +649,7 @@ def plot_metric_correlation_matrix(
     output_dir: str = "results/visualizations",
     wandb_run=None,
 ) -> list:
-    """Spearman correlation heatmap between all 9 uncertainty metrics.
+    """Spearman correlation heatmap between all live uncertainty metrics.
 
     Collects per-question uncertainty scores from both Vanilla and KG systems
     across all datasets/configs, then computes and plots the Spearman correlation
@@ -650,23 +659,14 @@ def plot_metric_correlation_matrix(
     if not HAS_MATPLOTLIB:
         return []
 
-    METRIC_LABELS = {
-        "semantic_entropy":           "Semantic Entropy",
-        "discrete_semantic_entropy":  "Discrete Sem. Entropy",
-        "sre_uq":                     "SRE-UQ",
-        "p_true":                     "P(True)",
-        "selfcheckgpt":               "SelfCheckGPT",
-        "vn_entropy":                 "VN-Entropy",
-        "sd_uq":                      "SD-UQ",
-    }
-    METRIC_ORDER = list(METRIC_LABELS.keys())
+    metric_order = DEFAULT_UNCERTAINTY_METRICS
 
     # Collect per-question scores (combine both systems for more data points)
-    scores: dict = {m: [] for m in METRIC_ORDER}
+    scores: dict = {m: [] for m in metric_order}
     for dataset_block in all_results:
         for cfg_res in dataset_block.get("config_results", []):
             for detail in cfg_res.get("details", []):
-                for m in METRIC_ORDER:
+                for m in metric_order:
                     for prefix in ("vanilla", "kg"):
                         val = detail.get(f"{prefix}_{m}")
                         if val is not None:
@@ -678,7 +678,7 @@ def plot_metric_correlation_matrix(
         return []
 
     # Trim all series to the same length (zip-shortest)
-    arr = np.array([scores[m][:n] for m in METRIC_ORDER])  # (9, n)
+    arr = np.array([scores[m][:n] for m in metric_order])
 
     # Compute Spearman correlation matrix
     try:
@@ -692,10 +692,10 @@ def plot_metric_correlation_matrix(
 
     Path(output_dir).mkdir(parents=True, exist_ok=True)
 
-    n_m = len(METRIC_ORDER)
-    labels = [METRIC_LABELS[m] for m in METRIC_ORDER]
+    n_m = len(metric_order)
+    labels = [METRIC_SHORT_LABELS[m] for m in metric_order]
 
-    fig, ax = plt.subplots(figsize=(9, 8))
+    fig, ax = plt.subplots(figsize=(max(9, n_m * 0.6), max(8, n_m * 0.55)))
     im = ax.imshow(corr_mat, cmap="RdBu_r", vmin=-1, vmax=1, aspect="auto")
 
     # Annotate cells
@@ -737,7 +737,7 @@ def plot_reliability_diagrams(
     output_dir: str = "results/visualizations",
     wandb_run=None,
 ) -> list:
-    """Reliability (calibration) diagrams for all 9 uncertainty metrics.
+    """Reliability (calibration) diagrams for all live uncertainty metrics.
 
     For each metric, questions are binned into 5 equal-frequency bins by
     uncertainty score.  Within each bin the mean uncertainty and fraction of
@@ -748,25 +748,16 @@ def plot_reliability_diagrams(
     if not HAS_MATPLOTLIB:
         return []
 
-    METRIC_LABELS = {
-        "semantic_entropy":           "Semantic Entropy",
-        "discrete_semantic_entropy":  "Discrete Sem. Entropy",
-        "sre_uq":                     "SRE-UQ",
-        "p_true":                     "P(True)",
-        "selfcheckgpt":               "SelfCheckGPT",
-        "vn_entropy":                 "VN-Entropy",
-        "sd_uq":                      "SD-UQ",
-    }
-    METRIC_ORDER = list(METRIC_LABELS.keys())
+    metric_order = DEFAULT_UNCERTAINTY_METRICS
 
     # Collect per-question (uncertainty, is_incorrect) pairs — combine both systems
-    data: dict = {m: {"scores": [], "errors": []} for m in METRIC_ORDER}
+    data: dict = {m: {"scores": [], "errors": []} for m in metric_order}
     for dataset_block in all_results:
         for cfg_res in dataset_block.get("config_results", []):
             for detail in cfg_res.get("details", []):
                 for prefix, correct_key in (("vanilla", "vanilla_correct"), ("kg", "kg_correct")):
                     is_incorrect = 0 if detail.get(correct_key, False) else 1
-                    for m in METRIC_ORDER:
+                    for m in metric_order:
                         val = detail.get(f"{prefix}_{m}")
                         if val is not None:
                             data[m]["scores"].append(float(val))
@@ -780,17 +771,19 @@ def plot_reliability_diagrams(
     Path(output_dir).mkdir(parents=True, exist_ok=True)
 
     n_bins = 5
-    fig, axes = plt.subplots(3, 3, figsize=(13, 12))
-    axes = axes.flatten()
+    n_cols = 4
+    n_rows = ceil(len(metric_order) / n_cols)
+    fig, axes = plt.subplots(n_rows, n_cols, figsize=(16, max(10, n_rows * 3.0)))
+    axes = np.atleast_1d(axes).flatten()
     fig.suptitle("Reliability Diagrams — Uncertainty Calibration", fontsize=13, fontweight="bold")
 
-    for idx, m in enumerate(METRIC_ORDER):
+    for idx, m in enumerate(metric_order):
         ax = axes[idx]
         scores = np.array(data[m]["scores"])
         errors = np.array(data[m]["errors"])
 
         if len(scores) < 5:
-            ax.set_title(METRIC_LABELS[m], fontsize=9)
+            ax.set_title(METRIC_SHORT_LABELS[m], fontsize=9)
             ax.text(0.5, 0.5, "Insufficient data", ha="center", va="center",
                     transform=ax.transAxes, fontsize=8, color="gray")
             ax.set_visible(True)
@@ -818,9 +811,12 @@ def plot_reliability_diagrams(
 
         ax.set_xlabel("Mean uncertainty", fontsize=8)
         ax.set_ylabel("Error rate", fontsize=8)
-        ax.set_title(METRIC_LABELS[m], fontsize=9, fontweight="bold")
+        ax.set_title(METRIC_SHORT_LABELS[m], fontsize=9, fontweight="bold")
         ax.legend(fontsize=7)
         ax.grid(alpha=0.3)
+
+    for ax in axes[len(metric_order):]:
+        ax.set_visible(False)
 
     plt.tight_layout()
 
@@ -854,18 +850,7 @@ def plot_compute_time_chart(
     if not HAS_MATPLOTLIB:
         return []
 
-    METRIC_LABELS = {
-        "semantic_entropy":                "Semantic Entropy",
-        "discrete_semantic_entropy":       "Discrete Sem. Entropy",
-        "sre_uq":                          "SRE-UQ",
-        "p_true":                          "P(True)",
-        "selfcheckgpt":                    "SelfCheckGPT",
-        "vn_entropy":                      "VN-Entropy",
-        "sd_uq":                           "SD-UQ",
-        "graph_path_support":              "Graph Path Support",
-        "subgraph_perturbation_stability": "SPS-UQ",
-    }
-    METRIC_ORDER = list(METRIC_LABELS.keys())
+    metric_order = DEFAULT_UNCERTAINTY_METRICS
 
     # Collect times across datasets/configs
     from collections import defaultdict as _dd
@@ -886,17 +871,17 @@ def plot_compute_time_chart(
 
     # Average across configs/datasets
     vanilla_avg = {m: (sum(vanilla_times[m]) / len(vanilla_times[m])) if vanilla_times[m] else 0.0
-                   for m in METRIC_ORDER if m in all_metrics}
+                   for m in metric_order if m in all_metrics}
     kg_avg = {m: (sum(kg_times[m]) / len(kg_times[m])) if kg_times[m] else 0.0
-              for m in METRIC_ORDER if m in all_metrics}
+              for m in metric_order if m in all_metrics}
 
     # Sort by average time (slowest first)
-    metrics_present = [m for m in METRIC_ORDER if m in all_metrics]
+    metrics_present = [m for m in metric_order if m in all_metrics]
     metrics_sorted = sorted(metrics_present,
                             key=lambda m: (vanilla_avg.get(m, 0) + kg_avg.get(m, 0)) / 2,
                             reverse=True)
 
-    labels = [METRIC_LABELS.get(m, m) for m in metrics_sorted]
+    labels = [METRIC_DISPLAY_NAMES.get(m, m) for m in metrics_sorted]
     v_vals = [vanilla_avg.get(m, 1e-9) for m in metrics_sorted]
     k_vals = [kg_avg.get(m, 1e-9) for m in metrics_sorted]
 
@@ -964,18 +949,7 @@ def plot_auroc_vs_compute_time(
     if not HAS_MATPLOTLIB:
         return []
 
-    METRIC_LABELS = {
-        "semantic_entropy":                "Semantic Entropy",
-        "discrete_semantic_entropy":       "Discrete Sem. Entropy",
-        "sre_uq":                          "SRE-UQ",
-        "p_true":                          "P(True)",
-        "selfcheckgpt":                    "SelfCheckGPT",
-        "vn_entropy":                      "VN-Entropy",
-        "sd_uq":                           "SD-UQ",
-        "graph_path_support":              "Graph Path Support",
-        "subgraph_perturbation_stability": "SPS-UQ",
-    }
-    METRIC_ORDER = list(METRIC_LABELS.keys())
+    metric_order = DEFAULT_UNCERTAINTY_METRICS
 
     from collections import defaultdict as _dd
 
@@ -988,11 +962,11 @@ def plot_auroc_vs_compute_time(
     for dataset_block in all_results:
         for cfg_res in dataset_block.get("config_results", []):
             auroc_aurec = cfg_res.get("auroc_aurec", {})
-            for m in METRIC_ORDER:
+            for m in metric_order:
                 v_t = cfg_res.get("vanilla_avg_compute_times", {}).get(m)
                 k_t = cfg_res.get("kg_avg_compute_times", {}).get(m)
-                v_auroc = auroc_aurec.get("vanilla_rag", {}).get(f"{m}_auroc")
-                k_auroc = auroc_aurec.get("kg_rag", {}).get(f"{m}_auroc")
+                v_auroc = _display_eval_metric_value(auroc_aurec.get("vanilla_rag", {}), m, "auroc")
+                k_auroc = _display_eval_metric_value(auroc_aurec.get("kg_rag", {}), m, "auroc")
                 if v_t is not None and v_auroc is not None and not np.isnan(float(v_auroc)):
                     vanilla_times[m].append(float(v_t))
                     vanilla_auroc[m].append(float(v_auroc))
@@ -1002,8 +976,8 @@ def plot_auroc_vs_compute_time(
 
     # Build list of (log10_time, auroc, label, system) points
     points = []
-    for m in METRIC_ORDER:
-        label = METRIC_LABELS.get(m, m)
+    for m in metric_order:
+        label = METRIC_SHORT_LABELS.get(m, m)
         if vanilla_times[m]:
             avg_t = sum(vanilla_times[m]) / len(vanilla_times[m])
             avg_a = sum(vanilla_auroc[m]) / len(vanilla_auroc[m])
@@ -1054,7 +1028,6 @@ def plot_auroc_vs_compute_time(
                 linestyle="--", label="Pareto frontier", zorder=2)
 
     # AUROC = 0.5 reference
-    x_min, x_max = ax.get_xlim()
     ax.axhline(0.5, color="red", linewidth=1, linestyle=":", label="AUROC=0.5 (random)")
 
     ax.set_xlabel("log\u2081\u2080(Compute time per question / s)", fontsize=10)
@@ -1205,8 +1178,8 @@ def plot_query_type_stratification(
             v_auroc, k_auroc = [], []
             for t in sorted_types:
                 auroc_data = by_type[t].get("auroc_aurec", {})
-                v_auroc.append(auroc_data.get("vanilla_rag", {}).get(f"{_AUROC_METRIC}_auroc", float("nan")) or 0)
-                k_auroc.append(auroc_data.get("kg_rag",     {}).get(f"{_AUROC_METRIC}_auroc", float("nan")) or 0)
+                v_auroc.append(_display_eval_metric_value(auroc_data.get("vanilla_rag", {}), _AUROC_METRIC, "auroc") or 0)
+                k_auroc.append(_display_eval_metric_value(auroc_data.get("kg_rag", {}), _AUROC_METRIC, "auroc") or 0)
 
             ax2 = axes[1]
             ax2.bar([p - width / 2 for p in x], v_auroc, width, label="Vanilla RAG", color="#1f77b4", alpha=0.85)
@@ -1356,6 +1329,333 @@ def main():
         print("\nSkipping wandb logging (wandb not installed)")
     
     print("\nDone!")
+
+
+# ── Per-system AUROC comparison chart ─────────────────────────────────────────
+
+_ALL_METRIC_LABELS = {
+    "semantic_entropy":               "SE",
+    "discrete_semantic_entropy":      "DSE",
+    "sre_uq":                         "SRE-UQ",
+    "p_true":                         "P(True)",
+    "selfcheckgpt":                   "SelfCk",
+    "vn_entropy":                     "VN-Ent",
+    "sd_uq":                          "SD-UQ",
+    "graph_path_support":             "GPS",
+    "graph_path_disagreement":        "GPD",
+    "competing_answer_alternatives":  "CAA",
+    "evidence_vn_entropy":            "EVN-Ent",
+    "subgraph_informativeness":       "SI",
+    "subgraph_perturbation_stability": "SPS",
+    "support_entailment_uncertainty": "SEU",
+    "evidence_conflict_uncertainty":  "ECU",
+}
+
+_METRIC_FAMILY = {
+    "semantic_entropy":               "output",
+    "discrete_semantic_entropy":      "output",
+    "sre_uq":                         "output",
+    "p_true":                         "output",
+    "selfcheckgpt":                   "output",
+    "vn_entropy":                     "output",
+    "sd_uq":                          "output",
+    "graph_path_support":             "structural",
+    "graph_path_disagreement":        "structural",
+    "competing_answer_alternatives":  "structural",
+    "evidence_vn_entropy":            "structural",
+    "subgraph_informativeness":       "structural",
+    "subgraph_perturbation_stability": "structural",
+    "support_entailment_uncertainty": "grounding",
+    "evidence_conflict_uncertainty":  "grounding",
+}
+
+_FAMILY_COLOR = {"output": "#3A7DC9", "structural": "#E07B39", "grounding": "#4BAE8A"}
+
+
+def _display_eval_metric_value(
+    system_metrics: dict,
+    metric_name: str,
+    suffix: str,
+):
+    """Return the display value for an evaluation metric, preferring conditional structural variants."""
+    if metric_name in {"graph_path_support", "subgraph_perturbation_stability"}:
+        non_null_key = f"{metric_name}_{suffix}_non_null"
+        if non_null_key in system_metrics:
+            return system_metrics.get(non_null_key, float("nan"))
+    return system_metrics.get(f"{metric_name}_{suffix}", float("nan"))
+
+
+def _metric_score_for_correlation(
+    detail: dict,
+    *,
+    prefix: str,
+    metric_name: str,
+):
+    """Return a score suitable for cross-metric correlation analysis."""
+    if bool(detail.get(f"{prefix}_generation_failed", False)):
+        return float("nan")
+    if metric_name == "graph_path_support":
+        if str(detail.get(f"{prefix}_graph_path_support_null_reason", "")):
+            return float("nan")
+    if metric_name == "subgraph_perturbation_stability":
+        null_key = f"{prefix}_subgraph_perturbation_stability_null_reason"
+        if str(detail.get(null_key, "")):
+            return float("nan")
+        if null_key not in detail:
+            legacy_value = detail.get(f"{prefix}_{metric_name}")
+            if legacy_value is not None:
+                try:
+                    if abs(float(legacy_value) - 0.5) <= 1e-12:
+                        return float("nan")
+                except (TypeError, ValueError):
+                    return float("nan")
+
+    value = detail.get(f"{prefix}_{metric_name}")
+    if value is None:
+        return float("nan")
+    try:
+        score = float(value)
+    except (TypeError, ValueError):
+        return float("nan")
+    if metric_name == "p_true":
+        return -score
+    return score
+
+
+def plot_per_system_auroc_comparison(
+    all_results: list,
+    output_dir: str = "results/visualizations",
+    wandb_run=None,
+) -> list:
+    """Grouped bar chart: AUROC per metric, Vanilla vs KG-RAG side-by-side.
+
+    This is the central paper figure showing that structural metrics (GPS, CAA, SI)
+    have higher AUROC for KG-RAG outputs than output-side metrics do, while output
+    metrics dominate for Vanilla RAG. Bars are coloured by metric family.
+
+    One chart per dataset+config combination. Returns list of saved PNG paths.
+    """
+    if not HAS_MATPLOTLIB:
+        return []
+
+    import matplotlib.ticker as mticker
+
+    out_dir = Path(output_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    saved = []
+
+    metric_order = [m for m in _ALL_METRIC_LABELS if m in _METRIC_FAMILY]
+
+    for dataset_block in all_results:
+        dataset_name = dataset_block.get("dataset", "unknown")
+        for cfg_res in dataset_block.get("config_results", []):
+            auroc_data = cfg_res.get("auroc_aurec", {})
+            if not auroc_data:
+                continue
+
+            cfg_name = cfg_res.get("config", {}).get("name", "default")
+
+            v_data = auroc_data.get("vanilla_rag", {})
+            k_data = auroc_data.get("kg_rag", {})
+
+            # Only keep metrics present in at least one system
+            present = [
+                m for m in metric_order
+                if not (
+                    np.isnan(float(_display_eval_metric_value(v_data, m, "auroc")))
+                    and np.isnan(float(_display_eval_metric_value(k_data, m, "auroc")))
+                )
+            ]
+            if not present:
+                continue
+
+            n = len(present)
+            x = np.arange(n)
+            bar_w = 0.35
+
+            fig, ax = plt.subplots(figsize=(max(10, n * 0.85 + 2), 5))
+
+            for xi, metric in enumerate(present):
+                v_val = float(_display_eval_metric_value(v_data, metric, "auroc"))
+                k_val = float(_display_eval_metric_value(k_data, metric, "auroc"))
+                family = _METRIC_FAMILY.get(metric, "output")
+                fc = _FAMILY_COLOR[family]
+
+                if not np.isnan(v_val):
+                    ax.bar(xi - bar_w / 2, v_val, bar_w,
+                           color=fc, alpha=0.55, edgecolor="white", linewidth=0.8)
+                if not np.isnan(k_val):
+                    ax.bar(xi + bar_w / 2, k_val, bar_w,
+                           color=fc, alpha=1.0, edgecolor="white", linewidth=0.8)
+
+            ax.axhline(0.5, color="#999999", linewidth=1.0, linestyle="--", zorder=0, label="chance")
+            ax.set_xticks(x)
+            ax.set_xticklabels(
+                [_ALL_METRIC_LABELS.get(m, m) for m in present],
+                rotation=35, ha="right", fontsize=9,
+            )
+            ax.set_ylabel("AUROC", fontsize=10)
+            ax.set_ylim(0.2, 1.02)
+            ax.yaxis.set_major_formatter(mticker.FormatStrFormatter("%.2f"))
+            ax.grid(axis="y", linestyle=":", alpha=0.4)
+            ax.set_title(
+                f"Per-metric AUROC — {dataset_name} ({cfg_name})\n"
+                f"Light bar = Vanilla RAG   Dark bar = KG-RAG   Colour = family",
+                fontsize=10, fontweight="bold",
+            )
+
+            # Family legend patches
+            import matplotlib.patches as mpatches
+            legend_handles = [
+                mpatches.Patch(color=_FAMILY_COLOR["output"],     label="Output"),
+                mpatches.Patch(color=_FAMILY_COLOR["structural"], label="Structural"),
+                mpatches.Patch(color=_FAMILY_COLOR["grounding"],  label="Grounding"),
+                mpatches.Patch(color="#aaaaaa", alpha=0.5,        label="Vanilla RAG (light)"),
+                mpatches.Patch(color="#aaaaaa", alpha=1.0,        label="KG-RAG (dark)"),
+            ]
+            ax.legend(handles=legend_handles, fontsize=8, loc="upper right", ncol=2)
+
+            plt.tight_layout()
+            fname = out_dir / f"per_system_auroc_{dataset_name}_{cfg_name}.png"
+            fig.savefig(fname, dpi=150, bbox_inches="tight")
+            saved.append(str(fname))
+            if wandb_run:
+                import wandb as _wandb
+                wandb_run.log({f"charts/{dataset_name}/per_system_auroc": _wandb.Image(fig)})
+            plt.close(fig)
+
+    return saved
+
+
+def plot_metric_spearman_matrix(
+    all_results: list,
+    output_dir: str = "results/visualizations",
+    wandb_run=None,
+) -> list:
+    """Pairwise Spearman ρ heatmap across all uncertainty metrics.
+
+    Justifies claiming 15 "complementary" metrics by showing which pairs are
+    correlated (redundant) vs. independent (complementary). One chart pooling
+    all questions across all datasets and both RAG systems.
+
+    Renders three panels:
+      - Vanilla RAG scores
+      - KG-RAG scores
+      - Difference (KG ρ − Vanilla ρ), showing where KG decorrelates metrics
+
+    Returns list of saved PNG paths.
+    """
+    if not HAS_MATPLOTLIB:
+        return []
+
+    try:
+        from scipy.stats import spearmanr
+    except ImportError:
+        return []
+
+    metric_order = list(_ALL_METRIC_LABELS.keys())
+    labels = [_ALL_METRIC_LABELS[m] for m in metric_order]
+
+    # Collect pooled, row-aligned score vectors so pairwise correlations are
+    # computed on the same question rows after per-metric validity filtering.
+    vanilla_rows = []
+    kg_rows = []
+    for dataset_block in all_results:
+        for cfg_res in dataset_block.get("config_results", []):
+            for detail in cfg_res.get("details", []):
+                vanilla_rows.append({
+                    m: _metric_score_for_correlation(detail, prefix="vanilla", metric_name=m)
+                    for m in metric_order
+                })
+                kg_rows.append({
+                    m: _metric_score_for_correlation(detail, prefix="kg", metric_name=m)
+                    for m in metric_order
+                })
+
+    n_metrics = len(metric_order)
+    out_dir = Path(output_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    saved = []
+
+    def _spearman_matrix(rows: list) -> np.ndarray:
+        mat = np.full((n_metrics, n_metrics), float("nan"))
+        if not rows:
+            return mat
+        per_metric = {
+            metric_name: np.array([row[metric_name] for row in rows], dtype=float)
+            for metric_name in metric_order
+        }
+        for i, mi in enumerate(metric_order):
+            for j, mj in enumerate(metric_order):
+                xi = per_metric[mi]
+                xj = per_metric[mj]
+                mask = (~np.isnan(xi)) & (~np.isnan(xj))
+                if int(mask.sum()) < 10:
+                    continue
+                try:
+                    rho, _ = spearmanr(xi[mask], xj[mask])
+                    mat[i, j] = float(rho)
+                except Exception:
+                    pass
+        return mat
+
+    v_mat = _spearman_matrix(vanilla_rows)
+    k_mat = _spearman_matrix(kg_rows)
+    diff_mat = k_mat - v_mat
+
+    fig, axes = plt.subplots(1, 3, figsize=(22, 7))
+    titles = ["Vanilla RAG — Spearman ρ", "KG-RAG — Spearman ρ", "Δ ρ  (KG − Vanilla)"]
+    matrices = [v_mat, k_mat, diff_mat]
+    cmaps = ["RdYlGn", "RdYlGn", "RdBu"]
+    vmins = [-1.0, -1.0, -0.5]
+    vmaxs = [1.0, 1.0, 0.5]
+
+    family_sep_positions = []
+    prev_family = None
+    for idx, m in enumerate(metric_order):
+        fam = _METRIC_FAMILY.get(m, "output")
+        if prev_family is not None and fam != prev_family:
+            family_sep_positions.append(idx)
+        prev_family = fam
+
+    for ax, mat, title, cmap, vmin, vmax in zip(axes, matrices, titles, cmaps, vmins, vmaxs):
+        im = ax.imshow(mat, cmap=cmap, vmin=vmin, vmax=vmax, aspect="auto")
+        plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
+
+        # Annotate cells
+        for i in range(n_metrics):
+            for j in range(n_metrics):
+                v = mat[i, j]
+                if not np.isnan(v):
+                    ax.text(j, i, f"{v:.2f}", ha="center", va="center",
+                            fontsize=6, color="black" if abs(v) < 0.6 else "white")
+
+        # Family separator lines
+        for sep in family_sep_positions:
+            ax.axhline(sep - 0.5, color="white", linewidth=2.0)
+            ax.axvline(sep - 0.5, color="white", linewidth=2.0)
+
+        ax.set_xticks(range(n_metrics))
+        ax.set_yticks(range(n_metrics))
+        ax.set_xticklabels(labels, rotation=40, ha="right", fontsize=8)
+        ax.set_yticklabels(labels, fontsize=8)
+        ax.set_title(title, fontsize=10, fontweight="bold", pad=8)
+
+    fig.suptitle(
+        "Metric Spearman correlation — pooled across all datasets & questions\n"
+        "Family separators: Output | Structural | Grounding",
+        fontsize=11, y=1.02,
+    )
+    plt.tight_layout()
+
+    fname = out_dir / "metric_spearman_matrix.png"
+    fig.savefig(fname, dpi=150, bbox_inches="tight")
+    saved.append(str(fname))
+    if wandb_run:
+        import wandb as _wandb
+        wandb_run.log({"charts/metric_spearman_matrix": _wandb.Image(fig)})
+    plt.close(fig)
+    return saved
 
 
 if __name__ == "__main__":
