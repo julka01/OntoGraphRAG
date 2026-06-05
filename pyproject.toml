@@ -185,7 +185,7 @@ Issues = "https://github.com/julka01/OntographRAG/issues"
 Documentation = "https://github.com/julka01/OntographRAG#readme"
 
 [tool.hatch.build.targets.wheel]
-packages = ["ontographrag", "experiments"]
+packages = ["ontographrag", "experiments", "shared"]
 
 [project.scripts]
 ontograph = "ontographrag.cli:main"
@@ -194,6 +194,9 @@ ontographrag = "ontographrag.cli:main"
 [tool.hatch.build]
 include = [
     "ontographrag/**/*.py",
+    "shared/**/*.py",
+    "csv_processor.py",
+    "graphDB_dataAccess.py",
     "ontographrag/api/static/index.html",
     "experiments/**/*.py",
     "experiments/*.json",

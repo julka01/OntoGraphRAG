@@ -2391,7 +2391,7 @@ Question: {question}"""),
             if _skip_graph_for_comparison:
                 logging.info("Comparison question detected — bypassing entity-first graph traversal")
             entity_context = None
-            if self.retrieval_mode not in ("rfge", "vector_only") and not _skip_graph_for_comparison:
+            if getattr(self, "retrieval_mode", "hybrid_auto") not in ("rfge", "vector_only") and not _skip_graph_for_comparison:
                 entity_context = self._entity_first_search(
                     graph,
                     query,
@@ -2409,14 +2409,14 @@ Question: {question}"""),
                     entity_context["entity_count"],
                     entity_context["relationship_count"],
                 )
-                if self.allow_vector_augmentation and (
+                if getattr(self, "allow_vector_augmentation", True) and (
                     self.check_vector_index() or self._first_stage_late_interaction_enabled()
                 ):
                     try:
                         vec_ctx = self._semantic_similarity_search(
                             graph, query, document_names, similarity_threshold,
                             candidate_chunk_limit, kg_name, max_hops=max_hops, question_id=question_id,
-                            allow_first_stage_late_interaction=self.retrieval_mode != "entity_first",
+                            allow_first_stage_late_interaction=getattr(self, "retrieval_mode", "hybrid_auto") != "entity_first",
                         )
                         if vec_ctx and vec_ctx.get("chunks"):
                             if self._graph_context_is_meaningful(query, entity_context):
@@ -2462,7 +2462,7 @@ Question: {question}"""),
             # Skipped when retrieval_mode is 'entity_first' or 'vector_only',
             # use_rfge toggle is False, or for comparison questions (same reason as above).
             rfge_ctx = None
-            if self.retrieval_mode not in ("entity_first", "vector_only") and self.use_rfge and not _skip_graph_for_comparison:
+            if getattr(self, "retrieval_mode", "hybrid_auto") not in ("entity_first", "vector_only") and self.use_rfge and not _skip_graph_for_comparison:
                 rfge_ctx = self._retriever_first_graph_expansion(
                     graph,
                     query,
@@ -2496,7 +2496,7 @@ Question: {question}"""),
             # grounding_quality=0 signals to callers that structural metrics are unreliable.
             has_semantic_backend = self.check_vector_index() or self._first_stage_late_interaction_enabled()
 
-            if self.retrieval_mode == "entity_first" and not self.allow_vector_fallback:
+            if getattr(self, "retrieval_mode", "hybrid_auto") == "entity_first" and not getattr(self, "allow_vector_fallback", True):
                 return {
                     "query": query,
                     "chunks": [],
@@ -2516,14 +2516,14 @@ Question: {question}"""),
                     "route_reason": "strict_no_graph_signal",
                     "diagnostics": {
                         "rfge_fired": False,
-                        "retrieval_mode_config": self.retrieval_mode,
+                        "retrieval_mode_config": getattr(self, "retrieval_mode", "hybrid_auto"),
                     },
                 }
 
             if has_semantic_backend:
                 logging.info(f"Attempting semantic similarity search (kg_name: {kg_name})")
                 try:
-                    if self.retrieval_mode == "entity_first" and self.check_vector_index():
+                    if getattr(self, "retrieval_mode", "hybrid_auto") == "entity_first" and self.check_vector_index():
                         context = self._vector_similarity_search(
                             graph,
                             query,
@@ -2561,7 +2561,7 @@ Question: {question}"""),
                         ctx.setdefault("route_reason", "no_graph_signal")
                         ctx.setdefault(
                             "diagnostics",
-                            {"rfge_fired": False, "retrieval_mode_config": self.retrieval_mode},
+                            {"rfge_fired": False, "retrieval_mode_config": getattr(self, "retrieval_mode", "hybrid_auto")},
                         )
                         ctx.setdefault("seed_entity_count", 0)
                         ctx["chunks"] = self._sort_chunks_for_query(
@@ -2582,7 +2582,7 @@ Question: {question}"""),
                     context.setdefault("route_reason", "no_graph_signal")
                     context.setdefault(
                         "diagnostics",
-                        {"rfge_fired": False, "retrieval_mode_config": self.retrieval_mode},
+                        {"rfge_fired": False, "retrieval_mode_config": getattr(self, "retrieval_mode", "hybrid_auto")},
                     )
                     context.setdefault("seed_entity_count", 0)
                     context["chunks"] = self._sort_chunks_for_query(
@@ -2614,7 +2614,7 @@ Question: {question}"""),
                     ctx.setdefault("route_reason", "no_graph_signal")
                     ctx.setdefault(
                         "diagnostics",
-                        {"rfge_fired": False, "retrieval_mode_config": self.retrieval_mode},
+                        {"rfge_fired": False, "retrieval_mode_config": getattr(self, "retrieval_mode", "hybrid_auto")},
                     )
                     ctx.setdefault("seed_entity_count", 0)
                     ctx["chunks"] = self._sort_chunks_for_query(
@@ -3578,7 +3578,7 @@ Question: {question}"""),
                         ((eid, score) for eid, score in ppr_scores.items()),
                         key=lambda x: -x[1],
                     )[:5] if ppr_scores else [],
-                    "retrieval_mode_config": self.retrieval_mode,
+                    "retrieval_mode_config": getattr(self, "retrieval_mode", "hybrid_auto"),
                 },
             }
 
@@ -3833,7 +3833,7 @@ Question: {question}"""),
                         ((eid, score) for eid, score in ppr_scores.items()),
                         key=lambda x: -x[1],
                     )[:5] if ppr_scores else [],
-                    "retrieval_mode_config": self.retrieval_mode,
+                    "retrieval_mode_config": getattr(self, "retrieval_mode", "hybrid_auto"),
                 },
             }
 
@@ -4527,7 +4527,7 @@ Question: {question}"""),
                         graph, retrieval_query, document_names, similarity_threshold,
                         hop_retrieval_k, kg_name, max_hops=iterative_subquestion_max_hops,
                         question_id=question_id,
-                        allow_first_stage_late_interaction=self.retrieval_mode != "entity_first",
+                        allow_first_stage_late_interaction=getattr(self, "retrieval_mode", "hybrid_auto") != "entity_first",
                     )
                     if vec_ctx and vec_ctx.get("chunks"):
                         secondary_limit = max(2, min(self._HYBRID_SUPPLEMENT_LIMIT, hop_retrieval_k // 2 or 1))
@@ -4565,7 +4565,7 @@ Question: {question}"""),
                             graph, retrieval_query, document_names, similarity_threshold,
                             hop_retrieval_k, kg_name, max_hops=iterative_subquestion_max_hops,
                             question_id=question_id,
-                            allow_first_stage_late_interaction=self.retrieval_mode != "entity_first",
+                            allow_first_stage_late_interaction=getattr(self, "retrieval_mode", "hybrid_auto") != "entity_first",
                         )
                     if not hop_ctx or not hop_ctx.get("chunks"):
                         hop_ctx = self._text_similarity_search(
@@ -4771,7 +4771,7 @@ Question: {question}"""),
             "route_reason": "success",
             "diagnostics": {
                 "rfge_fired": False,
-                "retrieval_mode_config": self.retrieval_mode,
+                "retrieval_mode_config": getattr(self, "retrieval_mode", "hybrid_auto"),
                 "subquestion_count": len(sub_questions),
                 "active_hop_count": len(active_hops),
             },
@@ -5042,7 +5042,7 @@ Question: {question}"""),
             # If entity-first retrieval produced an "Insufficient Information" response,
             # retry with pure vector search as a floor — this ensures KG-RAG is never
             # worse than vanilla RAG on questions where graph anchoring fails.
-            if (self.allow_vector_fallback
+            if (getattr(self, "allow_vector_fallback", True)
                     and "insufficient information" in response.lower()
                     and not self._is_pure_vector_search_method(context.get("search_method"))):
                 logging.info("Insufficient-info response from graph-first path; retrying with vector-only")

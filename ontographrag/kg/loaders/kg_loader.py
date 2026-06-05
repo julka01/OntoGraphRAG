@@ -5,6 +5,7 @@ from neo4j import GraphDatabase, basic_auth
 from PyPDF2 import PdfReader
 from typing import Dict, List, Union, Tuple
 from dotenv import load_dotenv
+from owlready2 import get_ontology
 
 # Load environment variables
 load_dotenv()

@@ -3,16 +3,34 @@ import os
 import time
 from neo4j.exceptions import TransientError
 from langchain_neo4j import Neo4jGraph
-import sys
-import os
-# Import from local kg_utils
-from kg_utils.common_functions import create_gcs_bucket_folder_name_hashed, delete_uploaded_local_file, load_embedding_model, delete_file_from_gcs
-from kg_utils.constants import BUCKET_UPLOAD, NODEREL_COUNT_QUERY_WITH_COMMUNITY, NODEREL_COUNT_QUERY_WITHOUT_COMMUNITY, MAX_COMMUNITY_LEVELS
-from kg_utils.source_node import sourceNode
 import json
 from dotenv import load_dotenv
 
+from ontographrag.kg.utils.common_functions import (
+    create_gcs_bucket_folder_name_hashed,
+    delete_uploaded_local_file,
+    load_embedding_model,
+)
+from ontographrag.kg.utils.constants import (
+    BUCKET_UPLOAD,
+    NODEREL_COUNT_QUERY_WITH_COMMUNITY,
+    NODEREL_COUNT_QUERY_WITHOUT_COMMUNITY,
+    MAX_COMMUNITY_LEVELS,
+)
+from ontographrag.kg.utils.source_node import sourceNode
+
 load_dotenv()
+
+
+def delete_file_from_gcs(bucket_name, folder_name, file_name):
+    """Compatibility hook for deployments that previously enabled GCS cleanup."""
+    logging.warning(
+        "GCS cleanup requested for gs://%s/%s/%s, but no GCS client is configured",
+        bucket_name,
+        folder_name,
+        file_name,
+    )
+
 
 class graphDBdataAccess:
 
@@ -604,6 +622,67 @@ class graphDBdataAccess:
         result = self.graph.query(query,session_params={"database":self.graph._database})
         return [entry for entry in result]
 
+    @staticmethod
+    def _coerce_record_value(value):
+        if hasattr(value, "isoformat"):
+            return value.isoformat()
+        if isinstance(value, (list, tuple)):
+            return [graphDBdataAccess._coerce_record_value(v) for v in value]
+        if isinstance(value, dict):
+            return {str(k): graphDBdataAccess._coerce_record_value(v) for k, v in value.items()}
+        return value
+
+    def create_kg(self, kg_name: str, description: str = None, data_source: str = None):
+        """
+        Create or update a lightweight KG metadata node.
+
+        Document nodes remain the source of truth for built KGs; this metadata node
+        lets the API expose an explicit KG record before documents are attached.
+        """
+        query = """
+        MERGE (kg:KnowledgeGraph {kgName: $kg_name})
+        ON CREATE SET kg.createdAt = datetime()
+        SET kg.name = $kg_name,
+            kg.description = $description,
+            kg.dataSource = $data_source,
+            kg.updatedAt = datetime()
+        RETURN kg {
+            .*,
+            name: kg.name,
+            kg_name: kg.kgName,
+            description: kg.description,
+            data_source: kg.dataSource
+        } AS kg
+        """
+        result = self.execute_query(query, {
+            "kg_name": kg_name,
+            "description": description,
+            "data_source": data_source,
+        })
+        return self._coerce_record_value(result[0]["kg"]) if result else None
+
+    def get_kg(self, kg_name: str):
+        """
+        Return metadata for a named KG, falling back to Document-derived metadata.
+        """
+        query = """
+        OPTIONAL MATCH (kg:KnowledgeGraph {kgName: $kg_name})
+        OPTIONAL MATCH (d:Document {kgName: $kg_name})
+        WITH kg, collect(d) AS docs
+        WHERE kg IS NOT NULL OR size(docs) > 0
+        RETURN {
+            name: $kg_name,
+            kg_name: $kg_name,
+            description: kg.description,
+            data_source: kg.dataSource,
+            created_at: kg.createdAt,
+            updated_at: coalesce(kg.updatedAt, head([doc IN docs WHERE doc.updatedAt IS NOT NULL | doc.updatedAt])),
+            document_count: size(docs)
+        } AS kg
+        """
+        result = self.execute_query(query, {"kg_name": kg_name})
+        return self._coerce_record_value(result[0]["kg"]) if result else None
+
     def get_source_list_by_kg(self, kg_name: str):
         """
         Get list of sources for a specific knowledge graph
@@ -658,6 +737,41 @@ class graphDBdataAccess:
 
         logging.info(f"Deleted KG '{kg_name}' with {deleted_count} documents")
         return deleted_count
+
+    def delete_kg_by_name(self, kg_name: str, delete_entities: bool = True):
+        """Backward-compatible API alias for deleting a named KG."""
+        deleted_count = self.delete_kg(kg_name, delete_entities=delete_entities)
+        self.execute_query(
+            "MATCH (kg:KnowledgeGraph {kgName: $kg_name}) DETACH DELETE kg",
+            {"kg_name": kg_name},
+        )
+        return deleted_count
+
+    def get_kg_entities(self, kg_name: str, limit: int = 100):
+        """
+        Return entities associated with a KG via entity kgName or document provenance.
+        """
+        query = """
+        MATCH (e:__Entity__)
+        WHERE e.kgName = $kg_name
+           OR EXISTS {
+              MATCH (:Document {kgName: $kg_name})<-[:PART_OF]-(:Chunk)
+                    -[:HAS_ENTITY|MENTIONS]->(e)
+           }
+        RETURN DISTINCT
+            e.id AS id,
+            coalesce(e.name, e.id) AS name,
+            coalesce(e.type, head([label IN labels(e) WHERE label <> '__Entity__'])) AS type,
+            e.description AS description,
+            labels(e) AS labels
+        ORDER BY name
+        LIMIT $limit
+        """
+        result = self.execute_query(query, {
+            "kg_name": kg_name,
+            "limit": max(1, int(limit or 100)),
+        })
+        return [self._coerce_record_value(dict(record)) for record in result]
 
     def get_kg_stats(self, kg_name: str = None):
         """

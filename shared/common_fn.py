@@ -1,9 +1,5 @@
 import os
-import sys
 import logging
-
-# Add parent directory to path to access model_providers
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 def load_embedding_model(embedding_model_name: str = None):
     """
@@ -15,14 +11,12 @@ def load_embedding_model(embedding_model_name: str = None):
 
     provider_name = embedding_model_name or os.getenv("EMBEDDING_PROVIDER", "huggingface")
     embedding_function, embedding_dimension = _shared_loader(provider_name)
-    print(f"✓ Using {provider_name} embeddings with dimension {embedding_dimension}")
+    logging.info("Using %s embeddings with dimension %s", provider_name, embedding_dimension)
     return embedding_function, embedding_dimension
 
 def wrap_llm_with_model_name(llm):
     '''
-    Wrap the given LLM with a model name attribute or wrapper.
-    This is a placeholder implementation that adds a "model_name" attribute
-    to the LLM instance if it doesn't already have one.
+    Ensure an LLM-like object exposes a model_name attribute for legacy callers.
     '''
     if not hasattr(llm, 'model_name'):
         model_name = getattr(llm, 'model', 'unknown_model')
