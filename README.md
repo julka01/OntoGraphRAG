@@ -1,13 +1,13 @@
 # OntographRAG
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/julka01/OntographRAG)
+[![Version](https://img.shields.io/badge/version-1.0.0--rc1-blue.svg)](https://github.com/julka01/OntographRAG)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/)
 [![Neo4j](https://img.shields.io/badge/neo4j-5.0+-brightgreen.svg)](https://neo4j.com/)
 
 **Turn unstructured documents into schema-consistent knowledge graphs. Explore them visually. Ask grounded questions. Evaluate what to trust.**
 
-OntographRAG is an ontology-guided KG-RAG system for document intelligence. It builds Neo4j-backed knowledge graphs from raw text, retrieves over both graph structure and chunk vectors, and exposes answer-grounding and uncertainty signals for downstream use.
+OntographRAG is an ontology-guided KG-RAG system for document intelligence. It builds Neo4j-backed knowledge graphs from raw text, retrieves over both graph structure and chunk vectors, and exposes answer-grounding, provenance, and uncertainty signals for downstream use. The research pipeline also includes strict entity-first retrieval profiles for studying retrieval lock-in: cases where a graph retriever supplies stable context, the model gives stable answers, and ordinary output-variance metrics can become uninformative.
 
 ## Example UI
 
@@ -119,14 +119,26 @@ python experiments/prepare_bioasq_corpus.py \
 python experiments/experiment.py \
   --datasets hotpotqa --num-samples 30 --subset-seed 42 --rebuild-kg --evaluation-mode accuracy_only
 
-# 4. Run a full metric pass (paper configuration: seed 42, n=100)
+# 4. Run the current paper-facing comparison
+# dense_floor runs vanilla RAG; kg_entity_first runs KG-RAG.
 python experiments/experiment.py \
-  --datasets hotpotqa 2wikimultihopqa musique pubmedqa multihoprag \
-  --num-samples 100 --subset-seed 42 --rebuild-kg --evaluation-mode full_metrics \
+  --datasets realmedqa multihoprag hotpotqa \
+  --num-samples 250 --subset-seed 42 --rebuild-kg --evaluation-mode full_metrics \
+  --retrieval-study final_pair --kg-builder-profile full \
   --llm-provider openrouter --llm-model openai/gpt-4o-mini \
   --retrieval-temperature-values 0.0
 
-# 5. Add BioASQ
+# 5. Optional: strict entity-first KG stress test for context-collapse analysis
+python experiments/experiment.py \
+  --datasets realmedqa \
+  --num-samples 230 --subset-seed 42 --evaluation-mode full_metrics \
+  --retrieval-study strict_entity --kg-builder-profile full \
+  --llm-provider openrouter --llm-model openai/gpt-4o-mini \
+  --retrieval-temperature-values 0.0
+
+# 6. Optional: BioASQ, once the shared PubMed abstract corpus exists.
+# BioASQ is supported, but should be treated as a separate run unless included
+# deliberately in the current result set.
 python experiments/experiment.py \
   --datasets bioasq --num-samples 100 --subset-seed 42 --rebuild-kg --evaluation-mode full_metrics \
   --llm-provider openrouter --llm-model openai/gpt-4o-mini \
@@ -222,7 +234,7 @@ The live UI deliberately keeps these signals simple. The full uncertainty suite 
 
 ### 5. Uncertainty quantification and hallucination detection
 
-A dedicated evaluation pipeline (`experiments/uncertainty_metrics.py`) computes uncertainty metrics per answer in three families. The core challenge: standard output-variance metrics collapse under KG-RAG because deterministic graph retrieval gives every sample identical context → identical outputs → artificially low variance. The structural and grounding families are designed to remain discriminative in this regime.
+A dedicated evaluation pipeline (`experiments/uncertainty_metrics.py`) computes uncertainty metrics per answer in three families. The core challenge is not that all KG-RAG retrieval is deterministic. Rather, strict or highly stabilised entity-first graph retrieval can lock onto the same context across repeated samples. In that regime, standard output-variance metrics may report low uncertainty because every generation sees the same evidence, even when the evidence is incomplete or wrongly anchored. Structural and grounding diagnostics are included to expose that hidden retrieval state.
 
 #### Output-side (prior work baselines + novel extensions)
 
@@ -240,11 +252,13 @@ A dedicated evaluation pipeline (`experiments/uncertainty_metrics.py`) computes 
 
 #### Structural — KG-only *(this work)*
 
-No LLM sampling required. Path queries filtered to edges with confidence ≥ 0.4. Immune to context determinism.
+No LLM sampling required. Path queries filtered to edges with confidence >= 0.4. These metrics are not correctness oracles; they diagnose graph-state consistency, path support, competing evidence, and perturbation fragility.
 
 | Metric | Formula | Intuition |
 |--------|---------|----------|
 | `graph_path_support` (GPS) ⭐ | Find Q-entities and A-entities by name; per-entity reachability query ≤ 3 hops; $\text{GPS} = 1 - \lvert\text{reachable}\rvert / \lvert\text{A-entities}\rvert$ | 0 = KG fully supports the answer path; 1 = answer has no structural grounding. Single-sample metric, does not collapse under context determinism. |
+
+The full runner also computes `graph_path_disagreement`, `competing_answer_alternatives`, `evidence_vn_entropy`, `subgraph_informativeness`, and `subgraph_perturbation_stability`. The paper-facing analysis focuses on the core interpretable signals, while these additional diagnostics are retained for ablations and audit runs.
 
 #### Grounding *(this work)*
 
@@ -540,7 +554,7 @@ curl http://localhost:8000/health/neo4j
 
 ## Experiments
 
-The `experiments/` directory runs the current benchmark pipeline for vanilla RAG vs KG-RAG across biomedical and multi-hop QA datasets. It now uses seeded deterministic subsets, dataset-scoped KGs, official-style answer `EM/F1` where supported, and the current 15-metric uncertainty suite. See [experiments/README.md](experiments/README.md) for the live flag list and dataset caveats.
+The `experiments/` directory runs the current benchmark pipeline for vanilla RAG vs KG-RAG across biomedical and multi-hop QA datasets. It uses seeded deterministic subsets, dataset-scoped KGs, official-style answer `EM/F1` where supported, clean accuracy as the headline accuracy number, and the current uncertainty suite. See [experiments/README.md](experiments/README.md) for the live flag list and dataset caveats.
 
 **Weights & Biases integration** — if `WANDB_API_KEY` is set in the environment, each run is automatically logged to W&B with per-question tables, per-metric AUROC/AUREC scores, and run metadata (dataset, model, seed, evaluation mode). No flags required; set the key and it activates. Results are also always written locally under `results/runs/<run_id>/` regardless of W&B.
 
@@ -553,13 +567,29 @@ python experiments/experiment.py \
   --rebuild-kg \
   --evaluation-mode accuracy_only
 
-# Full uncertainty pass (paper configuration: seed 42, n=100)
+# Paper-facing final-pair comparison
 python experiments/experiment.py \
-  --datasets hotpotqa 2wikimultihopqa musique pubmedqa multihoprag \
-  --num-samples 100 \
+  --datasets realmedqa multihoprag hotpotqa \
+  --num-samples 250 \
   --subset-seed 42 \
   --rebuild-kg \
   --evaluation-mode full_metrics \
+  --retrieval-study final_pair \
+  --kg-builder-profile full \
+  --llm-provider openrouter \
+  --llm-model openai/gpt-4o-mini \
+  --retrieval-temperature-values 0.0
+
+# Strict entity-first KG stress test for retrieval lock-in / context collapse
+python experiments/experiment.py \
+  --datasets realmedqa \
+  --num-samples 230 \
+  --subset-seed 42 \
+  --evaluation-mode full_metrics \
+  --retrieval-study strict_entity \
+  --kg-builder-profile full \
+  --llm-provider openrouter \
+  --llm-model openai/gpt-4o-mini \
   --retrieval-temperature-values 0.0
 ```
 
@@ -600,8 +630,11 @@ Place downloaded files under `MIRAGE/rawdata/` — see [experiments/README.md](e
 | `--temperature` | `1.0` | Generation temperature for uncertainty sampling |
 | `--retrieval-temperature-values` | `[0.0]` | Final-stage retrieval sampling temperature sweep |
 | `--retrieval-shortlist-factor` | `4` | Overfetch factor for retrieval-temperature sampling |
+| `--retrieval-study` | unset | Built-in profiles: `small`, `final_pair`, or `strict_entity` |
+| `--kg-builder-profile` | `auto` | `full` enables the strongest in-repo KG construction path; `lightweight` is for cheap sweeps |
 | `--multi-temperature` | `False` | Also run T=0, 0.5, 1.0 output-side sweeps |
 | `--evaluation-mode` | `full_metrics` | `accuracy_only` or `full_metrics` |
+| `--output-dir` | `results` | Root directory for run artifacts |
 
 Run artifacts are written under `results/runs/<run_id>/` and checkpoints under `results/checkpoints/`.
 
@@ -680,7 +713,7 @@ ontographrag/
 
 experiments/
 ├── experiment.py                      # Main benchmark runner
-├── uncertainty_metrics.py             # 15-metric UQ suite (output, structural, grounding)
+├── uncertainty_metrics.py             # UQ suite (output, structural, grounding)
 ├── dataset_adapters.py                # Dataset normalization and corpus-role metadata
 ├── prepare_bioasq_corpus.py           # Build shared PubMed abstract corpus for BioASQ
 └── visualize_results.py              # Plotting utilities

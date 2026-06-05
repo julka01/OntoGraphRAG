@@ -5,7 +5,7 @@ This directory contains the benchmark runner for comparing vanilla RAG and KG-RA
 The current pipeline does three things:
 - builds or reuses a dataset-scoped Neo4j KG
 - runs vanilla RAG and KG-RAG on the same seeded question subset
-- scores answer quality and, in `full_metrics` mode, computes the current 15-metric uncertainty suite
+- scores answer quality and, in `full_metrics` mode, computes the current uncertainty suite
 
 ## Quick Start
 
@@ -106,6 +106,8 @@ python experiments/experiment.py \
   --subset-seed 42 \
   --evaluation-mode full_metrics \
   --kg-builder-profile full \
+  --llm-provider openrouter \
+  --llm-model openai/gpt-4o-mini \
   --similarity-thresholds 0.1 \
   --max-chunks-values 10 \
   --retrieval-study final_pair
@@ -118,6 +120,35 @@ The `full` builder profile now enables the strongest in-repo KG construction pat
 - soft entity linking / stricter canonicalisation
 - fragmentation repair via conservative soft bridges
 - component summaries, graph-level summaries, and claim records
+
+## Strict Entity-First Stress Test
+
+Use this profile to test retrieval lock-in and context collapse directly. It
+runs KG-RAG only, disables RFGE, dense fallback, vector augmentation,
+decomposition, and runtime guardrails, and keeps the retriever in strict
+entity-first mode. This is not the production comparison system; it is a
+diagnostic stress test for the paper's claim that output-side uncertainty can
+become uninformative when the retrieved context is stabilised.
+
+Recommended command:
+
+```bash
+python experiments/experiment.py \
+  --datasets realmedqa \
+  --num-samples 230 \
+  --subset-seed 42 \
+  --evaluation-mode full_metrics \
+  --kg-builder-profile full \
+  --llm-provider openrouter \
+  --llm-model openai/gpt-4o-mini \
+  --similarity-thresholds 0.1 \
+  --max-chunks-values 10 \
+  --retrieval-study strict_entity
+```
+
+Run this alongside a `final_pair` result if you want both:
+- the practical comparison between dense vanilla and KG-RAG
+- the strict context-collapse diagnostic
 
 ## Full RealMedQA Reuse Run
 
@@ -179,7 +210,7 @@ These are the live flags supported by [experiment.py](experiment.py).
 | `--temperature` | `1.0` | Generation temperature |
 | `--retrieval-temperature-values` | `0.0` | Final-stage retrieval sampling temperatures to sweep |
 | `--retrieval-shortlist-factor` | `4` | Shortlist multiplier for stochastic retrieval selection |
-| `--retrieval-study` | unset | Expand each threshold / `k` point into a built-in retrieval profile such as `small` or `final_pair` |
+| `--retrieval-study` | unset | Expand each threshold / `k` point into a built-in retrieval profile: `small`, `final_pair`, or `strict_entity` |
 | `--multi-temperature` | off | Also run T=0, 0.5, 1.0 sweeps for uncertainty analysis |
 | `--evaluation-mode` | `full_metrics` | `accuracy_only` or `full_metrics` |
 | `--output-dir` | `results` | Root directory for run artifacts; runs are written under `<output-dir>/runs/<run_id>/` |
@@ -197,6 +228,7 @@ The loader currently supports these datasets via [dataset_adapters.py](dataset_a
 | `pubmedqa` | ready | `source_document` | Biomedical yes/no/maybe over source abstract segments |
 | `realmedqa` | ready after local download | `no_context` + shared corpus | Uses the verified ideal subset and builds a shared corpus from NICE recommendations |
 | `hotpotqa` | ready | `retrieval_bundle` | Multi-hop Wikipedia bundle per question |
+| `hotpotqa_fullwiki` | ready after corpus prep | shared corpus | HotpotQA questions over a prepared shared FullWiki retrieval corpus |
 | `2wikimultihopqa` | ready | `retrieval_bundle` | Multi-hop Wikipedia bundle per question |
 | `musique` | ready | `retrieval_bundle` | Multi-hop paragraph bundle per question |
 | `multihoprag` | ready | gold evidence + shared corpus | Uses `corpus.json` for fair retrieval |
@@ -208,6 +240,7 @@ The loader currently supports these datasets via [dataset_adapters.py](dataset_a
 
 Recommended end-to-end retrieval benchmarks right now:
 - `hotpotqa`
+- `hotpotqa_fullwiki` after shared-corpus prep
 - `2wikimultihopqa`
 - `musique`
 - `pubmedqa`
@@ -263,7 +296,7 @@ For each dataset/configuration pair, the runner logs:
 - official-style `answer_em` / `answer_f1` where supported
 - per-question details files and W&B tables
 
-In `full_metrics` mode it also computes the current 15 uncertainty metrics:
+In `full_metrics` mode it also computes the current uncertainty suite:
 
 Output-side metrics:
 - `semantic_entropy`
@@ -336,7 +369,7 @@ results/selections/
 | File | Purpose |
 |---|---|
 | [experiment.py](experiment.py) | Main experiment runner |
-| [uncertainty_metrics.py](uncertainty_metrics.py) | All 15 uncertainty metric implementations |
+| [uncertainty_metrics.py](uncertainty_metrics.py) | Output, structural, and grounding uncertainty metric implementations |
 | [dataset_adapters.py](dataset_adapters.py) | Dataset normalization and corpus-role metadata |
 | [visualize_results.py](visualize_results.py) | Plotting and figure utilities |
 | [hop_stratified_analysis.py](hop_stratified_analysis.py) | Per-hop-count accuracy and uncertainty stratification |
