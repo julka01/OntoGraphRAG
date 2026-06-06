@@ -26,6 +26,41 @@ Works across domains such as biomedical literature, legal documents, financial r
 
 ## Quick Start
 
+### Pip users: install the package
+
+For the frozen paper branch:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install "ontographrag @ git+https://github.com/julka01/OntographRAG.git@paper-submission"
+```
+
+If you build a local wheel from this checkout:
+
+```bash
+uv build
+python -m pip install dist/ontographrag-1.0.0rc1-py3-none-any.whl
+```
+
+The pip package installs the `ontograph` / `ontographrag` CLI and includes the current built web UI assets. You still need a running Neo4j instance:
+
+```bash
+docker run -d --rm --name ontographrag-neo4j \
+  -p 7474:7474 -p 7687:7687 \
+  -e NEO4J_AUTH=neo4j/password \
+  neo4j:5
+
+export NEO4J_URI=bolt://localhost:7687
+export NEO4J_USERNAME=neo4j
+export NEO4J_PASSWORD=password
+
+ontograph doctor
+ontograph serve --port 8000
+```
+
+Open `http://localhost:8000`.
+
 ### App users: ingest, explore, ask
 
 From a source checkout, the most reliable form is:
@@ -34,13 +69,14 @@ From a source checkout, the most reliable form is:
 If you want the shorter `ontograph ...` command, run `uv sync` after pulling the latest changes so the console script is installed into your virtualenv.
 
 ```bash
-# 1. Clone and install
+# 1. Clone and install in editable/source mode
 git clone https://github.com/julka01/OntographRAG.git
 cd OntographRAG
 uv sync
 source .venv/bin/activate
 
-# 2. Build the React frontend (required once after clone or after frontend changes)
+# 2. Build the React frontend for source-checkout serving.
+# Pip wheels include packaged UI assets, so this step is only needed here.
 cd frontend && npm install && npm run build && cd ..
 
 # 3. Start Neo4j
@@ -310,12 +346,20 @@ Every endpoint accepts a `provider` + `model` pair. Supported providers: OpenRou
 ### Installation
 
 ```bash
+# Option A: pip install the frozen paper branch
+python -m pip install "ontographrag @ git+https://github.com/julka01/OntographRAG.git@paper-submission"
+
+# Option B: build and install a local wheel
+uv build
+python -m pip install dist/ontographrag-1.0.0rc1-py3-none-any.whl
+
+# Option C: source checkout for development
 # Python dependencies
 uv sync          # recommended
 # or
 pip install -r requirements.txt
 
-# React frontend (required — the backend serves the built assets)
+# React frontend for source checkouts. Pip wheels include packaged UI assets.
 cd frontend && npm install && npm run build && cd ..
 ```
 
@@ -360,7 +404,7 @@ Chunking, retrieval thresholds, and benchmark sweeps are now controlled primaril
 
 ## Web UI
 
-The web interface is served at `http://localhost:8000`. It is a React + TypeScript single-page app (`frontend/`) built with Vite. Run `cd frontend && npm install && npm run build` once after clone (or after any frontend changes) — the backend serves the built assets from `frontend/dist/`.
+The web interface is served at `http://localhost:8000`. It is a React + TypeScript single-page app (`frontend/`) built with Vite. Pip wheels include the built UI under `ontographrag/api/static/`. Source checkouts fall back to `frontend/dist/`, so run `cd frontend && npm install && npm run build` once after clone or after frontend changes.
 
 ### Knowledge graph panel
 
@@ -687,11 +731,12 @@ frontend/                              # React + TypeScript web UI (Vite)
 │   ├── hooks/                         # useChat, useGraph, useModels, useHealth, ...
 │   ├── context/                       # AppContext, ThemeContext
 │   └── types/                         # Shared TypeScript types
-└── dist/                              # Built assets served by FastAPI (git-ignored; run npm run build)
+└── dist/                              # Source-checkout build assets; copied into ontographrag/api/static/ for wheels
 
 ontographrag/
 ├── api/
-│   └── app.py                         # FastAPI application, all endpoints; serves frontend/dist/
+│   ├── app.py                         # FastAPI application, all endpoints; serves packaged/source UI assets
+│   └── static/                        # Built UI assets included in pip wheels
 ├── kg/
 │   ├── builders/
 │   │   ├── ontology_guided_kg_creator.py   # OntologyGuidedKGCreator — core extraction, harmonization, Neo4j write

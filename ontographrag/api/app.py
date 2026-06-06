@@ -26,6 +26,7 @@ load_dotenv()
 _API_DIR = Path(__file__).resolve().parent
 _PROJECT_ROOT = _API_DIR.parent.parent
 _STATIC_DIR = _API_DIR / "static"
+_SOURCE_UI_DIST_DIR = _PROJECT_ROOT / "frontend" / "dist"
 _DEFAULT_WRITE_PROBE_DIR = _PROJECT_ROOT / "results"
 _READY_WRITE_PROBE_DIR = Path(
     os.getenv("ONTOGRAPHRAG_WRITE_PROBE_DIR", str(_DEFAULT_WRITE_PROBE_DIR))
@@ -33,6 +34,26 @@ _READY_WRITE_PROBE_DIR = Path(
 _DEBUG_ERRORS = str(os.getenv("ONTOGRAPHRAG_DEBUG_ERRORS", "0")).strip().lower() in {
     "1", "true", "yes", "on",
 }
+
+
+def _resolve_ui_dist_dir() -> Path:
+    """Find packaged UI assets first, then source-checkout build assets."""
+    env_dir = os.getenv("ONTOGRAPHRAG_UI_DIST_DIR")
+    candidates = []
+    if env_dir:
+        candidates.append(Path(env_dir).expanduser())
+    candidates.extend([
+        _STATIC_DIR,
+        _SOURCE_UI_DIST_DIR,
+        Path.cwd() / "frontend" / "dist",
+    ])
+    for candidate in candidates:
+        if (candidate / "index.html").exists():
+            return candidate
+    return candidates[0] if candidates else _STATIC_DIR
+
+
+_UI_DIST_DIR = _resolve_ui_dist_dir()
 
 from ontographrag.providers.model_providers import (
     get_provider as get_llm_provider,
@@ -355,9 +376,9 @@ app = FastAPI(
     description=(
         "Turn unstructured documents into schema-consistent knowledge graphs. "
         "Query them with hybrid vector + graph RAG. "
-        "Measure answer confidence with 15 uncertainty metrics and graph-grounded diagnostics."
+        "Measure answer confidence with output, grounding, and structural diagnostics."
     ),
-    version="1.0.0",
+    version="1.0.0-rc1",
 )
 
 # CORS — tighten ALLOWED_ORIGINS via env var in production
@@ -372,8 +393,8 @@ app.add_middleware(
 
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
-app.mount("/assets", StaticFiles(directory="frontend/dist/assets"), name="assets")
-app.mount("/static", StaticFiles(directory="frontend/dist"), name="static")
+app.mount("/assets", StaticFiles(directory=str(_UI_DIST_DIR / "assets"), check_dir=False), name="assets")
+app.mount("/static", StaticFiles(directory=str(_UI_DIST_DIR), check_dir=False), name="static")
 
 # Optional API key authentication — only enforced when APP_API_KEY is set in the environment.
 # In development (no APP_API_KEY) all requests pass through.
@@ -751,7 +772,16 @@ async def ready():
 
 @app.get("/")
 async def root():
-    return FileResponse("frontend/dist/index.html")
+    index_path = _UI_DIST_DIR / "index.html"
+    if not index_path.exists():
+        raise HTTPException(
+            status_code=503,
+            detail=(
+                "UI assets are missing. Build the frontend, install a packaged "
+                "wheel, or set ONTOGRAPHRAG_UI_DIST_DIR."
+            ),
+        )
+    return FileResponse(index_path)
 
 @app.post("/load_kg_from_file")
 async def load_kg_from_file(
@@ -2076,10 +2106,14 @@ async def run_doctor_checks(
             overall = "warn"
 
     # 1. Static assets / package layout
-    if (_STATIC_DIR / "index.html").exists():
-        _add("static_assets", "ok", f"UI assets found in {_STATIC_DIR}")
+    if (_UI_DIST_DIR / "index.html").exists():
+        _add("static_assets", "ok", f"UI assets found in {_UI_DIST_DIR}")
     else:
-        _add("static_assets", "fail", f"Missing packaged UI assets at {_STATIC_DIR}")
+        _add(
+            "static_assets",
+            "fail",
+            f"Missing UI assets. Checked {_UI_DIST_DIR}; set ONTOGRAPHRAG_UI_DIST_DIR if needed.",
+        )
 
     # 2. Neo4j connectivity
     try:

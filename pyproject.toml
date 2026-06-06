@@ -128,6 +128,7 @@ dependencies = [
     "tqdm==4.66.4",
     "regex==2024.5.15",
     "validators==0.34.0",
+    "click>=8.1.7,<8.2",
     "typer==0.15.2",
     "Unidecode==1.3.8",
 
@@ -186,20 +187,20 @@ Documentation = "https://github.com/julka01/OntographRAG#readme"
 
 [tool.hatch.build.targets.wheel]
 packages = ["ontographrag", "experiments", "shared"]
+force-include = { "csv_processor.py" = "csv_processor.py", "graphDB_dataAccess.py" = "graphDB_dataAccess.py" }
+
+[tool.hatch.build.targets.sdist]
+only-include = [
+    "ontographrag",
+    "shared",
+    "experiments",
+    "csv_processor.py",
+    "graphDB_dataAccess.py",
+    "README.md",
+    "LICENSE",
+    "pyproject.toml",
+]
 
 [project.scripts]
 ontograph = "ontographrag.cli:main"
 ontographrag = "ontographrag.cli:main"
-
-[tool.hatch.build]
-include = [
-    "ontographrag/**/*.py",
-    "shared/**/*.py",
-    "csv_processor.py",
-    "graphDB_dataAccess.py",
-    "ontographrag/api/static/index.html",
-    "experiments/**/*.py",
-    "experiments/*.json",
-    "experiments/README.md",
-    "README.md",
-]
