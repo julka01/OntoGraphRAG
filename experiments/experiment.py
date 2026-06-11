@@ -3622,6 +3622,8 @@ class MIRAGEEvaluationPipeline:
                 kg_compute_times["evidence_conflict_uncertainty"].append(_elapsed)
 
                 detail_entry.update({
+                    "vanilla_retrieval_overlap": float(vanilla_retrieval_overlap or 0.0),
+                    "kg_retrieval_overlap": float(kg_retrieval_overlap or 0.0),
                     "vanilla_semantic_entropy": vanilla_uncertainty.get("semantic_entropy", self.UNCERTAINTY_METRIC_DEFAULTS["semantic_entropy"]),
                     "kg_semantic_entropy": kg_uncertainty.get("semantic_entropy", self.UNCERTAINTY_METRIC_DEFAULTS["semantic_entropy"]),
                     "vanilla_discrete_semantic_entropy": vanilla_uncertainty.get("discrete_semantic_entropy", self.UNCERTAINTY_METRIC_DEFAULTS["discrete_semantic_entropy"]),

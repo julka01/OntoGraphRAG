@@ -378,7 +378,7 @@ app = FastAPI(
         "Query them with hybrid vector + graph RAG. "
         "Measure answer confidence with output, grounding, and structural diagnostics."
     ),
-    version="1.0.0-rc1",
+    version="1.0.0",
 )
 
 # CORS — tighten ALLOWED_ORIGINS via env var in production
