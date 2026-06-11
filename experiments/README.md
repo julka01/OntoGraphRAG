@@ -402,6 +402,24 @@ Deterministic subset selections live under:
 results/selections/
 ```
 
+### Weights & Biases
+
+Every run of `experiment.py` (or `ontograph evaluate`) initialises a W&B run
+automatically:
+
+- entity: `WANDB_ENTITY` (default `julka01`); project: `mirage-kg-evaluation`;
+  run name: the run id
+- authenticate once with `wandb login` or set `WANDB_API_KEY`
+- set `WANDB_MODE=offline` (or `disabled`) to run without an account
+
+Each run logs the manifest config (dataset, model, seed, git commit,
+embedding provider, evaluation mode), per-question tables
+(`tables/<dataset>/<subset>/<config>/questions_and_responses`), per-config
+AUROC/AUREC summary tables (`tables/<dataset>/config_summary`), and metric
+charts (`charts/<dataset>/metrics_by_config`). The local artefacts
+under `<output-dir>/runs/<run_id>/` are always written regardless of W&B
+mode, so W&B is a mirror, not the system of record.
+
 ## Script Reference
 
 | File | Purpose |
