@@ -139,8 +139,9 @@ Wheels ship built assets; source checkouts need `npm run build` once.
 
 **[experiments/README.md](experiments/README.md)** covers the benchmark runner
 (vanilla RAG vs KG-RAG, uncertainty suite, retrieval lock-in study), datasets,
-and flags. `ontograph datasets` / `prepare` automate dataset download;
-`ontograph evaluate` wraps the runner.
+and flags. `ontograph datasets` shows expected local paths, and
+`ontograph prepare <dataset>` helps with local dataset setup (including direct
+downloads where available); `ontograph evaluate` wraps the runner.
 
 Every benchmark run logs to **Weights & Biases** automatically (entity
 `WANDB_ENTITY`, project `mirage-kg-evaluation`): manifest config, per-question
@@ -222,7 +223,6 @@ docker compose up -d         # Full stack (Neo4j + API)
 |-------|-----------|
 | KG construction pipeline | [KG_GENERATION_PIPELINE.md](KG_GENERATION_PIPELINE.md) |
 | Evaluation & uncertainty metrics | [EVALUATION_METRICS.md](EVALUATION_METRICS.md) |
-| Uncertainty metric formulations | [UNCERTAINTY_METRICS.md](UNCERTAINTY_METRICS.md) |
 | Benchmark runner, datasets, flags | [experiments/README.md](experiments/README.md) |
 | REST API | `http://localhost:8004/docs` (interactive) |
 
