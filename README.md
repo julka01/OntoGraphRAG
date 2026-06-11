@@ -62,6 +62,10 @@ docker compose up -d neo4j
 python -m ontographrag.cli serve
 ```
 
+To reproduce the benchmarks (vanilla RAG vs KG-RAG, uncertainty suite, retrieval
+lock-in study), see **[experiments/README.md](experiments/README.md)** for the
+runner, datasets, and flags.
+
 ## What it does
 
 - **Ontology-guided extraction** — bring an OWL/RDF/JSON schema; every entity and
@@ -82,14 +86,14 @@ python -m ontographrag.cli serve
 |-------|-----------|
 | KG construction pipeline | [KG_GENERATION_PIPELINE.md](KG_GENERATION_PIPELINE.md) |
 | Evaluation & uncertainty metrics | [EVALUATION_METRICS.md](EVALUATION_METRICS.md) |
-| Benchmarks, datasets, and flags | [experiments/README.md](experiments/README.md) |
+| Benchmark runner, datasets, and flags | [experiments/README.md](experiments/README.md) |
 | REST API | `http://localhost:8000/docs` (interactive) |
 
 ## Project layout
 
 ```
 ontographrag/      installable package: api, kg builders, rag systems, providers
-experiments/       benchmark runner and uncertainty suite
+experiments/       benchmark runner and uncertainty suite — see experiments/README.md
 frontend/          React + TypeScript web UI (Vite)
 MIRAGE/            benchmark raw data and adapters
 ```
