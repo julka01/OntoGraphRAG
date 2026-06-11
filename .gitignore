@@ -40,8 +40,8 @@ Thumbs.db
 logs/
 
 # ── Experiment datasets ─────────────────────────────────────────────────────
-# Raw dataset files (download instructions in experiments/README.md)
-MIRAGE/rawdata/
+# Local benchmark workspace and raw dataset files
+MIRAGE/
 data/
 
 # ── Experiment outputs ──────────────────────────────────────────────────────

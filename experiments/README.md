@@ -257,6 +257,9 @@ The datasets are **not** bundled with the pip package or the repository — down
 the raw files yourself and place them under `MIRAGE/rawdata/`. The CLI makes the
 whole flow discoverable:
 
+`MIRAGE/` is just a local ignored workspace path in this repo now; users should
+create it locally as needed rather than expect benchmark data to be versioned.
+
 ```bash
 ontograph datasets                 # list datasets, local status, sources, prep needs
 ontograph prepare hotpotqa --download   # fetch the raw file (where a direct URL exists)

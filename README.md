@@ -95,7 +95,7 @@ runner, datasets, and flags.
 ontographrag/      installable package: api, kg builders, rag systems, providers
 experiments/       benchmark runner and uncertainty suite — see experiments/README.md
 frontend/          React + TypeScript web UI (Vite)
-MIRAGE/            benchmark raw data and adapters
+MIRAGE/rawdata/    local ignored benchmark-data workspace (downloaded separately)
 ```
 
 ## Citation
