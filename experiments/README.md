@@ -251,6 +251,38 @@ Recommended end-to-end retrieval benchmarks right now:
 - `multihoprag`
 - `bioasq` after shared-corpus prep
 
+## Getting the datasets
+
+The datasets are **not** bundled with the pip package or the repository — download
+the raw files yourself and place them under `MIRAGE/rawdata/`. The CLI makes the
+whole flow discoverable:
+
+```bash
+ontograph datasets                 # list datasets, local status, sources, prep needs
+ontograph prepare hotpotqa --download   # fetch the raw file (where a direct URL exists)
+ontograph prepare hotpotqa_fullwiki --num-samples 250 --subset-seed 42 --overwrite
+ontograph evaluate --datasets hotpotqa --num-samples 100 --subset-seed 42
+```
+
+`ontograph prepare <dataset>` downloads the raw file when a direct URL is
+available (`--download`), builds the derived shared corpus where one is required
+(`hotpotqa_fullwiki`, `bioasq`), and otherwise prints exactly what to fetch and
+where to put it.
+
+| Dataset | Source | Direct download | Prepare step |
+|---|---|---|---|
+| `pubmedqa` | [pubmedqa/pubmedqa](https://github.com/pubmedqa/pubmedqa) (`test_set.json`) | no | — |
+| `realmedqa` | [RealMedQA on Hugging Face](https://huggingface.co/datasets/k2141255/RealMedQA) | no | — |
+| `hotpotqa` | [hotpotqa.github.io](https://hotpotqa.github.io/) | yes (`--download`) | — |
+| `hotpotqa_fullwiki` | shares the HotpotQA raw file | yes (`--download`) | `prepare` builds the shared corpus |
+| `2wikimultihopqa` | [Alab-NII/2wikimultihop](https://github.com/Alab-NII/2wikimultihop) (`dev.json`) | no | — |
+| `musique` | [StonyBrookNLP/musique](https://github.com/StonyBrookNLP/musique) (`dev.jsonl`) | no | — |
+| `multihoprag` | [yixuantt/MultiHop-RAG](https://github.com/yixuantt/MultiHop-RAG) (`MultiHopRAG.json`, `corpus.json`) | no | — |
+| `bioasq` | [bioasq.org](http://bioasq.org/participate/challenges) (registration) | no | `prepare-bioasq-corpus` builds the shared PubMed corpus |
+
+The exact expected paths are listed under [Dataset Files](#dataset-files) below,
+and `ontograph datasets` prints them with live present/missing status.
+
 ## Corpus Safety
 
 The experiment runner now distinguishes between three different kinds of per-question context:

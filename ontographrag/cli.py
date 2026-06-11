@@ -371,5 +371,145 @@ def prepare_bioasq_corpus(
         typer.echo(f"Missing abstracts/titles for {missing} PMIDs")
 
 
+# ── Benchmark dataset registry ───────────────────────────────────────────────
+# Single source of truth for the CLI dataset commands: expected local path,
+# where to obtain the raw file, an optional direct-download URL, and whether a
+# derived-corpus preparation step is required.
+_BENCHMARK_DATASETS: dict[str, dict] = {
+    "pubmedqa": {
+        "path": "MIRAGE/rawdata/pubmedqa/data/test_set.json",
+        "source": "https://github.com/pubmedqa/pubmedqa",
+        "note": "Download test_set.json from the repository.",
+    },
+    "realmedqa": {
+        "path": "MIRAGE/rawdata/realmedqa/RealMedQA.json",
+        "source": "https://huggingface.co/datasets/k2141255/RealMedQA",
+    },
+    "bioasq": {
+        "path": "MIRAGE/rawdata/bioasq/Task10BGoldenEnriched/10B1_golden.json",
+        "source": "http://bioasq.org/participate/challenges",
+        "prep": "bioasq",
+        "note": "Free registration required. After download, build the shared "
+                "PubMed corpus with `ontograph prepare-bioasq-corpus`.",
+    },
+    "hotpotqa": {
+        "path": "MIRAGE/rawdata/hotpotqa/hotpot_dev_fullwiki_v1.json",
+        "source": "https://hotpotqa.github.io/",
+        "download": "http://curtis.ml.cmu.edu/datasets/hotpot/hotpot_dev_fullwiki_v1.json",
+    },
+    "hotpotqa_fullwiki": {
+        "path": "MIRAGE/rawdata/hotpotqa/hotpot_dev_fullwiki_v1.json",
+        "source": "https://hotpotqa.github.io/",
+        "download": "http://curtis.ml.cmu.edu/datasets/hotpot/hotpot_dev_fullwiki_v1.json",
+        "prep": "fullwiki",
+        "note": "Shares the HotpotQA raw file; `prepare` builds the shared "
+                "FullWiki corpus.",
+    },
+    "2wikimultihopqa": {
+        "path": "MIRAGE/rawdata/2wikimultihopqa/dev.json",
+        "source": "https://github.com/Alab-NII/2wikimultihop",
+    },
+    "musique": {
+        "path": "MIRAGE/rawdata/musique/dev.jsonl",
+        "source": "https://github.com/StonyBrookNLP/musique",
+    },
+    "multihoprag": {
+        "path": "MIRAGE/rawdata/multihoprag/MultiHopRAG.json",
+        "source": "https://github.com/yixuantt/MultiHop-RAG",
+    },
+}
+
+
+def _dataset_or_raise(name: str) -> dict:
+    spec = _BENCHMARK_DATASETS.get(name.lower())
+    if spec is None:
+        raise typer.BadParameter(
+            f"Unknown dataset '{name}'. Known: {', '.join(sorted(_BENCHMARK_DATASETS))}."
+        )
+    return spec
+
+
+def _download_to(url: str, dest: Path) -> None:
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    typer.echo(f"Downloading {url}")
+    with httpx.stream("GET", url, follow_redirects=True, timeout=600.0) as response:
+        _raise_for_status(response)
+        with open(dest, "wb") as handle:
+            for chunk in response.iter_bytes():
+                handle.write(chunk)
+    typer.echo(f"Saved {dest} ({dest.stat().st_size / 1e6:.1f} MB)")
+
+
+@app.command()
+def datasets() -> None:
+    """List supported benchmark datasets, their local status, and where to obtain them."""
+    typer.echo("Benchmark datasets (raw files live under MIRAGE/rawdata/):\n")
+    for name, spec in _BENCHMARK_DATASETS.items():
+        present = Path(spec["path"]).exists()
+        mark = "present" if present else "missing"
+        prep = spec.get("prep")
+        prep_note = f"  prepare: {prep}" if prep else ""
+        fetch = "  [--download available]" if spec.get("download") else ""
+        typer.echo(f"- {name}  [{mark}]{prep_note}{fetch}")
+        typer.echo(f"    path:   {spec['path']}")
+        typer.echo(f"    source: {spec['source']}")
+        if spec.get("note"):
+            typer.echo(f"    note:   {spec['note']}")
+    typer.echo(
+        "\nWorkflow:  ontograph prepare <dataset>  ->  "
+        "ontograph evaluate --datasets <dataset> ...\n"
+        "See experiments/README.md for full acquisition instructions and flags."
+    )
+
+
+@app.command(
+    context_settings={"allow_extra_args": True, "ignore_unknown_options": True},
+)
+def prepare(
+    ctx: typer.Context,
+    dataset: str = typer.Argument(..., help="Dataset name (see `ontograph datasets`)."),
+    download: bool = typer.Option(
+        False, help="Fetch the raw file when a direct download URL is available."
+    ),
+) -> None:
+    """Prepare a benchmark dataset: optionally download the raw file and build any derived corpus.
+
+    Extra arguments are forwarded to the corpus-preparation script (e.g.
+    `--num-samples 250 --subset-seed 42 --overwrite` for hotpotqa_fullwiki).
+    """
+    spec = _dataset_or_raise(dataset)
+    raw_path = Path(spec["path"])
+
+    if download:
+        if not spec.get("download"):
+            raise typer.BadParameter(
+                f"No direct download URL for '{dataset}'. Obtain it from {spec['source']} "
+                f"and place it at {raw_path}."
+            )
+        _download_to(spec["download"], raw_path)
+
+    if not raw_path.exists():
+        typer.echo(f"Raw file not found: {raw_path}")
+        typer.echo(f"Obtain it from {spec['source']} and place it at the path above.")
+        if spec.get("download"):
+            typer.echo(f"Or fetch it now: ontograph prepare {dataset} --download")
+        if spec.get("note"):
+            typer.echo(f"Note: {spec['note']}")
+        raise typer.Exit(code=1)
+
+    prep = spec.get("prep")
+    if prep == "fullwiki":
+        cmd = [sys.executable, "-m", "experiments.prepare_hotpotqa_fullwiki_corpus", *ctx.args]
+        raise typer.Exit(code=subprocess.call(cmd))
+    if prep == "bioasq":
+        typer.echo(
+            f"{dataset} raw file is present. Build the shared PubMed corpus with:\n"
+            f"  ontograph prepare-bioasq-corpus --email you@example.com"
+        )
+        return
+    typer.echo(f"{dataset} is ready: {raw_path}")
+    typer.echo(f"Run it with: ontograph evaluate --datasets {dataset} --num-samples 100 --subset-seed 42")
+
+
 def main() -> None:
     app()
