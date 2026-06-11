@@ -81,8 +81,7 @@ python -m ontographrag.cli serve
 | Topic | Reference |
 |-------|-----------|
 | KG construction pipeline | [KG_GENERATION_PIPELINE.md](KG_GENERATION_PIPELINE.md) |
-| Uncertainty metrics | [UNCERTAINTY_METRICS.md](UNCERTAINTY_METRICS.md) |
-| Evaluation metrics | [EVALUATION_METRICS.md](EVALUATION_METRICS.md) |
+| Evaluation & uncertainty metrics | [EVALUATION_METRICS.md](EVALUATION_METRICS.md) |
 | Benchmarks, datasets, and flags | [experiments/README.md](experiments/README.md) |
 | REST API | `http://localhost:8000/docs` (interactive) |
 

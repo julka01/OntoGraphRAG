@@ -70,14 +70,12 @@ references.bib
 # ── Stray directories ─────────────────────────────────────────────────────────
 Users/
 
-# ── Internal / generated docs ────────────────────────────────────────────────
-code_review.md
-KG_GENERATION_PIPELINE.md
-
-# Ignore all Markdown docs except README files
+# Ignore internal Markdown notes, but publish the README-referenced docs.
 *.md
 !README.md
 !**/README.md
+!KG_GENERATION_PIPELINE.md
+!EVALUATION_METRICS.md
 
 # ── Nested repos / vendored libraries ────────────────────────────────────────
 semantic_uncertainty/
