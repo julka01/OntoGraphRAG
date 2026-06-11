@@ -41,13 +41,13 @@ def _load_builder_methods():
         / "ontographrag"
         / "kg"
         / "builders"
-        / "ontology_guided_kg_creator.py"
+        / "_ontology.py"
     )
     source = builder_path.read_text(encoding="utf-8")
     module = ast.parse(source, filename=str(builder_path))
     class_node = next(
         node for node in module.body
-        if isinstance(node, ast.ClassDef) and node.name == "OntologyGuidedKGCreator"
+        if isinstance(node, ast.ClassDef) and node.name == "OntologySchemaMixin"
     )
     wanted = {
         node.name: ast.get_source_segment(source, node)

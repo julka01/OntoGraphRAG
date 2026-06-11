@@ -1,5 +1,8 @@
 # Experiments
 
+> Part of [OntographRAG](../README.md). See the project README for installation,
+> the web app, and the API.
+
 This directory contains the benchmark runner for comparing vanilla RAG and KG-RAG under a shared evaluation protocol.
 
 The current pipeline does three things:
@@ -380,3 +383,8 @@ results/selections/
 | [answer_formatting.py](answer_formatting.py) | Answer normalisation and judge prompts |
 | [summary_utils.py](summary_utils.py) | Run-summary aggregation helpers |
 | [kg_reuse.py](kg_reuse.py) | KG reuse/cache logic across runs |
+
+## License
+
+MIT — see [LICENSE](../LICENSE). To cite this work, see the
+[project README](../README.md#citation).

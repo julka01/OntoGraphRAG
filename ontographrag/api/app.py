@@ -553,7 +553,7 @@ async def create_kg(
     """
     require_neo4j()
     try:
-        from graphDB_dataAccess import graphDBdataAccess
+        from ontographrag.kg.loaders.graph_db_access import graphDBdataAccess
         from langchain_neo4j import Neo4jGraph
         
         # Create Neo4jGraph (langchain) instead of driver
@@ -628,7 +628,7 @@ async def get_kg(kg_name: str):
     Get details of a specific Knowledge Graph.
     """
     try:
-        from graphDB_dataAccess import graphDBdataAccess
+        from ontographrag.kg.loaders.graph_db_access import graphDBdataAccess
         from langchain_neo4j import Neo4jGraph
 
         graph = Neo4jGraph(
@@ -664,7 +664,7 @@ async def delete_kg(kg_name: str, delete_entities: bool = Query(True)):
     Delete a named Knowledge Graph.
     """
     try:
-        from graphDB_dataAccess import graphDBdataAccess
+        from ontographrag.kg.loaders.graph_db_access import graphDBdataAccess
         from langchain_neo4j import Neo4jGraph
 
         graph = Neo4jGraph(
@@ -693,7 +693,7 @@ async def get_kg_entities(kg_name: str, limit: int = 100):
     Get entities from a specific Knowledge Graph.
     """
     try:
-        from graphDB_dataAccess import graphDBdataAccess
+        from ontographrag.kg.loaders.graph_db_access import graphDBdataAccess
         from langchain_neo4j import Neo4jGraph
 
         graph = Neo4jGraph(

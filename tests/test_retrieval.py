@@ -711,8 +711,10 @@ class TestLateInteractionFirstStageRetrieval:
                 "entities": [],
             }
         ]
+        import ontographrag.rag.systems._vector_search as vector_search_module
+
         monkeypatch.setattr(
-            enhanced_rag_module,
+            vector_search_module,
             "late_interaction_rescore_chunks_for_query",
             lambda query, chunks, **kwargs: (
                 list(chunks),

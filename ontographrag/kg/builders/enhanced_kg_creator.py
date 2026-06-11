@@ -9,7 +9,7 @@ from ontographrag.kg.builders.ontology_guided_kg_creator import OntologyGuidedKG
 
 # Import CSV processors for bulk operations
 try:
-    from csv_processor import MedicalReportCSVProcessor, DocumentCSVProcessor
+    from ontographrag.kg.csv_processor import MedicalReportCSVProcessor, DocumentCSVProcessor
 except ImportError:
     logging.warning("CSV processors not available - bulk CSV operations disabled")
     MedicalReportCSVProcessor = None

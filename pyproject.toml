@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 license = {text = "MIT"}
 authors = [
-    {name = "MediGraph Team"},
+    {name = "Sahib Julka"},
 ]
 keywords = [
     "medical",
@@ -187,15 +187,12 @@ Documentation = "https://github.com/julka01/OntographRAG#readme"
 
 [tool.hatch.build.targets.wheel]
 packages = ["ontographrag", "experiments", "shared"]
-force-include = { "csv_processor.py" = "csv_processor.py", "graphDB_dataAccess.py" = "graphDB_dataAccess.py" }
 
 [tool.hatch.build.targets.sdist]
 only-include = [
     "ontographrag",
     "shared",
     "experiments",
-    "csv_processor.py",
-    "graphDB_dataAccess.py",
     "README.md",
     "LICENSE",
     "pyproject.toml",

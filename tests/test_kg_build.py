@@ -905,7 +905,9 @@ class TestSectionAwareChunking:
                 "embedding": None,
             }]
 
-        monkeypatch.setattr(builder_mod, "_chunk_text_fn", _fake_chunk_text_fn)
+        from ontographrag.kg.builders import _extraction as extraction_mod
+
+        monkeypatch.setattr(extraction_mod, "_chunk_text_fn", _fake_chunk_text_fn)
 
         text = "History\nalpha finding\n\nMedications\nbeta dose"
         med_start = text.index("Medications")
