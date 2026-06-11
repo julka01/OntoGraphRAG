@@ -178,12 +178,33 @@ def test_realmedqa_profile_requires_shared_corpus():
 
 def test_multihoprag_uses_shared_corpus_for_fair_retrieval():
     profile = get_dataset_corpus_profile("multihoprag")
-    passages = build_global_corpus_passages("multihoprag")
+    original_loader = dataset_adapters_module._load_optional_json_records
+    dataset_adapters_module._load_optional_json_records = lambda candidate_paths: [
+        {
+            "title": "Reuters sample",
+            "source": "Reuters",
+            "author": "Reporter",
+            "category": "business",
+            "published_at": "2023-10-01T12:00:00+00:00",
+            "body": "Reuters reported the event first.",
+        }
+    ]
+    try:
+        passages = build_global_corpus_passages("multihoprag")
+    finally:
+        dataset_adapters_module._load_optional_json_records = original_loader
 
     assert profile["question_context_role"] == "gold_evidence"
     assert profile["requires_shared_corpus_for_fair_retrieval"] is True
     assert passages is not None
     assert len(passages) > 0
+    assert "Title: Reuters sample" in passages[0].text
+
+
+def test_multihoprag_shared_corpus_absent_without_local_corpus(monkeypatch):
+    monkeypatch.setattr(dataset_adapters_module, "_load_optional_json_records", lambda candidate_paths: None)
+    passages = build_global_corpus_passages("multihoprag")
+    assert passages is None
 
 
 def test_bioasq_shared_corpus_absent_without_local_abstract_corpus(monkeypatch):

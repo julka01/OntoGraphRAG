@@ -1454,12 +1454,14 @@ def build_global_corpus_passages(dataset_name: str) -> Optional[List[ContextPass
     if dataset_name != "multihoprag":
         return None
 
-    corpus_path = "MIRAGE/rawdata/multihoprag/corpus.json"
-    if not os.path.exists(corpus_path):
-        raise FileNotFoundError(f"MultiHop-RAG corpus file not found: {corpus_path}")
-
-    with open(corpus_path, "r") as f:
-        docs = json.load(f)
+    docs = _load_optional_json_records(
+        [
+            "MIRAGE/rawdata/multihoprag/corpus.json",
+            "MIRAGE/rawdata/multihoprag/corpus.jsonl",
+        ]
+    )
+    if docs is None:
+        return None
 
     seen: set = set()
     passages: List[ContextPassage] = []
