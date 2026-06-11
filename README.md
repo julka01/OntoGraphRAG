@@ -33,7 +33,7 @@ export OPENROUTER_API_KEY=...   # or OPENAI_API_KEY, GEMINI_API_KEY, ...
 
 # 4. Check readiness and launch the web app
 ontograph doctor
-ontograph serve --port 8000     # → http://localhost:8000
+ontograph serve                  # → http://localhost:8004
 ```
 
 See [`.env.example`](.env.example) for all configuration variables.
@@ -50,7 +50,8 @@ ontograph explore list                              # list saved graphs
 ```
 
 A REST API is served alongside the app; interactive docs live at
-`http://localhost:8000/docs`.
+`http://localhost:8004/docs` and the OpenAPI schema at
+`http://localhost:8004/openapi.json`.
 
 For a source checkout (development, frontend changes, or benchmarks):
 
@@ -59,8 +60,69 @@ git clone https://github.com/julka01/OntographRAG.git && cd OntographRAG
 uv sync && source .venv/bin/activate
 cd frontend && npm install && npm run build && cd ..   # build the UI
 docker compose up -d neo4j
-python -m ontographrag.cli serve
+python -m ontographrag.cli serve   # → http://localhost:8004/docs
 ```
+
+## API
+
+OntographRAG exposes the GUI and the FastAPI server from the same process.
+For most users, the live API docs are the source of truth:
+
+- Swagger UI: `http://localhost:8004/docs`
+- OpenAPI schema: `http://localhost:8004/openapi.json`
+
+If you want a different port, pass `--port`, for example
+`ontograph serve --port 8000`.
+
+### Authentication
+
+If `APP_API_KEY` is set, API requests must send the key in the `X-API-Key`
+header or as `?api_key=...`. Health endpoints and static assets stay public so
+the web app can still load.
+
+### Common endpoints
+
+- `POST /create_ontology_guided_kg` — upload a document and optionally an ontology, then persist a named KG in Neo4j
+- `POST /chat` — ask a grounded question, optionally scoped to `kg_name`
+- `GET /kg/list` — list available named KGs
+- `GET /kg/{kg_name}` — fetch KG metadata and stats
+- `DELETE /kg/{kg_name}` — delete one named KG
+- `GET /models/{provider}` — list model choices for a provider
+- `GET /health`, `GET /ready`, `GET /doctor` — health and readiness checks
+
+### Minimal examples
+
+Create a KG from a document:
+
+```bash
+curl -X POST http://localhost:8004/create_ontology_guided_kg \
+  -F "file=@report.pdf" \
+  -F "kg_name=demo" \
+  -F "provider=openrouter" \
+  -F "model=openai/gpt-4o-mini"
+```
+
+Ask a question against a named KG:
+
+```bash
+curl -X POST http://localhost:8004/chat \
+  -H "Content-Type: application/json" \
+  -d '{
+    "question": "What are the main findings?",
+    "kg_name": "demo",
+    "provider_rag": "openrouter",
+    "model_rag": "openai/gpt-4o-mini"
+  }'
+```
+
+List KGs:
+
+```bash
+curl http://localhost:8004/kg/list
+```
+
+The CLI commands `ontograph ingest`, `ontograph ask`, and `ontograph explore`
+are thin wrappers around these server endpoints.
 
 To reproduce the benchmarks (vanilla RAG vs KG-RAG, uncertainty suite, retrieval
 lock-in study), see **[experiments/README.md](experiments/README.md)** for the
@@ -87,7 +149,7 @@ runner, datasets, and flags.
 | KG construction pipeline | [KG_GENERATION_PIPELINE.md](KG_GENERATION_PIPELINE.md) |
 | Evaluation & uncertainty metrics | [EVALUATION_METRICS.md](EVALUATION_METRICS.md) |
 | Benchmark runner, datasets, and flags | [experiments/README.md](experiments/README.md) |
-| REST API | `http://localhost:8000/docs` (interactive) |
+| REST API | This README section plus `http://localhost:8004/docs` (interactive) |
 
 ## Project layout
 
