@@ -129,7 +129,7 @@ def invalidate_rag_system(reason: str = "") -> None:
     if reason:
         logger.info("Invalidated RAG system singleton: %s", reason)
 
-from csv_processor import MedicalReportCSVProcessor
+from ontographrag.kg.csv_processor import MedicalReportCSVProcessor
 
 # Configuration constants for input validation
 MAX_FILE_SIZE_MB = 50
