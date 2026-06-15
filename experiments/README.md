@@ -1,6 +1,6 @@
 # Experiments
 
-> Part of [OntographRAG](../README.md). See the project README for installation,
+> Part of [OntoGraphRAG](../README.md). See the project README for installation,
 > the web app, and the API.
 
 This directory contains the benchmark runner for comparing vanilla RAG and KG-RAG under a shared evaluation protocol.

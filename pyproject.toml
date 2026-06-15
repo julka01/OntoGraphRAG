@@ -180,10 +180,10 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/julka01/OntographRAG"
-Repository = "https://github.com/julka01/OntographRAG.git"
-Issues = "https://github.com/julka01/OntographRAG/issues"
-Documentation = "https://github.com/julka01/OntographRAG#readme"
+Homepage = "https://github.com/julka01/OntoGraphRAG"
+Repository = "https://github.com/julka01/OntoGraphRAG.git"
+Issues = "https://github.com/julka01/OntoGraphRAG/issues"
+Documentation = "https://github.com/julka01/OntoGraphRAG#readme"
 
 [tool.hatch.build.targets.wheel]
 packages = ["ontographrag", "experiments", "shared"]

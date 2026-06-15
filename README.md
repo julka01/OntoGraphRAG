@@ -1,4 +1,4 @@
-# OntographRAG
+# OntoGraphRAG
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/)
@@ -7,13 +7,13 @@
 Turn unstructured documents into schema-consistent knowledge graphs, ask grounded
 questions over them, and measure what to trust.
 
-OntographRAG is an ontology-guided KG-RAG system. It builds Neo4j-backed knowledge
+OntoGraphRAG is an ontology-guided KG-RAG system. It builds Neo4j-backed knowledge
 graphs from raw text, retrieves over both graph structure and chunk vectors, and
 exposes answer-grounding, provenance, and uncertainty signals. Unlike free-form
 GraphRAG, extraction is constrained to a schema you supply, so the same concept
 lands in the same type across every document.
 
-![OntographRAG UI](assets/readme/ontographrag-ui-example.png)
+![OntoGraphRAG UI](assets/readme/ontographrag-ui-example.png)
 
 ## Quick start
 
@@ -22,7 +22,7 @@ Node.js 18+ is only needed for source checkouts that rebuild the frontend.
 
 ```bash
 # 1. Install
-python -m pip install "ontographrag @ git+https://github.com/julka01/OntographRAG.git"
+python -m pip install "ontographrag @ git+https://github.com/julka01/OntoGraphRAG.git"
 
 # 2. Start Neo4j
 docker run -d --name ontographrag-neo4j \
@@ -40,7 +40,7 @@ ontograph serve                  # → http://localhost:8004
 Source checkout (development, frontend changes, or benchmarks):
 
 ```bash
-git clone https://github.com/julka01/OntographRAG.git && cd OntographRAG
+git clone https://github.com/julka01/OntoGraphRAG.git && cd OntoGraphRAG
 uv sync && source .venv/bin/activate
 cd frontend && npm install && npm run build && cd ..
 docker compose up -d neo4j
@@ -230,8 +230,8 @@ docker compose up -d         # Full stack (Neo4j + API)
 
 ```bibtex
 @article{julka2026ontographrag,
-  title   = {When Confidence Follows the Wrong Path: Decomposing Answer,
-             Evidence, and Graph Support in Knowledge-Graph RAG},
+  title   = {When Answer Agreement Fails:
+             Retrieval-State Lock-In in Retrieval-Augmented Generation},
   author  = {Julka, Sahib},
   journal = {arXiv preprint arXiv:XXXX.XXXXX},
   year    = {2026}
@@ -243,4 +243,4 @@ docker compose up -d         # Full stack (Neo4j + API)
 ## License
 
 MIT — see [LICENSE](LICENSE). Issues:
-[GitHub Issues](https://github.com/julka01/OntographRAG/issues).
+[GitHub Issues](https://github.com/julka01/OntoGraphRAG/issues).
