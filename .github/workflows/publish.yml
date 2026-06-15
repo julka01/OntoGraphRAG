@@ -1,6 +1,7 @@
 name: Publish to PyPI
 
-# Publishes on a GitHub Release, or to TestPyPI on manual dispatch.
+# Publishes to PyPI on a GitHub Release or manual dispatch.
+# Select TestPyPI explicitly from the manual-dispatch dropdown for test uploads.
 # Uses PyPI Trusted Publishing (OIDC) — no API token or secret required.
 # One-time setup: on PyPI, add a trusted publisher for this repository with
 # workflow "publish.yml" and environment "pypi" (and "testpypi" on TestPyPI).
@@ -16,7 +17,7 @@ on:
         required: true
         default: pypi
         type: choice
-        options: [ pypi, testpypi]
+        options: [pypi, testpypi]
 
 jobs:
   build:
@@ -40,7 +41,7 @@ jobs:
   testpypi:
     name: publish to TestPyPI
     needs: build
-    if: github.event_name == 'workflow_dispatch' && inputs.target == 'testpypi'
+    if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.target == 'testpypi' }}
     runs-on: ubuntu-latest
     environment: testpypi
     permissions:
@@ -57,7 +58,7 @@ jobs:
   pypi:
     name: publish to PyPI
     needs: build
-    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.target == 'pypi')
+    if: ${{ github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && github.event.inputs.target != 'testpypi') }}
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
