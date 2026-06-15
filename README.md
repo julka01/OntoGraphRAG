@@ -3,6 +3,7 @@
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/)
 [![Neo4j](https://img.shields.io/badge/neo4j-5.0+-brightgreen.svg)](https://neo4j.com/)
+[![PyPI](https://img.shields.io/pypi/v/ontographrag?label=PyPI&color=blue)](https://pypi.org/project/ontographrag/)
 
 Turn unstructured documents into schema-consistent knowledge graphs, ask grounded
 questions over them, and measure what to trust.
@@ -21,7 +22,10 @@ Requires Python 3.11+, Neo4j 5.0+, and one LLM provider key (or local Ollama).
 Node.js 18+ is only needed for source checkouts that rebuild the frontend.
 
 ```bash
-# 1. Install
+# 1. Install from PyPI
+python -m pip install ontographrag
+
+# Or install the latest source snapshot from GitHub
 python -m pip install "ontographrag @ git+https://github.com/julka01/OntoGraphRAG.git"
 
 # 2. Start Neo4j
