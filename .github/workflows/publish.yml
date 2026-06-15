@@ -14,9 +14,9 @@ on:
       target:
         description: "Where to publish"
         required: true
-        default: testpypi
+        default: pypi
         type: choice
-        options: [testpypi, pypi]
+        options: [ pypi, testpypi]
 
 jobs:
   build:
