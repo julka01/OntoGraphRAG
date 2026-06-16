@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Validate the arXiv v1 cached-artifact package.
 
-This is a packaging check only. It verifies cached files, manuscript wording,
-figure/table references, and a local TeX build. It must not run experiments,
-call APIs, rebuild KGs, or regenerate scientific results.
+This is a packaging check only. It verifies cached files and, when the live
+``paper/`` sources are present locally, manuscript wording, figure/table
+references, and a local TeX build. It must not run experiments, call APIs,
+rebuild KGs, or regenerate scientific results.
 """
 
 from __future__ import annotations
@@ -61,8 +62,6 @@ def check_manifest_files(doc: dict) -> None:
         "headline_results",
         "analysis_output",
         "gps_replay",
-        "paper_figure",
-        "paper_pdf",
     }
     roles = {item.get("role") for item in files}
     missing_roles = sorted(required_roles - roles)
@@ -144,12 +143,6 @@ def check_figure_inputs() -> None:
                 fail(f"missing graphic for figures/{ref} with pdf/png/jpg extension")
 
 
-def check_pdf_in_manifest() -> None:
-    pdf = PACKAGE / "paper" / "main_arxiv.pdf"
-    if not pdf.exists() or pdf.stat().st_size == 0:
-        fail("package is missing non-empty paper/main_arxiv.pdf")
-
-
 def run_tectonic() -> None:
     cmd = ["tectonic", "main_arxiv.tex"]
     proc = subprocess.run(cmd, cwd=PAPER, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -161,7 +154,11 @@ def run_tectonic() -> None:
 def main() -> None:
     doc = load_manifest()
     check_manifest_files(doc)
-    check_pdf_in_manifest()
+
+    if not PAPER.is_dir():
+        print("arXiv package check passed (paper sources not present locally; skipped paper checks)")
+        return
+
     check_manuscript_wording()
     check_figure_inputs()
     run_tectonic()

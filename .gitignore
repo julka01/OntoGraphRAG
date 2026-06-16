@@ -116,3 +116,6 @@ apoc/
 !reproducibility/
 !reproducibility/arxiv_v1/
 !reproducibility/arxiv_v1/**
+
+# Keep the bundled paper snapshot local-only; canonical source is on arXiv.
+reproducibility/arxiv_v1/paper/
