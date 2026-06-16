@@ -1,0 +1,33 @@
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.25}
+\caption{%
+  \textbf{Failure taxonomy for retrieval-augmented generation.}
+  Retrieval-state lock-in (top right) is the focal regime: the retrieval state
+  is defective while answer-state uncertainty is low.
+  Absence lock-in is flagged by retrieval-state abstention; presence lock-in,
+  a coherent wrong neighbourhood, remains the hard case.
+  At $N{=}5$, $42\%$ of adaptive-KG errors fall in this silent cell
+  ($59\%$ dense, $84\%$ strict).%
+}
+\label{tab:failure_taxonomy}
+\begin{tabular}{@{}l >{\raggedright\arraybackslash}p{0.30\linewidth}
+                     >{\raggedright\arraybackslash}p{0.30\linewidth}@{}}
+\toprule
+& \textbf{Retrieval state correct}
+& \textbf{Retrieval state wrong / missing} \\
+\midrule
+\textbf{Low answer-state}  & \cellcolor{goodgreen!15}\textbf{Certified low-risk}
+                           & \cellcolor{badred!15}\textbf{Retrieval-state lock-in} \\
+\textbf{uncertainty}       & \cellcolor{goodgreen!15}all three families concur
+                           & \cellcolor{badred!15}answer-state silent; absence variant flagged by retrieval-state abstention, presence variant open \emph{(this paper)} \\
+\addlinespace[0.3em]
+\textbf{High answer-state} & \cellcolor{yellow!12}\textbf{Ordinary uncertainty}
+                           & \cellcolor{black!6}\textbf{Retrieval failure} \\
+\textbf{uncertainty}       & \cellcolor{yellow!12}answer-state flags it
+                           & \cellcolor{black!6}answer-state flags it; retrieval-state abstains or shows no support \\
+\bottomrule
+\end{tabular}
+\end{table}

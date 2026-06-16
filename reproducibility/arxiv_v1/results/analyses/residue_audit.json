@@ -1,0 +1,91 @@
+{
+ "definition": "adaptive-KG wrong & silent (DSE=0, SD-UQ<=1e-9) & route!=empty & SEU<=0.5 & GPS defined<=0.5",
+ "caveat": "retrieved chunk texts not archived; entailment of the wrong answer cannot be confirmed from logs",
+ "count": 7,
+ "cases": [
+  {
+   "slug": "hotpotqa",
+   "question_id": "5ac170af5542994d76dcce20",
+   "question": "Which of the singers has more things to be known for, Greg Puciato or Syd Barrett?",
+   "expected": "gregory john \"greg\" puciato",
+   "response": "syd barrett",
+   "sd_uq": 1.000066617566352e-12,
+   "seu": 0.09999999999999998,
+   "gps": 0.35325351405520367,
+   "route": "",
+   "route_reason": ""
+  },
+  {
+   "slug": "hotpotqa",
+   "question_id": "5a85b2895542994c784ddb49",
+   "question": "Bank street is sandwiched between the headquarters of the Hongkong and Shanghai Banking Corporation and which other building?",
+   "expected": "bank of china building",
+   "response": "hsbc building",
+   "sd_uq": 3.8939882294935087e-10,
+   "seu": 0.33333333333333337,
+   "gps": 0.4691786880424411,
+   "route": "iterative_hop",
+   "route_reason": "success"
+  },
+  {
+   "slug": "hotpotqa",
+   "question_id": "5ae72f75554299572ea5476c",
+   "question": "The Black Star Line was a part of the Marcus Garvey movement that was also known by what names?",
+   "expected": "colonization movement or black zionism",
+   "response": "universal negro improvement association",
+   "sd_uq": 4.861359674245271e-10,
+   "seu": 0.4285714285714286,
+   "gps": 0.44087781382047564,
+   "route": "iterative_hop",
+   "route_reason": "success"
+  },
+  {
+   "slug": "hotpotqa_fullwiki",
+   "question_id": "5adf37a95542995ec70e8f97",
+   "question": "The 2011\u201312 VCU Rams men's basketball team, led by third year head coach Shaka Smart, represented Virginia Commonwealth University which was founded in what year?",
+   "expected": "1838",
+   "response": "virginia commonwealth university was founded in 1968.",
+   "sd_uq": 1.0000738971271325e-12,
+   "seu": 0.5,
+   "gps": 0.11999999999999988,
+   "route": "iterative_hop",
+   "route_reason": "success"
+  },
+  {
+   "slug": "hotpotqa_fullwiki",
+   "question_id": "5adf3e835542993a75d26442",
+   "question": "Which comic series involves characters such as Nick Fury and Baron von Strucker?",
+   "expected": "marvel",
+   "response": "nick fury vs. s.h.i.e.l.d.",
+   "sd_uq": 1.0000706960369256e-12,
+   "seu": 0.5,
+   "gps": 0.22045326642110297,
+   "route": "iterative_hop",
+   "route_reason": "success"
+  },
+  {
+   "slug": "2wikimultihopqa",
+   "question_id": "0a98773a0bdb11eba7f7acde48001122",
+   "question": "What is the cause of death of performer of song Just Playing (Dreams)?",
+   "expected": "drive-by shooting",
+   "response": "the notorious b.i.g",
+   "sd_uq": 5.964444569102701e-10,
+   "seu": 0.5,
+   "gps": 0.30000000000000004,
+   "route": "iterative_hop",
+   "route_reason": "success"
+  },
+  {
+   "slug": "musique",
+   "question_id": "2hop__83785_461854",
+   "question": "Who was the spouse of the leading lady in Gone With the wind?",
+   "expected": "laurence olivier",
+   "response": "rhett butler",
+   "sd_uq": 1.0000873752427871e-12,
+   "seu": 0.5,
+   "gps": 0.1291658501037174,
+   "route": "",
+   "route_reason": ""
+  }
+ ]
+}

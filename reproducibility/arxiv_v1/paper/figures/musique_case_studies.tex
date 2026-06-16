@@ -1,0 +1,75 @@
+\begin{figure*}[t]
+\centering
+\small
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.16\textwidth}
+                >{\raggedright\arraybackslash}p{0.25\textwidth}
+                >{\raggedright\arraybackslash}p{0.23\textwidth}
+                >{\raggedright\arraybackslash}p{0.27\textwidth}}
+\toprule
+\textbf{Pattern} & \textbf{MuSiQue question} & \textbf{Answers (gold / KG / vanilla)} & \textbf{What the current run shows} \\
+\midrule
+Weak retrieval-state support with confident error
+&
+\emph{What is the population in 2010 of they city popular with tourists?}
+&
+Gold: \emph{8.005 million}.
+KG: \emph{2,217}~(\textbf{\texttimes}).
+Vanilla: \emph{8.005 million}~(\checkmark).
+&
+KG follows the chain to the wrong city and then repeats that answer across
+all samples
+($\mathrm{DSE}=0$, SD-UQ$\approx 0$).
+Here the retrieval-state signal is useful:
+GPS is high ($0.94$) because the only linkable answer string is reachable
+solely through a distant four-hop path, and SEU remains relatively high
+($0.67$), which is enough to warn that the graph never became a settled
+reasoning substrate.
+\\
+\midrule
+Wrong but locally coherent traversal
+&
+\emph{Who is the creator of Mickey Mouse's spouse?}
+&
+Gold: \emph{Walt Disney}.
+KG: \emph{Ub Iwerks}~(\textbf{\texttimes}).
+Vanilla: \emph{Walt Disney}~(\checkmark).
+&
+This is the MuSiQue analogue of a wrong but graph-coherent answer.
+Output disagreement again collapses to zero, but GPS is also low
+($0.0$) because the retrieved path is internally consistent with the wrong
+entity choice.
+SEU stays comparatively high ($0.75$), which is useful rather than
+pathological here:
+it correctly warns that the retrieved evidence does not support the generated
+answer particularly well, even though output disagreement has already
+collapsed.
+\\
+\midrule
+Correct answer despite GPS abstention
+&
+\emph{What was the percentage that the Dow Jones fell when the US had the highest unemployment rate?}
+&
+Gold: \emph{54.7\%}.
+KG: \emph{54.7\%}~(\checkmark).
+Vanilla: \emph{89\%}~(\textbf{\texttimes}).
+&
+This case cuts the other way.
+KG-RAG resolves the chain correctly even though GPS still abstains at $0.5$,
+and SEU is still fairly high ($0.72$).
+The value of MuSiQue as a stress set is precisely that the graph signal can be
+helpful, unhelpful, or merely incomplete depending on where the chain fails. 
+\\
+\bottomrule
+\end{tabular}
+\caption{%
+  \textbf{Representative MuSiQue cases from the fixed-$n=100$ run.}
+  The three rows span the range MuSiQue produces: a confident graph error, a
+  wrong-but-graph-coherent answer, and a correct answer for which the
+  retrieval-state score still abstains.
+  This range is why MuSiQue functions as a stress test for the composite
+  diagnostics rather than as a single-metric benchmark.%
+}
+\label{fig:musique_case_studies}
+\end{figure*}

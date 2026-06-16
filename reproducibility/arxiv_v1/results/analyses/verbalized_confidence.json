@@ -1,0 +1,109 @@
+{
+ "model": "openai/gpt-4o-mini",
+ "kg": {
+  "pubmedqa": {
+   "n": 100,
+   "n_failed": 0,
+   "auroc": 0.5446473871131405,
+   "mean_conf_correct": 0.5931506849315068,
+   "mean_conf_wrong": 0.562962962962963
+  },
+  "realmedqa": {
+   "n": 223,
+   "n_failed": 0,
+   "auroc": 0.6510663507109005,
+   "mean_conf_correct": 0.849052132701422,
+   "mean_conf_wrong": 0.8083333333333335
+  },
+  "hotpotqa": {
+   "n": 238,
+   "n_failed": 0,
+   "auroc": 0.721520390070922,
+   "mean_conf_correct": 0.7208333333333334,
+   "mean_conf_wrong": 0.44691489361702136
+  },
+  "hotpotqa_fullwiki": {
+   "n": 218,
+   "n_failed": 0,
+   "auroc": 0.7723665564478035,
+   "mean_conf_correct": 0.833103448275862,
+   "mean_conf_wrong": 0.5657534246575343
+  },
+  "2wikimultihopqa": {
+   "n": 244,
+   "n_failed": 0,
+   "auroc": 0.48915256892230574,
+   "mean_conf_correct": 0.4982142857142857,
+   "mean_conf_wrong": 0.5223684210526316
+  },
+  "musique": {
+   "n": 94,
+   "n_failed": 0,
+   "auroc": 0.6491228070175439,
+   "mean_conf_correct": 0.49729729729729727,
+   "mean_conf_wrong": 0.33508771929824566
+  },
+  "pooled": {
+   "n": 1117,
+   "auroc": 0.6858463953409013
+  }
+ },
+ "vanilla": {
+  "pubmedqa": {
+   "n": 100,
+   "n_failed": 0,
+   "auroc": 0.48426666666666673,
+   "mean_conf_correct": 0.6133333333333333,
+   "mean_conf_wrong": 0.648
+  },
+  "realmedqa": {
+   "n": 219,
+   "n_failed": 0,
+   "auroc": 0.4252622377622378,
+   "mean_conf_correct": 0.8463942307692309,
+   "mean_conf_wrong": 0.8454545454545456
+  },
+  "hotpotqa": {
+   "n": 226,
+   "n_failed": 0,
+   "auroc": 0.6737266112266113,
+   "mean_conf_correct": 0.6858783783783785,
+   "mean_conf_wrong": 0.48717948717948717
+  },
+  "hotpotqa_fullwiki": {
+   "n": 208,
+   "n_failed": 0,
+   "auroc": 0.7017816091954023,
+   "mean_conf_correct": 0.7646666666666668,
+   "mean_conf_wrong": 0.5586206896551724
+  },
+  "2wikimultihopqa": {
+   "n": 212,
+   "n_failed": 0,
+   "auroc": 0.522798827488872,
+   "mean_conf_correct": 0.4814569536423841,
+   "mean_conf_wrong": 0.4852459016393442
+  },
+  "musique": {
+   "n": 90,
+   "n_failed": 0,
+   "auroc": 0.73156853043048,
+   "mean_conf_correct": 0.5674418604651162,
+   "mean_conf_wrong": 0.31276595744680846
+  },
+  "pooled": {
+   "n": 1055,
+   "auroc": 0.6678410138248849
+  }
+ },
+ "strict": {
+  "realmedqa": {
+   "n": 200,
+   "auroc": 0.8884554500226143
+  },
+  "2wikimultihopqa": {
+   "n": 245,
+   "auroc": 0.5773448275862069
+  }
+ }
+}

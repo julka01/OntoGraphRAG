@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "dataset": "2wikimultihopqa",
+  "created_at": "2026-03-29T15:54:52.129094",
+  "selection_strategy": "seeded_sample",
+  "subset_seed": 7,
+  "requested_num_samples": 10,
+  "available_question_count": 12576,
+  "selection_count": 10,
+  "question_ids": [
+    "3f5c3d7e0bb011ebab90acde48001122",
+    "642aef8a0bdb11eba7f7acde48001122",
+    "b79798ca0baf11ebab90acde48001122",
+    "14b5893e08bf11ebbd8aac1f6bf848b6",
+    "fb353b4c0bdb11eba7f7acde48001122",
+    "e130fa9c0bdb11eba7f7acde48001122",
+    "4fcd45d9092311ebbdaeac1f6bf848b6",
+    "259e9c10087711ebbd67ac1f6bf848b6",
+    "6bb749ce08ed11ebbda7ac1f6bf848b6",
+    "b16ce9860bdd11eba7f7acde48001122"
+  ],
+  "selection_key": "n10_seed7",
+  "subset_hash": "ae99617172b0",
+  "subset_tag": "n10_seed7_hae99617172b0",
+  "subset_id": "2wikimultihopqa__n10_seed7_hae99617172b0"
+}

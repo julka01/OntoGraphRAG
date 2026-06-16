@@ -1,0 +1,484 @@
+{
+ "threshold_sensitivity": {
+  "paper definition: DSE=0 and SD-UQ at floor": {
+   "vanilla": {
+    "rate": 0.5928571428571429,
+    "n_wrong": 280
+   },
+   "kg": {
+    "rate": 0.415929203539823,
+    "n_wrong": 339
+   },
+   "strict": {
+    "rate": 0.8436018957345972,
+    "n_wrong": 211
+   }
+  },
+  "unanimous: DSE=0, any SD-UQ": {
+   "vanilla": {
+    "rate": 0.6678571428571428,
+    "n_wrong": 280
+   },
+   "kg": {
+    "rate": 0.5191740412979351,
+    "n_wrong": 339
+   },
+   "strict": {
+    "rate": 0.8767772511848341,
+    "n_wrong": 211
+   }
+  },
+  "near-unanimous: <=1 dissenting sample (DSE<=0.51)": {
+   "vanilla": {
+    "rate": 0.8357142857142857,
+    "n_wrong": 280
+   },
+   "kg": {
+    "rate": 0.6902654867256637,
+    "n_wrong": 339
+   },
+   "strict": {
+    "rate": 0.919431279620853,
+    "n_wrong": 211
+   }
+  }
+ },
+ "silent_wilson_cis": {
+  "pubmedqa": {
+   "vanilla": {
+    "k": 21,
+    "n": 25,
+    "rate": 0.84,
+    "ci95": [
+     0.6534598601976183,
+     0.9359665239142201
+    ]
+   },
+   "kg": {
+    "k": 18,
+    "n": 27,
+    "rate": 0.6666666666666666,
+    "ci95": [
+     0.47824419872105484,
+     0.8135694555640665
+    ]
+   }
+  },
+  "realmedqa": {
+   "vanilla": {
+    "k": 1,
+    "n": 11,
+    "rate": 0.09090909090909091,
+    "ci95": [
+     0.01623175226282597,
+     0.3773646254862038
+    ]
+   },
+   "kg": {
+    "k": 1,
+    "n": 12,
+    "rate": 0.08333333333333333,
+    "ci95": [
+     0.014864709450773478,
+     0.35388592179859524
+    ]
+   },
+   "strict": {
+    "k": 48,
+    "n": 66,
+    "rate": 0.7272727272727273,
+    "ci95": [
+     0.6095754555973323,
+     0.8199679683792089
+    ]
+   }
+  },
+  "hotpotqa": {
+   "vanilla": {
+    "k": 46,
+    "n": 78,
+    "rate": 0.5897435897435898,
+    "ci95": [
+     0.4788794806670461,
+     0.6921826686555478
+    ]
+   },
+   "kg": {
+    "k": 43,
+    "n": 94,
+    "rate": 0.4574468085106383,
+    "ci95": [
+     0.3603878625239666,
+     0.5578473257803948
+    ]
+   }
+  },
+  "hotpotqa_fullwiki": {
+   "vanilla": {
+    "k": 26,
+    "n": 58,
+    "rate": 0.4482758620689655,
+    "ci95": [
+     0.32749651292941145,
+     0.5754814177838947
+    ]
+   },
+   "kg": {
+    "k": 13,
+    "n": 73,
+    "rate": 0.1780821917808219,
+    "ci95": [
+     0.10713272068797698,
+     0.2812194219014537
+    ]
+   }
+  },
+  "2wikimultihopqa": {
+   "vanilla": {
+    "k": 48,
+    "n": 61,
+    "rate": 0.7868852459016393,
+    "ci95": [
+     0.6687734610328795,
+     0.8710034722938738
+    ]
+   },
+   "kg": {
+    "k": 42,
+    "n": 76,
+    "rate": 0.5526315789473685,
+    "ci95": [
+     0.4410031528161144,
+     0.6591952400016647
+    ]
+   },
+   "strict": {
+    "k": 130,
+    "n": 145,
+    "rate": 0.896551724137931,
+    "ci95": [
+     0.8363312589764538,
+     0.9363021983365554
+    ]
+   }
+  },
+  "musique": {
+   "vanilla": {
+    "k": 24,
+    "n": 47,
+    "rate": 0.5106382978723404,
+    "ci95": [
+     0.37242217589372884,
+     0.6472467566339649
+    ]
+   },
+   "kg": {
+    "k": 24,
+    "n": 57,
+    "rate": 0.42105263157894735,
+    "ci95": [
+     0.3018739975305186,
+     0.5502008985931862
+    ]
+   }
+  },
+  "pooled": {
+   "vanilla": {
+    "k": 166,
+    "n": 280,
+    "rate": 0.5928571428571429,
+    "ci95": [
+     0.5344299573122131,
+     0.6487708138221098
+    ]
+   },
+   "kg": {
+    "k": 141,
+    "n": 339,
+    "rate": 0.415929203539823,
+    "ci95": [
+     0.3646890119688024,
+     0.4690534510228533
+    ]
+   },
+   "strict": {
+    "k": 178,
+    "n": 211,
+    "rate": 0.8436018957345972,
+    "ci95": [
+     0.7884993916466628,
+     0.8864164533293567
+    ]
+   }
+  }
+ },
+ "seu_at_80_adaptive": {
+  "pubmedqa": {
+   "n": 100,
+   "err_at_80": 0.24262499999999998,
+   "err_sd_over_draws": 0.006147916313678946,
+   "frac_at_modal_seu": 0.59
+  },
+  "realmedqa": {
+   "n": 223,
+   "err_at_80": 0.05398876404494384,
+   "err_sd_over_draws": 0.00599283121794845,
+   "frac_at_modal_seu": 0.7354260089686099
+  },
+  "hotpotqa": {
+   "n": 238,
+   "err_at_80": 0.40526315789473694,
+   "err_sd_over_draws": 5.551115123125783e-17,
+   "frac_at_modal_seu": 0.31092436974789917
+  },
+  "hotpotqa_fullwiki": {
+   "n": 218,
+   "err_at_80": 0.3118965517241379,
+   "err_sd_over_draws": 0.004211902680592022,
+   "frac_at_modal_seu": 0.3669724770642202
+  },
+  "2wikimultihopqa": {
+   "n": 244,
+   "err_at_80": 0.26092307692307687,
+   "err_sd_over_draws": 0.0033060023510330843,
+   "frac_at_modal_seu": 0.2540983606557377
+  },
+  "musique": {
+   "n": 94,
+   "err_at_80": 0.5466666666666667,
+   "err_sd_over_draws": 1.1102230246251565e-16,
+   "frac_at_modal_seu": 0.26595744680851063
+  }
+ },
+ "taxonomy_prevalence": {
+  "vanilla": {
+   "answered": 1055,
+   "wrong": 280,
+   "calm_wrong": 166,
+   "calm_wrong_share_of_errors": 0.5928571428571429,
+   "calm_wrong_flagged_by_other_families": 0.5903614457831325,
+   "noisy_wrong_share_of_errors": 0.40714285714285714,
+   "correct_passing_certificate_share": 0.29419354838709677
+  },
+  "kg": {
+   "answered": 1117,
+   "wrong": 339,
+   "calm_wrong": 141,
+   "calm_wrong_share_of_errors": 0.415929203539823,
+   "calm_wrong_flagged_by_other_families": 0.950354609929078,
+   "noisy_wrong_share_of_errors": 0.584070796460177,
+   "correct_passing_certificate_share": 0.10154241645244216
+  },
+  "strict": {
+   "answered": 445,
+   "wrong": 211,
+   "calm_wrong": 178,
+   "calm_wrong_share_of_errors": 0.8436018957345972,
+   "calm_wrong_flagged_by_other_families": 0.9943820224719101,
+   "noisy_wrong_share_of_errors": 0.15639810426540285,
+   "correct_passing_certificate_share": 0.10683760683760683
+  }
+ },
+ "learned_certificate": {
+  "per_dataset": {
+   "pubmedqa": {
+    "n": 100,
+    "base_acc": 0.73,
+    "hard_cov": 0.0,
+    "hard_prec": null,
+    "learned_cov": 0.0,
+    "learned_prec": null,
+    "auroc_p_correct": 0.7047184170471842
+   },
+   "realmedqa": {
+    "n": 223,
+    "base_acc": 0.9461883408071748,
+    "hard_cov": 0.21524663677130046,
+    "hard_prec": 1.0,
+    "learned_cov": 0.17937219730941703,
+    "learned_prec": 0.975,
+    "auroc_p_correct": 0.8262243285939969
+   },
+   "hotpotqa": {
+    "n": 238,
+    "base_acc": 0.6050420168067226,
+    "hard_cov": 0.025210084033613446,
+    "hard_prec": 0.8333333333333334,
+    "learned_cov": 0.09243697478991597,
+    "learned_prec": 0.6363636363636364,
+    "auroc_p_correct": 0.5843676122931443
+   },
+   "hotpotqa_fullwiki": {
+    "n": 218,
+    "base_acc": 0.6651376146788991,
+    "hard_cov": 0.11926605504587157,
+    "hard_prec": 0.8076923076923077,
+    "learned_cov": 0.009174311926605505,
+    "learned_prec": 1.0,
+    "auroc_p_correct": 0.6644307982994804
+   },
+   "2wikimultihopqa": {
+    "n": 244,
+    "base_acc": 0.6885245901639344,
+    "hard_cov": 0.01639344262295082,
+    "hard_prec": 1.0,
+    "learned_cov": 0.08196721311475409,
+    "learned_prec": 0.85,
+    "auroc_p_correct": 0.6521773182957393
+   },
+   "musique": {
+    "n": 94,
+    "base_acc": 0.39361702127659576,
+    "hard_cov": 0.02127659574468085,
+    "hard_prec": 0.5,
+    "learned_cov": 0.0,
+    "learned_prec": null,
+    "auroc_p_correct": 0.6823138928402087
+   }
+  },
+  "pooled": {
+   "hard": {
+    "coverage": 0.07699194270367055,
+    "precision": 0.9186046511627907
+   },
+   "learned": {
+    "coverage": 0.07520143240823635,
+    "precision": 0.8571428571428571
+   },
+   "n": 1117
+  }
+ },
+ "hopwise_wrong_counts": [
+  {
+   "policy": "Dense vanilla",
+   "hop": "2-hop",
+   "n": null,
+   "accuracy": null,
+   "acc": null
+  },
+  {
+   "policy": "Dense vanilla",
+   "hop": "4-hop",
+   "n": null,
+   "accuracy": null,
+   "acc": null
+  },
+  {
+   "policy": "Dense vanilla",
+   "hop": "5+-hop",
+   "n": null,
+   "accuracy": null,
+   "acc": null
+  },
+  {
+   "policy": "Adaptive KG",
+   "hop": "2-hop",
+   "n": null,
+   "accuracy": null,
+   "acc": null
+  },
+  {
+   "policy": "Adaptive KG",
+   "hop": "4-hop",
+   "n": null,
+   "accuracy": null,
+   "acc": null
+  },
+  {
+   "policy": "Adaptive KG",
+   "hop": "5+-hop",
+   "n": null,
+   "accuracy": null,
+   "acc": null
+  },
+  {
+   "policy": "Strict KG",
+   "hop": "2-hop",
+   "n": null,
+   "accuracy": null,
+   "acc": null
+  },
+  {
+   "policy": "Strict KG",
+   "hop": "4-hop",
+   "n": null,
+   "accuracy": null,
+   "acc": null
+  },
+  {
+   "policy": "Strict KG",
+   "hop": "5+-hop",
+   "n": null,
+   "accuracy": null,
+   "acc": null
+  }
+ ],
+ "compute_times_kg_side": {
+  "semantic_entropy": {
+   "mean_s": 3.161054971961229e-05,
+   "min_s": 3.0443293698987022e-05,
+   "max_s": 3.417107732372081e-05,
+   "n_runs": 6
+  },
+  "discrete_semantic_entropy": {
+   "mean_s": 1.5229323988265916e-05,
+   "min_s": 1.4780856455202962e-05,
+   "max_s": 1.6127698163085795e-05,
+   "n_runs": 6
+  },
+  "p_true": {
+   "mean_s": 1.6455990182540618e-06,
+   "min_s": 1.5441312390074385e-06,
+   "max_s": 1.796536107963704e-06,
+   "n_runs": 6
+  },
+  "selfcheckgpt": {
+   "mean_s": 1.6834571890352859,
+   "min_s": 1.38306096828077,
+   "max_s": 2.226661939612452,
+   "n_runs": 6
+  },
+  "sre_uq": {
+   "mean_s": 0.03957831366154054,
+   "min_s": 0.030932362598832697,
+   "max_s": 0.04717746098982939,
+   "n_runs": 6
+  },
+  "vn_entropy": {
+   "mean_s": 0.006688902944140509,
+   "min_s": 0.006327360009652425,
+   "max_s": 0.006913290380034596,
+   "n_runs": 6
+  },
+  "sd_uq": {
+   "mean_s": 0.011557672496431698,
+   "min_s": 0.010986344562461753,
+   "max_s": 0.012040498764254153,
+   "n_runs": 6
+  },
+  "graph_path_support": {
+   "mean_s": 2.4321488080149964,
+   "min_s": 0.05686369044706226,
+   "max_s": 12.289282243289053,
+   "n_runs": 6
+  },
+  "subgraph_perturbation_stability": {
+   "mean_s": 0.3815699941399566,
+   "min_s": 0.03557481077965349,
+   "max_s": 1.8866011366844178,
+   "n_runs": 6
+  },
+  "support_entailment_uncertainty": {
+   "mean_s": 1.6507963692992158,
+   "min_s": 0.678490140169626,
+   "max_s": 3.1464736262700805,
+   "n_runs": 6
+  },
+  "evidence_conflict_uncertainty": {
+   "mean_s": 1.60719360212766,
+   "min_s": 0.6605712321440224,
+   "max_s": 3.0706007043304653,
+   "n_runs": 6
+  }
+ }
+}

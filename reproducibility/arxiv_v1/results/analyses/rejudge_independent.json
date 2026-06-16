@@ -1,0 +1,47 @@
+{
+ "judge_model": "meta-llama/llama-3.3-70b-instruct",
+ "adaptive": {
+  "n_judged": 223,
+  "n_failed": 0,
+  "agreement": 0.9282511210762332,
+  "kappa": 0.5212023617820719,
+  "accuracy_original": 0.9461883408071748,
+  "accuracy_independent": 0.8923766816143498,
+  "auroc_under_independent_labels": {
+   "sd_uq": {
+    "auroc": 0.8590871021775544,
+    "n": 223
+   },
+   "seu": {
+    "auroc": 0.5454355108877722,
+    "n": 223
+   },
+   "gps": {
+    "auroc": 0.7066854990583804,
+    "n": 195
+   }
+  }
+ },
+ "strict": {
+  "n_judged": 200,
+  "n_failed": 0,
+  "agreement": 0.95,
+  "kappa": 0.8903027643703378,
+  "accuracy_original": 0.67,
+  "accuracy_independent": 0.63,
+  "auroc_under_independent_labels": {
+   "sd_uq": {
+    "auroc": 0.3124195624195625,
+    "n": 200
+   },
+   "seu": {
+    "auroc": 0.7127305877305877,
+    "n": 200
+   },
+   "gps": {
+    "auroc": 0.6653270003653635,
+    "n": 142
+   }
+  }
+ }
+}

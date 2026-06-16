@@ -1,0 +1,50 @@
+{
+  "source": "/Users/sahibjulka/Documents/Documents backup/tool-2025-kg-rag/results/mirage_2wikimultihopqa_results.json",
+  "summaries": [
+    {
+      "bucket": "Low",
+      "n": 33,
+      "overlap_min": 0.4,
+      "overlap_max": 0.8399999999999999,
+      "accuracy": 0.36363636363636365,
+      "DSE_mean": 0.2768630480438959,
+      "DSE_auc": 0.4146825396825397,
+      "SD-UQ_mean": 0.009804465782800233,
+      "SD-UQ_auc": 0.7142857142857143,
+      "VN_mean": 0.28254568328460056,
+      "VN_auc": 0.75,
+      "GPS_mean": 0.2727272727272727,
+      "GPS_auc": 0.6507936507936508
+    },
+    {
+      "bucket": "Medium",
+      "n": 33,
+      "overlap_min": 0.85,
+      "overlap_max": 1.0,
+      "accuracy": 0.5454545454545454,
+      "DSE_mean": 0.10308328330548584,
+      "DSE_auc": 0.6666666666666666,
+      "SD-UQ_mean": 0.005770462394432127,
+      "SD-UQ_auc": 0.8,
+      "VN_mean": 0.18569119127862382,
+      "VN_auc": 0.7518518518518519,
+      "GPS_mean": 0.21212121212121213,
+      "GPS_auc": 0.6
+    },
+    {
+      "bucket": "High",
+      "n": 34,
+      "overlap_min": 1.0,
+      "overlap_max": 1.0,
+      "accuracy": 0.29411764705882354,
+      "DSE_mean": 0.15743599221737187,
+      "DSE_auc": 0.4666666666666667,
+      "SD-UQ_mean": 0.007112988260517084,
+      "SD-UQ_auc": 0.6333333333333333,
+      "VN_mean": 0.22150549314477863,
+      "VN_auc": 0.5833333333333334,
+      "GPS_mean": 0.3382352941176471,
+      "GPS_auc": 0.5541666666666667
+    }
+  ]
+}

@@ -1,0 +1,338 @@
+{
+ "frozen": {
+  "tau": 0.6,
+  "gamma": 0.4
+ },
+ "adaptive": {
+  "pubmedqa": {
+   "kg": {
+    "answered": 100,
+    "usable": 0,
+    "auroc": null,
+    "ci": [
+     null,
+     null
+    ],
+    "aurec": null
+   },
+   "vanilla": {
+    "answered": 100,
+    "usable": 0,
+    "auroc": null,
+    "ci": [
+     null,
+     null
+    ],
+    "aurec": null
+   }
+  },
+  "realmedqa": {
+   "kg": {
+    "answered": 223,
+    "usable": 195,
+    "auroc": 0.7574110671936758,
+    "ci": [
+     0.5902395151114582,
+     0.8989251832477639
+    ],
+    "aurec": 0.02182361136147535
+   },
+   "vanilla": {
+    "answered": 219,
+    "usable": 192,
+    "auroc": 0.8889266304347826,
+    "ci": [
+     0.8015721903456859,
+     0.9590850614439325
+    ],
+    "aurec": 0.00602272695683536
+   }
+  },
+  "hotpotqa": {
+   "kg": {
+    "answered": 238,
+    "usable": 158,
+    "auroc": 0.5613620448179272,
+    "ci": [
+     0.468993647102682,
+     0.6522837639728788
+    ],
+    "aurec": 0.27898003818800243
+   },
+   "vanilla": {
+    "answered": 226,
+    "usable": 153,
+    "auroc": 0.5799471759447379,
+    "ci": [
+     0.4823765342400664,
+     0.675752640796508
+    ],
+    "aurec": 0.25400520983131725
+   }
+  },
+  "hotpotqa_fullwiki": {
+   "kg": {
+    "answered": 218,
+    "usable": 185,
+    "auroc": 0.5268666666666666,
+    "ci": [
+     0.43753215205103513,
+     0.6135695229239682
+    ],
+    "aurec": 0.30745123881318753
+   },
+   "vanilla": {
+    "answered": 208,
+    "usable": 179,
+    "auroc": 0.4996170343137255,
+    "ci": [
+     0.40457124262408883,
+     0.597489909297052
+    ],
+    "aurec": 0.29613760477848144
+   }
+  },
+  "2wikimultihopqa": {
+   "kg": {
+    "answered": 244,
+    "usable": 182,
+    "auroc": 0.35607993197278914,
+    "ci": [
+     0.2767610976340658,
+     0.43869432471264364
+    ],
+    "aurec": 0.440209541298247
+   },
+   "vanilla": {
+    "answered": 212,
+    "usable": 151,
+    "auroc": 0.45720720720720726,
+    "ci": [
+     0.369590672286364,
+     0.545332406471183
+    ],
+    "aurec": 0.2703420869484999
+   }
+  },
+  "musique": {
+   "kg": {
+    "answered": 94,
+    "usable": 83,
+    "auroc": 0.5821078431372549,
+    "ci": [
+     0.4591146181810072,
+     0.7059710786525303
+    ],
+    "aurec": 0.583215536752287
+   },
+   "vanilla": {
+    "answered": 90,
+    "usable": 75,
+    "auroc": 0.5832142857142857,
+    "ci": [
+     0.4480291258725125,
+     0.6982777173106417
+    ],
+    "aurec": 0.47964428819099764
+   }
+  }
+ },
+ "strict": {
+  "realmedqa": {
+   "answered": 200,
+   "usable": 142,
+   "auroc": 0.7455357142857144,
+   "ci": [
+    0.6135114397321428,
+    0.8708723315577287
+   ],
+   "v1_logged": {
+    "usable": 127,
+    "auroc": 0.49102564102564106
+   }
+  },
+  "2wikimultihopqa": {
+   "answered": 245,
+   "usable": 99,
+   "auroc": 0.35311871227364183,
+   "ci": [
+    0.23554807692307694,
+    0.4828804118044986
+   ],
+   "v1_logged": {
+    "usable": 79,
+    "auroc": 0.46174242424242423
+   }
+  }
+ },
+ "hopwise_2wiki": {
+  "dense_2hop": {
+   "n": 103,
+   "auroc": 0.49114631873252557
+  },
+  "dense_4hop": {
+   "n": 48,
+   "auroc": 0.4103194103194103
+  },
+  "adaptive_kg_2hop": {
+   "n": 132,
+   "auroc": 0.33472694016200677
+  },
+  "adaptive_kg_4hop": {
+   "n": 50,
+   "auroc": 0.4521829521829522
+  },
+  "strict_kg_2hop": {
+   "n": 99,
+   "auroc": 0.35311871227364183
+  },
+  "strict_kg_4hop": {
+   "n": 0,
+   "auroc": null
+  }
+ },
+ "correlations": {
+  "sd_vs_seu": {
+   "rho": 0.03433911288609434,
+   "ci": [
+    -0.03850220790867175,
+    0.10327355298475914
+   ],
+   "n": 803
+  },
+  "sd_vs_gps": {
+   "rho": -0.2038955257329827,
+   "ci": [
+    -0.2734687079405757,
+    -0.13488084086710614
+   ],
+   "n": 803
+  },
+  "seu_vs_gps": {
+   "rho": -0.030319874291544143,
+   "ci": [
+    -0.10203449118173666,
+    0.03846220518241431
+   ],
+   "n": 803
+  }
+ },
+ "composite": {
+  "pubmedqa": {
+   "n": 100,
+   "sd_auc": 0.6986301369863014,
+   "seu_auc": 0.5943683409436835,
+   "gps_risk_auc": 0.5,
+   "combined_auc": 0.8132927447995941,
+   "combined_aurec": 0.09729408345193587
+  },
+  "realmedqa": {
+   "n": 223,
+   "sd_auc": 0.8076619273301738,
+   "seu_auc": 0.5013823064770933,
+   "gps_risk_auc": 0.7031990521327014,
+   "combined_auc": 0.7290679304897314,
+   "combined_aurec": 0.022131551299752274
+  },
+  "hotpotqa": {
+   "n": 238,
+   "sd_auc": 0.6354905437352245,
+   "seu_auc": 0.47691341607565013,
+   "gps_risk_auc": 0.570737293144208,
+   "combined_auc": 0.5797133569739953,
+   "combined_aurec": 0.3143800227063645
+  },
+  "hotpotqa_fullwiki": {
+   "n": 218,
+   "sd_auc": 0.6717052432687767,
+   "seu_auc": 0.5646669815777043,
+   "gps_risk_auc": 0.5378837978271138,
+   "combined_auc": 0.6598960793575815,
+   "combined_aurec": 0.24615792276373272
+  },
+  "2wikimultihopqa": {
+   "n": 244,
+   "sd_auc": 0.6851112155388471,
+   "seu_auc": 0.6425046992481203,
+   "gps_risk_auc": 0.3984570802005013,
+   "combined_auc": 0.6055764411027569,
+   "combined_aurec": 0.23504082831525003
+  },
+  "musique": {
+   "n": 94,
+   "sd_auc": 0.6311047889995257,
+   "seu_auc": 0.6263632053105737,
+   "gps_risk_auc": 0.5625889046941678,
+   "combined_auc": 0.6941678520625889,
+   "combined_aurec": 0.47469708140317607
+  }
+ },
+ "cases": {
+  "mickey_mouse": {
+   "question_id": "2hop__156085_436709",
+   "question": "Who is the creator of Mickey Mouse's spouse?",
+   "gps_v2": 0.0,
+   "null": null,
+   "links": [
+    {
+     "name": "Ub Iwerks",
+     "cos": 1.0,
+     "L": 1,
+     "source": "surface"
+    }
+   ]
+  },
+  "fire_eater": {
+   "question_id": "21852d1e0bde11eba7f7acde48001122",
+   "question": "Who is the spouse of the director of film Fire-Eater (Film)?",
+   "gps_v2": 0.4416440293197088,
+   "null": null,
+   "links": [
+    {
+     "name": "Pirkko Saisio",
+     "cos": 1.0,
+     "L": 2,
+     "source": "surface"
+    },
+    {
+     "name": "Elsa Saisio",
+     "cos": 0.73,
+     "L": 2,
+     "source": "soft"
+    },
+    {
+     "name": "Pirjo Honkasalo",
+     "cos": 0.62,
+     "L": 1,
+     "source": "soft"
+    },
+    {
+     "name": "Pekka Lehto",
+     "cos": 0.51,
+     "L": 2,
+     "source": "soft"
+    }
+   ]
+  },
+  "the_cup": {
+   "question_id": "68dd6b9a0bd911eba7f7acde48001122",
+   "question": "Who is the father of the director of film The Cup (1999 Film)?",
+   "gps_v2": 0.3528972419736386,
+   "null": null,
+   "links": [
+    {
+     "name": "Thinley Norbu",
+     "cos": 1.0,
+     "L": 2,
+     "source": "surface"
+    },
+    {
+     "name": "Khyentse Norbu",
+     "cos": 0.7,
+     "L": 1,
+     "source": "soft"
+    }
+   ]
+  }
+ }
+}

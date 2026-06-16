@@ -1,0 +1,407 @@
+[
+  {
+    "run_id": "20260517-221953-hotpotqa-2wikimultihopqa-n100-full-metrics-evaluation-subset-rebuildkg",
+    "created_at": "2026-05-17T22:19:53.311507",
+    "datasets": [
+      "hotpotqa",
+      "2wikimultihopqa"
+    ],
+    "model": "gpt-4o-mini",
+    "git_commit": "8249cb0",
+    "accuracy": {}
+  },
+  {
+    "run_id": "20260518-171029-pubmedqa-n100-full-metrics-evaluation-subset-rebuildkg",
+    "created_at": "2026-05-18T17:10:29.851901",
+    "datasets": [
+      "pubmedqa"
+    ],
+    "model": "gpt-4o-mini",
+    "git_commit": "8249cb0",
+    "accuracy": {
+      "pubmedqa/dense_floor_thr0.1_k10_rt0p0": {
+        "vanilla": 0.75,
+        "kg": 0.73,
+        "vanilla_raw": 0.75,
+        "kg_raw": 0.73,
+        "vanilla_answer_em": 0.0,
+        "kg_answer_em": 0.0,
+        "vanilla_answer_f1": 0.0,
+        "kg_answer_f1": 0.0,
+        "n": 100
+      },
+      "pubmedqa/kg_entity_first_thr0.1_k10_rt0p0": {
+        "vanilla": 0.73,
+        "kg": 0.73,
+        "vanilla_raw": 0.73,
+        "kg_raw": 0.73,
+        "vanilla_answer_em": 0.0,
+        "kg_answer_em": 0.0,
+        "vanilla_answer_f1": 0.0,
+        "kg_answer_f1": 0.0,
+        "n": 100
+      }
+    }
+  },
+  {
+    "run_id": "20260519-013401-realmedqa-n100-full-metrics-evaluation-subset-rebuildkg",
+    "created_at": "2026-05-19T01:34:01.673888",
+    "datasets": [
+      "realmedqa"
+    ],
+    "model": "gpt-4o-mini",
+    "git_commit": "8249cb0",
+    "accuracy": {
+      "realmedqa/dense_floor_thr0.1_k10_rt0p0": {
+        "vanilla": 0.0,
+        "kg": 0.0,
+        "vanilla_raw": 0.0,
+        "kg_raw": 0.0,
+        "vanilla_answer_em": 0.0,
+        "kg_answer_em": 0.0,
+        "vanilla_answer_f1": 0.0,
+        "kg_answer_f1": 0.0,
+        "n": 100
+      },
+      "realmedqa/kg_entity_first_thr0.1_k10_rt0p0": {
+        "vanilla": 0.0,
+        "kg": 0.0,
+        "vanilla_raw": 0.0,
+        "kg_raw": 0.0,
+        "vanilla_answer_em": 0.0,
+        "kg_answer_em": 0.0,
+        "vanilla_answer_f1": 0.0,
+        "kg_answer_f1": 0.0,
+        "n": 100
+      }
+    }
+  },
+  {
+    "run_id": "20260519-014535-musique-n100-full-metrics-evaluation-subset-rebuildkg",
+    "created_at": "2026-05-19T01:45:35.485235",
+    "datasets": [
+      "musique"
+    ],
+    "model": "gpt-4o-mini",
+    "git_commit": "8249cb0",
+    "accuracy": {
+      "musique/dense_floor_thr0.1_k10_rt0p0": {
+        "vanilla": 0.0,
+        "kg": 0.0,
+        "vanilla_raw": 0.0,
+        "kg_raw": 0.0,
+        "vanilla_answer_em": 0.0,
+        "kg_answer_em": 0.0,
+        "vanilla_answer_f1": 0.0,
+        "kg_answer_f1": 0.0,
+        "n": 100
+      },
+      "musique/kg_entity_first_thr0.1_k10_rt0p0": {
+        "vanilla": 0.0,
+        "kg": 0.0,
+        "vanilla_raw": 0.0,
+        "kg_raw": 0.0,
+        "vanilla_answer_em": 0.0,
+        "kg_answer_em": 0.0,
+        "vanilla_answer_f1": 0.0,
+        "kg_answer_f1": 0.0,
+        "n": 100
+      }
+    }
+  },
+  {
+    "run_id": "20260519-033723-musique-n100-full-metrics-evaluation-subset",
+    "created_at": "2026-05-19T03:37:23.511623",
+    "datasets": [
+      "musique"
+    ],
+    "model": "gpt-4o-mini",
+    "git_commit": "8249cb0",
+    "accuracy": {
+      "musique/dense_floor_thr0.1_k10_rt0p0": {
+        "vanilla": 0.4839,
+        "kg": 0.4242,
+        "vanilla_raw": 0.45,
+        "kg_raw": 0.42,
+        "vanilla_answer_em": 0.35,
+        "kg_answer_em": 0.32,
+        "vanilla_answer_f1": 0.4677,
+        "kg_answer_f1": 0.4211,
+        "n": 100
+      },
+      "musique/kg_entity_first_thr0.1_k10_rt0p0": {
+        "vanilla": 0.3247,
+        "kg": 0.2921,
+        "vanilla_raw": 0.25,
+        "kg_raw": 0.26,
+        "vanilla_answer_em": 0.18,
+        "kg_answer_em": 0.19,
+        "vanilla_answer_f1": 0.2655,
+        "kg_answer_f1": 0.2943,
+        "n": 100
+      }
+    }
+  },
+  {
+    "run_id": "20260519-033714-realmedqa-n100-full-metrics-evaluation-subset",
+    "created_at": "2026-05-19T03:37:14.384174",
+    "datasets": [
+      "realmedqa"
+    ],
+    "model": "gpt-4o-mini",
+    "git_commit": "8249cb0",
+    "accuracy": {
+      "realmedqa/dense_floor_thr0.1_k10_rt0p0": {
+        "vanilla": 0.9479,
+        "kg": 0.9184,
+        "vanilla_raw": 0.91,
+        "kg_raw": 0.9,
+        "vanilla_answer_em": 0.0,
+        "kg_answer_em": 0.0,
+        "vanilla_answer_f1": 0.0,
+        "kg_answer_f1": 0.0,
+        "n": 100
+      },
+      "realmedqa/kg_entity_first_thr0.1_k10_rt0p0": {
+        "vanilla": 0.5,
+        "kg": 0.9286,
+        "vanilla_raw": 0.06,
+        "kg_raw": 0.91,
+        "vanilla_answer_em": 0.0,
+        "kg_answer_em": 0.0,
+        "vanilla_answer_f1": 0.0,
+        "kg_answer_f1": 0.0,
+        "n": 100
+      }
+    }
+  },
+  {
+    "run_id": "20260519-163109-musique-n100-full-metrics-evaluation-subset-rebuildkg",
+    "created_at": "2026-05-19T16:31:09.096830",
+    "datasets": [
+      "musique"
+    ],
+    "model": "gpt-4o-mini",
+    "git_commit": "8249cb0",
+    "accuracy": {
+      "musique/dense_floor_thr0.1_k10_rt0p0": {
+        "vanilla": 0.4778,
+        "kg": 0.4333,
+        "vanilla_raw": 0.43,
+        "kg_raw": 0.39,
+        "vanilla_answer_em": 0.33,
+        "kg_answer_em": 0.29,
+        "vanilla_answer_f1": 0.4561,
+        "kg_answer_f1": 0.3746,
+        "n": 100
+      },
+      "musique/kg_entity_first_thr0.1_k10_rt0p0": {
+        "vanilla": 0.4787,
+        "kg": 0.3936,
+        "vanilla_raw": 0.45,
+        "kg_raw": 0.37,
+        "vanilla_answer_em": 0.34,
+        "kg_answer_em": 0.27,
+        "vanilla_answer_f1": 0.4611,
+        "kg_answer_f1": 0.3489,
+        "n": 100
+      }
+    }
+  },
+  {
+    "run_id": "20260527-103709-realmedqa-n230-full-metrics-evaluation-subset-rebuildkg",
+    "created_at": "2026-05-27T10:37:09.294999",
+    "datasets": [
+      "realmedqa"
+    ],
+    "model": "gpt-4o-mini",
+    "git_commit": "8249cb0",
+    "accuracy": {}
+  },
+  {
+    "run_id": "20260527-103822-realmedqa-n230-full-metrics-evaluation-subset-rebuildkg",
+    "created_at": "2026-05-27T10:38:22.234420",
+    "datasets": [
+      "realmedqa"
+    ],
+    "model": "gpt-4o-mini",
+    "git_commit": "8249cb0",
+    "accuracy": {}
+  },
+  {
+    "run_id": "20260527-163249-realmedqa-n230-full-metrics-evaluation-subset-rebuildkg",
+    "created_at": "2026-05-27T16:32:49.243850",
+    "datasets": [
+      "realmedqa"
+    ],
+    "model": "gpt-4o-mini",
+    "git_commit": "8249cb0",
+    "accuracy": {
+      "realmedqa/dense_floor_thr0.1_k10_rt0p0": {
+        "vanilla": 0.9498,
+        "kg": 0.9459,
+        "vanilla_raw": 0.9043,
+        "kg_raw": 0.913,
+        "vanilla_answer_em": 0.0,
+        "kg_answer_em": 0.0,
+        "vanilla_answer_f1": 0.0,
+        "kg_answer_f1": 0.0,
+        "n": 230
+      },
+      "realmedqa/kg_entity_first_thr0.1_k10_rt0p0": {
+        "vanilla": 0.9541,
+        "kg": 0.9462,
+        "vanilla_raw": 0.9043,
+        "kg_raw": 0.9174,
+        "vanilla_answer_em": 0.0,
+        "kg_answer_em": 0.0,
+        "vanilla_answer_f1": 0.0,
+        "kg_answer_f1": 0.0,
+        "n": 230
+      }
+    }
+  },
+  {
+    "run_id": "20260528-174538-realmedqa-n230-full-metrics-evaluation-subset",
+    "created_at": "2026-05-28T17:45:38.480528",
+    "datasets": [
+      "realmedqa"
+    ],
+    "model": "gpt-4o-mini",
+    "git_commit": "8249cb0",
+    "accuracy": {
+      "realmedqa/kg_strict_entity_first_thr0.1_k10_rt0p0": {
+        "vanilla": 0.0,
+        "kg": 0.67,
+        "vanilla_raw": 0.0,
+        "kg_raw": 0.5826,
+        "vanilla_answer_em": 0.0,
+        "kg_answer_em": 0.0,
+        "vanilla_answer_f1": 0.0,
+        "kg_answer_f1": 0.0,
+        "n": 230
+      }
+    }
+  },
+  {
+    "run_id": "20260528-231830-2wikimultihopqa-n250-full-metrics-evaluation-subset-rebuildkg",
+    "created_at": "2026-05-28T23:18:30.925157",
+    "datasets": [
+      "2wikimultihopqa"
+    ],
+    "model": "gpt-4o-mini",
+    "git_commit": "8249cb0",
+    "accuracy": {
+      "2wikimultihopqa/dense_floor_thr0.1_k10_rt0p0": {
+        "vanilla": 0.7123,
+        "kg": 0.0,
+        "vanilla_raw": 0.604,
+        "kg_raw": 0.0,
+        "vanilla_answer_em": 0.524,
+        "kg_answer_em": 0.0,
+        "vanilla_answer_f1": 0.5795,
+        "kg_answer_f1": 0.0,
+        "n": 250
+      },
+      "2wikimultihopqa/kg_entity_first_thr0.1_k10_rt0p0": {
+        "vanilla": 0.0,
+        "kg": 0.6885,
+        "vanilla_raw": 0.0,
+        "kg_raw": 0.672,
+        "vanilla_answer_em": 0.0,
+        "kg_answer_em": 0.544,
+        "vanilla_answer_f1": 0.0,
+        "kg_answer_f1": 0.6267,
+        "n": 250
+      }
+    }
+  },
+  {
+    "run_id": "20260529-120453-2wikimultihopqa-n250-full-metrics-evaluation-subset",
+    "created_at": "2026-05-29T12:04:53.060198",
+    "datasets": [
+      "2wikimultihopqa"
+    ],
+    "model": "gpt-4o-mini",
+    "git_commit": "8249cb0",
+    "accuracy": {
+      "2wikimultihopqa/kg_strict_entity_first_thr0.1_k10_rt0p0": {
+        "vanilla": 0.0,
+        "kg": 0.4082,
+        "vanilla_raw": 0.0,
+        "kg_raw": 0.4,
+        "vanilla_answer_em": 0.0,
+        "kg_answer_em": 0.268,
+        "vanilla_answer_f1": 0.0,
+        "kg_answer_f1": 0.3544,
+        "n": 250
+      }
+    }
+  },
+  {
+    "run_id": "20260531-174507-hotpotqa-n250-full-metrics-evaluation-subset-rebuildkg",
+    "created_at": "2026-05-31T17:45:07.733780",
+    "datasets": [
+      "hotpotqa"
+    ],
+    "model": "gpt-4o-mini",
+    "git_commit": "8249cb0",
+    "accuracy": {
+      "hotpotqa/dense_floor_thr0.1_k10_rt0p0": {
+        "vanilla": 0.6549,
+        "kg": 0.0,
+        "vanilla_raw": 0.592,
+        "kg_raw": 0.0,
+        "vanilla_answer_em": 0.428,
+        "kg_answer_em": 0.0,
+        "vanilla_answer_f1": 0.5365,
+        "kg_answer_f1": 0.0,
+        "n": 250
+      },
+      "hotpotqa/kg_entity_first_thr0.1_k10_rt0p0": {
+        "vanilla": 0.0,
+        "kg": 0.605,
+        "vanilla_raw": 0.0,
+        "kg_raw": 0.576,
+        "vanilla_answer_em": 0.0,
+        "kg_answer_em": 0.416,
+        "vanilla_answer_f1": 0.0,
+        "kg_answer_f1": 0.5049,
+        "n": 250
+      }
+    }
+  },
+  {
+    "run_id": "20260602-121814-hotpotqa-fullwiki-n250-full-metrics-evaluation-subset-rebuildkg",
+    "created_at": "2026-06-02T12:18:14.750918",
+    "datasets": [
+      "hotpotqa_fullwiki"
+    ],
+    "model": "gpt-4o-mini",
+    "git_commit": "8249cb0",
+    "accuracy": {
+      "hotpotqa_fullwiki/dense_floor_thr0.1_k10_rt0p0": {
+        "vanilla": 0.7212,
+        "kg": 0.0,
+        "vanilla_raw": 0.6,
+        "kg_raw": 0.0,
+        "vanilla_answer_em": 0.0,
+        "kg_answer_em": 0.0,
+        "vanilla_answer_f1": 0.0,
+        "kg_answer_f1": 0.0,
+        "n": 250
+      },
+      "hotpotqa_fullwiki/kg_entity_first_thr0.1_k10_rt0p0": {
+        "vanilla": 0.0,
+        "kg": 0.6651,
+        "vanilla_raw": 0.0,
+        "kg_raw": 0.58,
+        "vanilla_answer_em": 0.0,
+        "kg_answer_em": 0.0,
+        "vanilla_answer_f1": 0.0,
+        "kg_answer_f1": 0.0,
+        "n": 250
+      }
+    }
+  }
+]

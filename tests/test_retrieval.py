@@ -901,7 +901,9 @@ class TestDocumentScopedEnhancedRetrieval:
         captured = {}
 
         def _fake_entity_first(graph, query, max_chunks=20, kg_name=None, max_hops=2,
-                               question_id=None, llm=None, document_names=None):
+                               question_id=None, llm=None, document_names=None,
+                               anchor_mask_entity_ids=None,
+                               anchor_mask_entity_names=None):
             captured["document_names"] = document_names
             return {
                 "query": query,

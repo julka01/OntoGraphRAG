@@ -1,0 +1,200 @@
+\section{Experimental Setup}
+\label{sec:experimental_setup}
+
+\subsection{Datasets}
+
+The suite contains six fixed evaluation snapshots over five QA families:
+biomedical control, clinical QA, and open-domain multi-hop QA
+(Table~\ref{tab:datasets}).
+It deliberately mixes corpus contracts: per-question bundles, per-question
+source documents, and shared corpora.
+The primary graph object is a passage-provenance KG built from the retrieval
+corpus itself, since the question is whether \system{} preserves dense-RAG
+answer quality while exposing facts, passages, relations, and retrieval state.
+PubMedQA and MuSiQue use $n=100$; RealMedQA uses its full $n=230$ evaluable
+set; HotpotQA, HotpotQA FullWiki, and 2WikiMultiHopQA use fixed $n=250$
+subsets.
+
+\begin{table*}[t]
+\centering
+\small
+\caption{Evaluation datasets, corpus contracts, KG scale, and primary roles.
+$h$ is the KG traversal depth; \emph{corpus} denotes the retrieval contract;
+$n$ is the evaluated subset size.
+$|E|$ and $|R|$ count entity nodes and typed entity--entity relations in the
+dataset-scoped KG, queried from the persistent Neo4j stores used in the
+reported runs.
+\label{tab:datasets}}
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lllclrrrp{2.7cm}@{}}
+\toprule
+Dataset & Domain & Answer type & $h$ & Corpus & $n$ & $|E|$ & $|R|$ & Primary role \\
+\midrule
+PubMedQA
+  & Biomedical & Yes/No/Maybe & 2 & abstract & 100 & 2{,}354 & 3{,}023 & Binary control; strong dense baseline \\
+RealMedQA
+  & Clinical & Free-text & 2 & shared (143) & 230 & 537 & 359 & Clinical shared-corpus grounding \\
+HotpotQA \citep{yang2018hotpotqa}
+  & Wikipedia & Free-text & 2 & bundle & 250 & 13{,}546 & 12{,}355 & Open-domain bridge diagnostic \\
+HotpotQA FullWiki \citep{yang2018hotpotqa}
+  & Wikipedia & Free-text & 2 & shared subset & 250 & 13{,}498 & 12{,}012 & Shared-corpus bridge stress test \\
+2WikiMultiHopQA \citep{ho2020wikimultihopqa}
+  & Wikipedia & Free-text & 2 & bundle & 250 & 8{,}328 & 7{,}187 & Bridge and comparison analysis \\
+MuSiQue \citep{trivedi2022musique}
+  & Wikipedia & Free-text & 4 & bundle & 100 & 15{,}440 & 24{,}858 & Hard multi-hop stress test \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\textsc{RealMedQA} is the main shared-corpus clinical setting and
+\textsc{HotpotQA FullWiki} a controlled Wikipedia shared-corpus stress
+snapshot; the rest are closed source-document or bundle settings.
+This is a conservative testbed for KG-RAG: dense retrieval sees small,
+benchmark-filtered candidate sets and provides a demanding accuracy baseline.
+\textsc{PubMedQA} is retained as a control; the open-domain datasets
+stress bridge preservation, shared-corpus evidence selection, comparison
+questions, and deeper compositional chains.
+
+Throughout, hop count refers to the reasoning chain implied by the
+question, not the number of passages supplied by the benchmark.
+Explicit decomposition metadata are used where available, otherwise
+dataset-specific conventions.
+Hop-stratified analyses are reported as diagnostics rather than the main
+table.
+
+\paragraph{Scope.}
+The experiments are fixed-subset diagnostic runs, not leaderboard submissions
+or web-scale throughput benchmarks.
+They support the paper's coarse family-level claims; fine-grained ranking of
+neighbouring AUROC or AUREC values would require larger multi-seed sweeps.
+
+\subsection{Model and Sampling}
+
+All answer-generation experiments use GPT-4o-mini
+\citep{openai2024gpt4omini}.
+For answer-state uncertainty, $N=5$ responses are sampled at temperature
+$T=1.0$.
+These are low-budget black-box diagnostics: the API provides no reliable token
+likelihoods, so entropy-style scores use sampled responses rather than decoder
+probabilities.
+
+KG construction is largely deterministic: entity and relation extraction use
+temperature $0.0$, and benchmark passages are ingested one at a time with
+chunk-level provenance.
+The studied regime is stabilised entity-first retrieval with explicit fallback.
+
+\paragraph{What is and is not isolated.}
+The comparison holds the corpus, embeddings, and generation model fixed, but
+does not fully isolate graph structure from retrieval stabilisation, fallback
+routing, prompt organisation, or provenance grouping
+(Section~\ref{sec:limitations}).
+The runs report mean pairwise chunk overlap across the $N=5$ calls
+(Appendix Table~\ref{tab:retrieval_overlap}); an archived 2WikiMultiHopQA
+trace also supports the stability split in
+Table~\ref{tab:within_adaptive_stability}.
+The headline runs do not retain per-question entity- or path-overlap statistics
+for every dataset, but a dedicated graph-state diversity run on HotpotQA-FullWiki
+logs the full per-sample seed-entity, path, subgraph, and chunk overlap and is
+analysed in Appendix~\ref{sec:appendix_diversity}.
+
+\subsection{Correctness Labels}
+\label{sec:correctness}
+
+Correctness labels are binary.
+Label-space tasks are normalised to their answer contract
+(\texttt{yes}/\texttt{no}/\texttt{maybe}).
+Free-text and factoid tasks use a reference-based semantic judge given the
+question, gold answer, aliases where available, and model response; by default
+the judge is GPT-4o-mini
+(Appendix~\ref{sec:appendix_reproducibility}).
+This is a benchmark answer-normalisation task rather than open-ended clinical
+diagnosis: the judge decides reference-grounded semantic equivalence, for which
+exact match would undercount aliases, paraphrases, and short explanatory
+answers.
+Same-model judging is a known limitation
+\citep{zheng2023judging,panickssery2024llm}, so the labels are practical
+reference-grounded judgements rather than an oracle.
+An independent re-judge with a different model family (Llama-3.3-70B) on the
+saved answers of every free-text run, including both headline RealMedQA runs,
+HotpotQA, HotpotQA FullWiki, MuSiQue, and both 2WikiMultiHopQA runs, agrees
+with the original labels on $92$--$99\%$ of answers
+($\kappa = 0.52$--$0.97$, the low end being the near-ceiling-accuracy
+RealMedQA adaptive run where few wrong answers make $\kappa$ unstable) and
+leaves every central contrast unchanged (Section~\ref{sec:limitations}).
+
+Two conventions matter.
+Provider-side failures are recorded explicitly, so results report both
+\textbf{raw accuracy} and \textbf{clean accuracy}, the latter excluding
+generation failures (Appendix Table~\ref{tab:generation_failures}).
+For free-text datasets, prompts elicit short explanatory answers rather than
+extractive spans; semantic correctness is therefore the headline answer metric,
+with EM/F1 retained only in the artefacts.
+
+\subsection{Evaluation Metrics}
+
+The main uncertainty metric is \textbf{AUROC}, the ranking quality for
+separating correct from incorrect answers.
+\textbf{AUREC} is logged as a secondary selective-prediction audit metric
+\citep{geifman2017selective}, but not expanded into a parallel results table.
+Raw accuracy, clean accuracy, retrieval overlap, and per-metric compute time
+are also logged; the marginal cost of each diagnostic, including SEU's
+per-chunk NLI calls and GPS, is reported in
+Appendix Table~\ref{tab:compute_cost}.
+All main figures report point estimates from one fixed subset per dataset.
+With mixed sample sizes ($n=100$, $n=230$, $n=250$), small AUROC gaps are
+descriptive unless they recur across signal families or match the qualitative
+traces.
+No multiple-comparison correction is applied because the heatmap is not used
+for family-wise significance testing.
+The two primary headline contrasts instead carry paired-bootstrap intervals;
+the largest, the adaptive-versus-strict SD-UQ collapse of $+0.52$ AUROC at
+$n=196$, is far from zero, whereas gaps near $0.05$ are not interpreted.
+Appendix Tables~\ref{tab:run_artifacts}, \ref{tab:effective_denominators},
+\ref{tab:hotpot_fullwiki_stress}, and \ref{tab:headline_ci_output} document
+run configurations, answered counts, GPS usable counts, the HotpotQA FullWiki
+snapshot, and bootstrap intervals.
+Retrieval-state AUROC with fewer than roughly fifty usable rows is treated as
+trace-level evidence.
+GPS AUROC is always conditional on rows for which GPS is defined; linking
+failures and other abstentions are reported through usable/answered
+denominators and audit-rule coverage, not hidden inside the AUROC.
+
+The headline tables report family representatives: DSE, SRE-UQ, VN-Entropy,
+and SD-UQ for answer state; SEU for evidence state; GPS for retrieval state.
+The P(True)-style proxy is omitted because it is monotone in DSE here, and
+SelfCheckGPT is retained in the artefacts.
+GPS uses surface plus embedding-based soft answer-entity linking; its two
+hyperparameters were calibrated on the RealMedQA development run and frozen
+elsewhere.
+All GPS values were recomputed by post-hoc replay on saved answer logs without
+rerunning generation, retrieval, or entity linking
+(Appendix~\ref{sec:appendix_reproducibility}).
+PubMedQA-style yes/no answers remain outside GPS's intended scope because they
+expose no linkable answer entities.
+
+\subsection{Retrieval and KG Configuration}
+
+Both systems use \texttt{all-MiniLM-L6-v2}.
+Vanilla RAG performs direct vector retrieval over chunks.
+KG-RAG performs entity-first retrieval, graph expansion, and context assembly
+from graph-linked chunks, paths, and entities, with dense retrieval and
+retriever-first graph expansion as fallbacks when entity anchoring is weak.
+Each KG-RAG response records its route
+(\texttt{entity\_first}, \texttt{rfge}, or \texttt{semantic\_only}) and route
+reason.
+
+Dataset-scoped KGs are built passage-wise, preserving question and passage
+provenance and avoiding artificial cross-question chunking.
+Each artefact retains chunk identifiers, passage titles where available,
+relation paths, route labels, and relation-anchor text when supplied by the KG
+extractor.
+Dense retrieval can log passages and scores; the KG layer additionally exposes
+matched entities, typed triples, graph paths, relation anchors, and abstention
+events.
+The traceability claim is therefore structured provenance, not provenance in
+the abstract.
+Traversal depth is dataset-specific: $h=2$ for PubMedQA, RealMedQA,
+HotpotQA, HotpotQA FullWiki, and 2Wiki; $h=4$ for MuSiQue.
+During iterative decomposition, each sub-question uses a bounded local graph
+expansion cap so that overall chain length and per-step search breadth are not
+confounded.

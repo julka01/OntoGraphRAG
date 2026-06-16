@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "dataset": "hotpotqa",
+  "created_at": "2026-05-07T02:52:58.119711",
+  "selection_strategy": "seeded_sample",
+  "subset_seed": 42,
+  "requested_num_samples": 2,
+  "available_question_count": 7395,
+  "selection_count": 2,
+  "question_ids": [
+    "5ae6914755429908198fa627",
+    "5a8b56d655429949d91db557"
+  ],
+  "selection_key": "n2_seed42",
+  "subset_hash": "ccfc3fd49897",
+  "subset_tag": "n2_seed42_hccfc3fd49897",
+  "subset_id": "hotpotqa__n2_seed42_hccfc3fd49897"
+}

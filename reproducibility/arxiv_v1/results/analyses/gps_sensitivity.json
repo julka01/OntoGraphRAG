@@ -1,0 +1,816 @@
+{
+ "method": "GPS tau/gamma sensitivity sweep, offline replay from saved GPS-v2 stores (no generation/retrieval/linking/KG rerun)",
+ "calibrated": {
+  "tau": 0.6,
+  "gamma": 0.4
+ },
+ "grid": {
+  "tau": [
+   0.5,
+   0.55,
+   0.6,
+   0.65,
+   0.7
+  ],
+  "gamma": [
+   0.2,
+   0.4,
+   0.6,
+   0.8,
+   1.0
+  ]
+ },
+ "runs": {
+  "RealMedQA adaptive": {
+   "calibrated_auroc": 0.7574110671936758,
+   "calibrated_usable": 195,
+   "auroc_min": 0.5958563535911602,
+   "auroc_max": 0.7574110671936758,
+   "auroc_mean": 0.710835485429572,
+   "auroc_std": 0.03848756471468154,
+   "auroc_range": 0.1615547136025156,
+   "usable_min": 191,
+   "usable_max": 197,
+   "grid": {
+    "tau0.5_gamma0.2": {
+     "auroc": 0.731427174975562,
+     "usable": 197
+    },
+    "tau0.5_gamma0.4": {
+     "auroc": 0.7280058651026393,
+     "usable": 197
+    },
+    "tau0.5_gamma0.6": {
+     "auroc": 0.7140762463343108,
+     "usable": 197
+    },
+    "tau0.5_gamma0.8": {
+     "auroc": 0.7077223851417399,
+     "usable": 197
+    },
+    "tau0.5_gamma1.0": {
+     "auroc": 0.6590909090909092,
+     "usable": 197
+    },
+    "tau0.55_gamma0.2": {
+     "auroc": 0.7346041055718475,
+     "usable": 197
+    },
+    "tau0.55_gamma0.4": {
+     "auroc": 0.7304496578690127,
+     "usable": 197
+    },
+    "tau0.55_gamma0.6": {
+     "auroc": 0.7130987292277615,
+     "usable": 197
+    },
+    "tau0.55_gamma0.8": {
+     "auroc": 0.7130987292277615,
+     "usable": 197
+    },
+    "tau0.55_gamma1.0": {
+     "auroc": 0.6500488758553273,
+     "usable": 197
+    },
+    "tau0.6_gamma0.2": {
+     "auroc": 0.7551877470355731,
+     "usable": 195
+    },
+    "tau0.6_gamma0.4": {
+     "auroc": 0.7574110671936758,
+     "usable": 195
+    },
+    "tau0.6_gamma0.6": {
+     "auroc": 0.7346837944664031,
+     "usable": 195
+    },
+    "tau0.6_gamma0.8": {
+     "auroc": 0.7467885375494071,
+     "usable": 195
+    },
+    "tau0.6_gamma1.0": {
+     "auroc": 0.6793478260869565,
+     "usable": 195
+    },
+    "tau0.65_gamma0.2": {
+     "auroc": 0.7439890710382514,
+     "usable": 193
+    },
+    "tau0.65_gamma0.4": {
+     "auroc": 0.75,
+     "usable": 193
+    },
+    "tau0.65_gamma0.6": {
+     "auroc": 0.7259562841530056,
+     "usable": 193
+    },
+    "tau0.65_gamma0.8": {
+     "auroc": 0.7513661202185793,
+     "usable": 193
+    },
+    "tau0.65_gamma1.0": {
+     "auroc": 0.669672131147541,
+     "usable": 193
+    },
+    "tau0.7_gamma0.2": {
+     "auroc": 0.7118784530386741,
+     "usable": 191
+    },
+    "tau0.7_gamma0.4": {
+     "auroc": 0.7162983425414364,
+     "usable": 191
+    },
+    "tau0.7_gamma0.6": {
+     "auroc": 0.6779005524861879,
+     "usable": 191
+    },
+    "tau0.7_gamma0.8": {
+     "auroc": 0.67292817679558,
+     "usable": 191
+    },
+    "tau0.7_gamma1.0": {
+     "auroc": 0.5958563535911602,
+     "usable": 191
+    }
+   }
+  },
+  "RealMedQA strict": {
+   "calibrated_auroc": 0.7455357142857144,
+   "calibrated_usable": 142,
+   "auroc_min": 0.5308571428571428,
+   "auroc_max": 0.9019327129563349,
+   "auroc_mean": 0.7337103766801877,
+   "auroc_std": 0.09058748574296684,
+   "auroc_range": 0.3710755700991921,
+   "usable_min": 139,
+   "usable_max": 171,
+   "grid": {
+    "tau0.5_gamma0.2": {
+     "auroc": 0.9019327129563349,
+     "usable": 171
+    },
+    "tau0.5_gamma0.4": {
+     "auroc": 0.8960272011453114,
+     "usable": 171
+    },
+    "tau0.5_gamma0.6": {
+     "auroc": 0.8891374373657838,
+     "usable": 171
+    },
+    "tau0.5_gamma0.8": {
+     "auroc": 0.8811739441660701,
+     "usable": 171
+    },
+    "tau0.5_gamma1.0": {
+     "auroc": 0.8583571939871152,
+     "usable": 171
+    },
+    "tau0.55_gamma0.2": {
+     "auroc": 0.7448326771653544,
+     "usable": 143
+    },
+    "tau0.55_gamma0.4": {
+     "auroc": 0.7315452755905512,
+     "usable": 143
+    },
+    "tau0.55_gamma0.6": {
+     "auroc": 0.7086614173228346,
+     "usable": 143
+    },
+    "tau0.55_gamma0.8": {
+     "auroc": 0.6961122047244094,
+     "usable": 143
+    },
+    "tau0.55_gamma1.0": {
+     "auroc": 0.6311515748031497,
+     "usable": 143
+    },
+    "tau0.6_gamma0.2": {
+     "auroc": 0.7547123015873016,
+     "usable": 142
+    },
+    "tau0.6_gamma0.4": {
+     "auroc": 0.7455357142857144,
+     "usable": 142
+    },
+    "tau0.6_gamma0.6": {
+     "auroc": 0.7276785714285714,
+     "usable": 142
+    },
+    "tau0.6_gamma0.8": {
+     "auroc": 0.7137896825396824,
+     "usable": 142
+    },
+    "tau0.6_gamma1.0": {
+     "auroc": 0.6530257936507936,
+     "usable": 142
+    },
+    "tau0.65_gamma0.2": {
+     "auroc": 0.7512,
+     "usable": 140
+    },
+    "tau0.65_gamma0.4": {
+     "auroc": 0.7477333333333332,
+     "usable": 140
+    },
+    "tau0.65_gamma0.6": {
+     "auroc": 0.7352,
+     "usable": 140
+    },
+    "tau0.65_gamma0.8": {
+     "auroc": 0.7237333333333333,
+     "usable": 140
+    },
+    "tau0.65_gamma1.0": {
+     "auroc": 0.6549333333333333,
+     "usable": 140
+    },
+    "tau0.7_gamma0.2": {
+     "auroc": 0.6945714285714286,
+     "usable": 139
+    },
+    "tau0.7_gamma0.4": {
+     "auroc": 0.6894285714285714,
+     "usable": 139
+    },
+    "tau0.7_gamma0.6": {
+     "auroc": 0.648,
+     "usable": 139
+    },
+    "tau0.7_gamma0.8": {
+     "auroc": 0.6334285714285715,
+     "usable": 139
+    },
+    "tau0.7_gamma1.0": {
+     "auroc": 0.5308571428571428,
+     "usable": 139
+    }
+   }
+  },
+  "HotpotQA": {
+   "calibrated_auroc": 0.5138305322128851,
+   "calibrated_usable": 158,
+   "auroc_min": 0.49999999999999994,
+   "auroc_max": 0.5527845036319613,
+   "auroc_mean": 0.5255991034499674,
+   "auroc_std": 0.014468778083282922,
+   "auroc_range": 0.052784503631961355,
+   "usable_min": 154,
+   "usable_max": 169,
+   "grid": {
+    "tau0.5_gamma0.2": {
+     "auroc": 0.5129022465088039,
+     "usable": 169
+    },
+    "tau0.5_gamma0.4": {
+     "auroc": 0.5215543412264725,
+     "usable": 169
+    },
+    "tau0.5_gamma0.6": {
+     "auroc": 0.5275500910746813,
+     "usable": 169
+    },
+    "tau0.5_gamma0.8": {
+     "auroc": 0.5384790528233151,
+     "usable": 169
+    },
+    "tau0.5_gamma1.0": {
+     "auroc": 0.5451578627808136,
+     "usable": 169
+    },
+    "tau0.55_gamma0.2": {
+     "auroc": 0.5265536723163842,
+     "usable": 164
+    },
+    "tau0.55_gamma0.4": {
+     "auroc": 0.5275221953188055,
+     "usable": 164
+    },
+    "tau0.55_gamma0.6": {
+     "auroc": 0.5338983050847457,
+     "usable": 164
+    },
+    "tau0.55_gamma0.8": {
+     "auroc": 0.5456012913640031,
+     "usable": 164
+    },
+    "tau0.55_gamma1.0": {
+     "auroc": 0.5527845036319613,
+     "usable": 164
+    },
+    "tau0.6_gamma0.2": {
+     "auroc": 0.5117296918767507,
+     "usable": 158
+    },
+    "tau0.6_gamma0.4": {
+     "auroc": 0.5138305322128851,
+     "usable": 158
+    },
+    "tau0.6_gamma0.6": {
+     "auroc": 0.5220588235294118,
+     "usable": 158
+    },
+    "tau0.6_gamma0.8": {
+     "auroc": 0.5329131652661064,
+     "usable": 158
+    },
+    "tau0.6_gamma1.0": {
+     "auroc": 0.5421043417366946,
+     "usable": 158
+    },
+    "tau0.65_gamma0.2": {
+     "auroc": 0.49999999999999994,
+     "usable": 156
+    },
+    "tau0.65_gamma0.4": {
+     "auroc": 0.5055374001452433,
+     "usable": 156
+    },
+    "tau0.65_gamma0.6": {
+     "auroc": 0.5155228758169934,
+     "usable": 156
+    },
+    "tau0.65_gamma0.8": {
+     "auroc": 0.5262345679012346,
+     "usable": 156
+    },
+    "tau0.65_gamma1.0": {
+     "auroc": 0.5358569353667393,
+     "usable": 156
+    },
+    "tau0.7_gamma0.2": {
+     "auroc": 0.5032691948440128,
+     "usable": 154
+    },
+    "tau0.7_gamma0.4": {
+     "auroc": 0.5043900616476742,
+     "usable": 154
+    },
+    "tau0.7_gamma0.6": {
+     "auroc": 0.5198019801980198,
+     "usable": 154
+    },
+    "tau0.7_gamma0.8": {
+     "auroc": 0.5303568092658323,
+     "usable": 154
+    },
+    "tau0.7_gamma1.0": {
+     "auroc": 0.544367644311601,
+     "usable": 154
+    }
+   }
+  },
+  "HotpotQA FullWiki": {
+   "calibrated_auroc": 0.5432,
+   "calibrated_usable": 185,
+   "auroc_min": 0.5349234554401312,
+   "auroc_max": 0.5646451612903227,
+   "auroc_mean": 0.5470402476807709,
+   "auroc_std": 0.0075340390405987815,
+   "auroc_range": 0.029721705850191515,
+   "usable_min": 182,
+   "usable_max": 187,
+   "grid": {
+    "tau0.5_gamma0.2": {
+     "auroc": 0.5423870967741935,
+     "usable": 187
+    },
+    "tau0.5_gamma0.4": {
+     "auroc": 0.544258064516129,
+     "usable": 187
+    },
+    "tau0.5_gamma0.6": {
+     "auroc": 0.5460645161290323,
+     "usable": 187
+    },
+    "tau0.5_gamma0.8": {
+     "auroc": 0.5495483870967741,
+     "usable": 187
+    },
+    "tau0.5_gamma1.0": {
+     "auroc": 0.551483870967742,
+     "usable": 187
+    },
+    "tau0.55_gamma0.2": {
+     "auroc": 0.5523225806451613,
+     "usable": 187
+    },
+    "tau0.55_gamma0.4": {
+     "auroc": 0.555483870967742,
+     "usable": 187
+    },
+    "tau0.55_gamma0.6": {
+     "auroc": 0.5581935483870968,
+     "usable": 187
+    },
+    "tau0.55_gamma0.8": {
+     "auroc": 0.5635483870967742,
+     "usable": 187
+    },
+    "tau0.55_gamma1.0": {
+     "auroc": 0.5646451612903227,
+     "usable": 187
+    },
+    "tau0.6_gamma0.2": {
+     "auroc": 0.5432666666666666,
+     "usable": 185
+    },
+    "tau0.6_gamma0.4": {
+     "auroc": 0.5432,
+     "usable": 185
+    },
+    "tau0.6_gamma0.6": {
+     "auroc": 0.5421333333333334,
+     "usable": 185
+    },
+    "tau0.6_gamma0.8": {
+     "auroc": 0.5454,
+     "usable": 185
+    },
+    "tau0.6_gamma1.0": {
+     "auroc": 0.5449999999999999,
+     "usable": 185
+    },
+    "tau0.65_gamma0.2": {
+     "auroc": 0.5349234554401312,
+     "usable": 183
+    },
+    "tau0.65_gamma0.4": {
+     "auroc": 0.535196828868234,
+     "usable": 183
+    },
+    "tau0.65_gamma0.6": {
+     "auroc": 0.5395708037178786,
+     "usable": 183
+    },
+    "tau0.65_gamma0.8": {
+     "auroc": 0.5459267359212685,
+     "usable": 183
+    },
+    "tau0.65_gamma1.0": {
+     "auroc": 0.5517359212684527,
+     "usable": 183
+    },
+    "tau0.7_gamma0.2": {
+     "auroc": 0.5396169215929447,
+     "usable": 182
+    },
+    "tau0.7_gamma0.4": {
+     "auroc": 0.5400303155573929,
+     "usable": 182
+    },
+    "tau0.7_gamma0.6": {
+     "auroc": 0.5435441642552018,
+     "usable": 182
+    },
+    "tau0.7_gamma0.8": {
+     "auroc": 0.5478159018878324,
+     "usable": 182
+    },
+    "tau0.7_gamma1.0": {
+     "auroc": 0.5507096596389693,
+     "usable": 182
+    }
+   }
+  },
+  "2WikiMHQA adaptive": {
+   "calibrated_auroc": 0.3844246031746032,
+   "calibrated_usable": 182,
+   "auroc_min": 0.3546939868755859,
+   "auroc_max": 0.39817001180637546,
+   "auroc_mean": 0.3796655181742431,
+   "auroc_std": 0.01182924301637957,
+   "auroc_range": 0.04347602493078956,
+   "usable_min": 177,
+   "usable_max": 188,
+   "grid": {
+    "tau0.5_gamma0.2": {
+     "auroc": 0.3731753046738985,
+     "usable": 188
+    },
+    "tau0.5_gamma0.4": {
+     "auroc": 0.3673496718896477,
+     "usable": 188
+    },
+    "tau0.5_gamma0.6": {
+     "auroc": 0.36252845855095744,
+     "usable": 188
+    },
+    "tau0.5_gamma0.8": {
+     "auroc": 0.3589795098433105,
+     "usable": 188
+    },
+    "tau0.5_gamma1.0": {
+     "auroc": 0.3546939868755859,
+     "usable": 188
+    },
+    "tau0.55_gamma0.2": {
+     "auroc": 0.39132254464285715,
+     "usable": 184
+    },
+    "tau0.55_gamma0.4": {
+     "auroc": 0.3843470982142858,
+     "usable": 184
+    },
+    "tau0.55_gamma0.6": {
+     "auroc": 0.37827845982142866,
+     "usable": 184
+    },
+    "tau0.55_gamma0.8": {
+     "auroc": 0.37332589285714285,
+     "usable": 184
+    },
+    "tau0.55_gamma1.0": {
+     "auroc": 0.3673967633928572,
+     "usable": 184
+    },
+    "tau0.6_gamma0.2": {
+     "auroc": 0.38938492063492064,
+     "usable": 182
+    },
+    "tau0.6_gamma0.4": {
+     "auroc": 0.3844246031746032,
+     "usable": 182
+    },
+    "tau0.6_gamma0.6": {
+     "auroc": 0.3786848072562358,
+     "usable": 182
+    },
+    "tau0.6_gamma0.8": {
+     "auroc": 0.3740787981859411,
+     "usable": 182
+    },
+    "tau0.6_gamma1.0": {
+     "auroc": 0.3673469387755102,
+     "usable": 182
+    },
+    "tau0.65_gamma0.2": {
+     "auroc": 0.39703341013824883,
+     "usable": 180
+    },
+    "tau0.65_gamma0.4": {
+     "auroc": 0.39285714285714285,
+     "usable": 180
+    },
+    "tau0.65_gamma0.6": {
+     "auroc": 0.387456797235023,
+     "usable": 180
+    },
+    "tau0.65_gamma0.8": {
+     "auroc": 0.38292050691244234,
+     "usable": 180
+    },
+    "tau0.65_gamma1.0": {
+     "auroc": 0.376008064516129,
+     "usable": 180
+    },
+    "tau0.7_gamma0.2": {
+     "auroc": 0.39817001180637546,
+     "usable": 177
+    },
+    "tau0.7_gamma0.4": {
+     "auroc": 0.39521841794569074,
+     "usable": 177
+    },
+    "tau0.7_gamma0.6": {
+     "auroc": 0.389831759149941,
+     "usable": 177
+    },
+    "tau0.7_gamma0.8": {
+     "auroc": 0.3873966942148761,
+     "usable": 177
+    },
+    "tau0.7_gamma1.0": {
+     "auroc": 0.37942739079102716,
+     "usable": 177
+    }
+   }
+  },
+  "2WikiMHQA strict": {
+   "calibrated_auroc": 0.4834004024144869,
+   "calibrated_usable": 99,
+   "auroc_min": 0.3977913533834586,
+   "auroc_max": 0.5335497835497836,
+   "auroc_mean": 0.4680319066616554,
+   "auroc_std": 0.03525212566629683,
+   "auroc_range": 0.13575843016632494,
+   "usable_min": 94,
+   "usable_max": 104,
+   "grid": {
+    "tau0.5_gamma0.2": {
+     "auroc": 0.46687030075187974,
+     "usable": 104
+    },
+    "tau0.5_gamma0.4": {
+     "auroc": 0.44102443609022557,
+     "usable": 104
+    },
+    "tau0.5_gamma0.6": {
+     "auroc": 0.42692669172932335,
+     "usable": 104
+    },
+    "tau0.5_gamma0.8": {
+     "auroc": 0.41517857142857156,
+     "usable": 104
+    },
+    "tau0.5_gamma1.0": {
+     "auroc": 0.3977913533834586,
+     "usable": 104
+    },
+    "tau0.55_gamma0.2": {
+     "auroc": 0.49486301369863017,
+     "usable": 101
+    },
+    "tau0.55_gamma0.4": {
+     "auroc": 0.4679549902152642,
+     "usable": 101
+    },
+    "tau0.55_gamma0.6": {
+     "auroc": 0.4532778864970646,
+     "usable": 101
+    },
+    "tau0.55_gamma0.8": {
+     "auroc": 0.43615459882583174,
+     "usable": 101
+    },
+    "tau0.55_gamma1.0": {
+     "auroc": 0.4151174168297456,
+     "usable": 101
+    },
+    "tau0.6_gamma0.2": {
+     "auroc": 0.5005030181086519,
+     "usable": 99
+    },
+    "tau0.6_gamma0.4": {
+     "auroc": 0.4834004024144869,
+     "usable": 99
+    },
+    "tau0.6_gamma0.6": {
+     "auroc": 0.4728370221327968,
+     "usable": 99
+    },
+    "tau0.6_gamma0.8": {
+     "auroc": 0.460261569416499,
+     "usable": 99
+    },
+    "tau0.6_gamma1.0": {
+     "auroc": 0.43410462776659964,
+     "usable": 99
+    },
+    "tau0.65_gamma0.2": {
+     "auroc": 0.5141806722689075,
+     "usable": 96
+    },
+    "tau0.65_gamma0.4": {
+     "auroc": 0.49737394957983194,
+     "usable": 96
+    },
+    "tau0.65_gamma0.6": {
+     "auroc": 0.48581932773109243,
+     "usable": 96
+    },
+    "tau0.65_gamma0.8": {
+     "auroc": 0.4695378151260504,
+     "usable": 96
+    },
+    "tau0.65_gamma1.0": {
+     "auroc": 0.44353991596638653,
+     "usable": 96
+    },
+    "tau0.7_gamma0.2": {
+     "auroc": 0.5335497835497836,
+     "usable": 94
+    },
+    "tau0.7_gamma0.4": {
+     "auroc": 0.5238095238095238,
+     "usable": 94
+    },
+    "tau0.7_gamma0.6": {
+     "auroc": 0.5091991341991342,
+     "usable": 94
+    },
+    "tau0.7_gamma0.8": {
+     "auroc": 0.49296536796536794,
+     "usable": 94
+    },
+    "tau0.7_gamma1.0": {
+     "auroc": 0.46455627705627706,
+     "usable": 94
+    }
+   }
+  },
+  "MuSiQue": {
+   "calibrated_auroc": 0.6816789215686274,
+   "calibrated_usable": 83,
+   "auroc_min": 0.6354166666666667,
+   "auroc_max": 0.7028301886792453,
+   "auroc_mean": 0.6735878815205328,
+   "auroc_std": 0.018467578682007588,
+   "auroc_range": 0.06741352201257855,
+   "usable_min": 80,
+   "usable_max": 85,
+   "grid": {
+    "tau0.5_gamma0.2": {
+     "auroc": 0.7028301886792453,
+     "usable": 85
+    },
+    "tau0.5_gamma0.4": {
+     "auroc": 0.6954599056603774,
+     "usable": 85
+    },
+    "tau0.5_gamma0.6": {
+     "auroc": 0.7025353773584906,
+     "usable": 85
+    },
+    "tau0.5_gamma0.8": {
+     "auroc": 0.6978183962264152,
+     "usable": 85
+    },
+    "tau0.5_gamma1.0": {
+     "auroc": 0.6872051886792453,
+     "usable": 85
+    },
+    "tau0.55_gamma0.2": {
+     "auroc": 0.696933962264151,
+     "usable": 85
+    },
+    "tau0.55_gamma0.4": {
+     "auroc": 0.6872051886792453,
+     "usable": 85
+    },
+    "tau0.55_gamma0.6": {
+     "auroc": 0.6824882075471699,
+     "usable": 85
+    },
+    "tau0.55_gamma0.8": {
+     "auroc": 0.6701061320754718,
+     "usable": 85
+    },
+    "tau0.55_gamma1.0": {
+     "auroc": 0.6603773584905661,
+     "usable": 85
+    },
+    "tau0.6_gamma0.2": {
+     "auroc": 0.6881127450980392,
+     "usable": 83
+    },
+    "tau0.6_gamma0.4": {
+     "auroc": 0.6816789215686274,
+     "usable": 83
+    },
+    "tau0.6_gamma0.6": {
+     "auroc": 0.6743259803921569,
+     "usable": 83
+    },
+    "tau0.6_gamma0.8": {
+     "auroc": 0.6712622549019608,
+     "usable": 83
+    },
+    "tau0.6_gamma1.0": {
+     "auroc": 0.6587009803921569,
+     "usable": 83
+    },
+    "tau0.65_gamma0.2": {
+     "auroc": 0.6781250000000001,
+     "usable": 82
+    },
+    "tau0.65_gamma0.4": {
+     "auroc": 0.6753125,
+     "usable": 82
+    },
+    "tau0.65_gamma0.6": {
+     "auroc": 0.6609375000000001,
+     "usable": 82
+    },
+    "tau0.65_gamma0.8": {
+     "auroc": 0.6590625,
+     "usable": 82
+    },
+    "tau0.65_gamma1.0": {
+     "auroc": 0.6475,
+     "usable": 82
+    },
+    "tau0.7_gamma0.2": {
+     "auroc": 0.6686197916666666,
+     "usable": 80
+    },
+    "tau0.7_gamma0.4": {
+     "auroc": 0.6640625,
+     "usable": 80
+    },
+    "tau0.7_gamma0.6": {
+     "auroc": 0.646484375,
+     "usable": 80
+    },
+    "tau0.7_gamma0.8": {
+     "auroc": 0.6471354166666667,
+     "usable": 80
+    },
+    "tau0.7_gamma1.0": {
+     "auroc": 0.6354166666666667,
+     "usable": 80
+    }
+   }
+  }
+ }
+}

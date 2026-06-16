@@ -1,0 +1,8 @@
+{
+ "status": "no_graph_state_trace_fields",
+ "note": "Requires per-sample kg_graph_state_traces or derived kg_*_entropy fields from runs produced after graph-state tracing was added.",
+ "row_count": 0,
+ "rows_by_dataset_policy": {},
+ "figures": [],
+ "rows_preview": []
+}

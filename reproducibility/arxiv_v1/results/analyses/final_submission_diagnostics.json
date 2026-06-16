@@ -1,0 +1,212 @@
+{
+  "composite": {
+    "2WikiMHQA": {
+      "base_error": 0.3114754098360656,
+      "best_single_auc": 0.6851112155388471,
+      "combined_auc": 0.618890977443609,
+      "combined_aurec": 0.22464598154336038,
+      "gps_risk_auc": 0.41412124060150374,
+      "n": 244,
+      "sd_auc": 0.6851112155388471,
+      "seu_auc": 0.6425046992481203
+    },
+    "HotpotQA": {
+      "base_error": 0.3949579831932773,
+      "best_single_auc": 0.6354905437352246,
+      "combined_auc": 0.572584219858156,
+      "combined_aurec": 0.3264650140504004,
+      "gps_risk_auc": 0.5506796690307328,
+      "n": 238,
+      "sd_auc": 0.6354905437352246,
+      "seu_auc": 0.47691341607565013
+    },
+    "HotpotQA FullWiki": {
+      "base_error": 0.3348623853211009,
+      "best_single_auc": 0.6717052432687766,
+      "combined_auc": 0.6607463391591876,
+      "combined_aurec": 0.22797576939774788,
+      "gps_risk_auc": 0.549456778460085,
+      "n": 218,
+      "sd_auc": 0.6717052432687766,
+      "seu_auc": 0.5646669815777043
+    },
+    "MuSiQue": {
+      "base_error": 0.6063829787234043,
+      "best_single_auc": 0.6396396396396397,
+      "combined_auc": 0.7446657183499289,
+      "combined_aurec": 0.42647186029834155,
+      "gps_risk_auc": 0.6396396396396397,
+      "n": 94,
+      "sd_auc": 0.6311047889995258,
+      "seu_auc": 0.6263632053105738
+    },
+    "PubMedQA": {
+      "base_error": 0.27,
+      "best_single_auc": 0.6986301369863014,
+      "combined_auc": 0.8132927447995941,
+      "combined_aurec": 0.09581075011860253,
+      "gps_risk_auc": 0.5,
+      "n": 100,
+      "sd_auc": 0.6986301369863014,
+      "seu_auc": 0.5943683409436834
+    },
+    "RealMedQA": {
+      "base_error": 0.053811659192825115,
+      "best_single_auc": 0.8076619273301737,
+      "combined_auc": 0.7290679304897314,
+      "combined_aurec": 0.022094982039217767,
+      "gps_risk_auc": 0.7031990521327014,
+      "n": 223,
+      "sd_auc": 0.8076619273301737,
+      "seu_auc": 0.5013823064770933
+    }
+  },
+  "datasets": {
+    "2WikiMHQA": 244,
+    "HotpotQA": 238,
+    "HotpotQA FullWiki": 218,
+    "MuSiQue": 94,
+    "PubMedQA": 100,
+    "RealMedQA": 223
+  },
+  "gps_reliability": {
+    "2WikiMHQA": {
+      "abstained": 62,
+      "abstention_rate": 0.2540983606557377,
+      "answered": 244,
+      "bins": {
+        "high": {
+          "error_rate": 0.2777777777777778,
+          "n": 144,
+          "wrong": 40
+        },
+        "low": {
+          "error_rate": 0.3333333333333333,
+          "n": 18,
+          "wrong": 6
+        },
+        "mid": {
+          "error_rate": 0.5,
+          "n": 20,
+          "wrong": 10
+        }
+      },
+      "usable": 182
+    },
+    "HotpotQA": {
+      "abstained": 80,
+      "abstention_rate": 0.33613445378151263,
+      "answered": 238,
+      "bins": {
+        "high": {
+          "error_rate": 0.3364485981308411,
+          "n": 107,
+          "wrong": 36
+        },
+        "low": {
+          "error_rate": 0.4444444444444444,
+          "n": 9,
+          "wrong": 4
+        },
+        "mid": {
+          "error_rate": 0.38095238095238093,
+          "n": 42,
+          "wrong": 16
+        }
+      },
+      "usable": 158
+    },
+    "HotpotQA FullWiki": {
+      "abstained": 33,
+      "abstention_rate": 0.15137614678899083,
+      "answered": 218,
+      "bins": {
+        "high": {
+          "error_rate": 0.36507936507936506,
+          "n": 63,
+          "wrong": 23
+        },
+        "low": {
+          "error_rate": 0.3,
+          "n": 70,
+          "wrong": 21
+        },
+        "mid": {
+          "error_rate": 0.3076923076923077,
+          "n": 52,
+          "wrong": 16
+        }
+      },
+      "usable": 185
+    },
+    "MuSiQue": {
+      "abstained": 11,
+      "abstention_rate": 0.11702127659574468,
+      "answered": 94,
+      "bins": {
+        "high": {
+          "error_rate": 0.7037037037037037,
+          "n": 54,
+          "wrong": 38
+        },
+        "low": {
+          "error_rate": 0.3333333333333333,
+          "n": 9,
+          "wrong": 3
+        },
+        "mid": {
+          "error_rate": 0.5,
+          "n": 20,
+          "wrong": 10
+        }
+      },
+      "usable": 83
+    },
+    "PubMedQA": {
+      "abstained": 100,
+      "abstention_rate": 1.0,
+      "answered": 100,
+      "bins": {
+        "high": {
+          "error_rate": null,
+          "n": 0,
+          "wrong": 0
+        },
+        "low": {
+          "error_rate": null,
+          "n": 0,
+          "wrong": 0
+        },
+        "mid": {
+          "error_rate": null,
+          "n": 0,
+          "wrong": 0
+        }
+      },
+      "usable": 0
+    },
+    "RealMedQA": {
+      "abstained": 28,
+      "abstention_rate": 0.12556053811659193,
+      "answered": 223,
+      "bins": {
+        "high": {
+          "error_rate": 0.14285714285714285,
+          "n": 42,
+          "wrong": 6
+        },
+        "low": {
+          "error_rate": 0.0,
+          "n": 39,
+          "wrong": 0
+        },
+        "mid": {
+          "error_rate": 0.043859649122807015,
+          "n": 114,
+          "wrong": 5
+        }
+      },
+      "usable": 195
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "dataset": "musique",
+  "created_at": "2026-03-30T12:47:19.745344",
+  "selection_strategy": "seeded_sample",
+  "subset_seed": 0,
+  "requested_num_samples": 10,
+  "available_question_count": 2417,
+  "selection_count": 10,
+  "question_ids": [
+    "2hop__488811_30078",
+    "2hop__59612_42352",
+    "3hop1__622497_160088_85460",
+    "3hop1__140855_2053_52946",
+    "3hop1__109196_720914_27537",
+    "3hop1__127716_157828_239539",
+    "3hop1__426806_42197_18397",
+    "4hop1__571599_49925_13759_736921",
+    "4hop2__161602_474028_88460_18966",
+    "4hop1__343844_17130_70784_61381"
+  ],
+  "selection_key": "n10_seed0",
+  "subset_hash": "95a5a41ed189",
+  "subset_tag": "n10_seed0_h95a5a41ed189",
+  "subset_id": "musique__n10_seed0_h95a5a41ed189"
+}

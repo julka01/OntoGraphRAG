@@ -1,0 +1,69 @@
+{
+  "run_id": "20260612-202121-realmedqa-n100-full-metrics-evaluation-subset",
+  "created_at": "2026-06-12T20:21:21.837131",
+  "datasets": [
+    "realmedqa"
+  ],
+  "num_samples": 100,
+  "subset_seed": 42,
+  "evaluation_mode": "full_metrics",
+  "retrieval_study": "strict_entity",
+  "kg_builder_profile": "full",
+  "dataset_kg_scope": "evaluation_subset",
+  "allow_gold_evidence_contexts": false,
+  "model": "gpt-4o-mini",
+  "embedding_provider": "sentence_transformers",
+  "git_commit": "ed8d829",
+  "rebuild_kg": false,
+  "selection_files": {
+    "realmedqa": "results/selections/realmedqa__n100_seed42.json"
+  },
+  "subset_ids": {
+    "realmedqa": "realmedqa__n100_seed42_he1599ddb41e2"
+  },
+  "dataset_corpus_profiles": {
+    "realmedqa": {
+      "dataset": "realmedqa",
+      "question_context_role": "no_context",
+      "requires_shared_corpus_for_fair_retrieval": true,
+      "notes": "Questions are paired with gold NICE recommendations; benchmark against the shared recommendation corpus, not per-question answer text."
+    }
+  },
+  "accuracy": {
+    "realmedqa/kg_strict_entity_first_thr0.1_k10_rt0p0": {
+      "vanilla": 0.0,
+      "kg": 0.6813,
+      "vanilla_raw": 0.0,
+      "kg_raw": 0.62,
+      "vanilla_answer_em": 0.0,
+      "kg_answer_em": 0.0,
+      "vanilla_answer_f1": 0.0,
+      "kg_answer_f1": 0.0,
+      "n": 100
+    },
+    "realmedqa/kg_strict_entity_first_thr0.1_k10_rt0p5": {
+      "vanilla": 0.0,
+      "kg": 0.6296,
+      "vanilla_raw": 0.0,
+      "kg_raw": 0.51,
+      "vanilla_answer_em": 0.0,
+      "kg_answer_em": 0.0,
+      "vanilla_answer_f1": 0.0,
+      "kg_answer_f1": 0.0,
+      "n": 100
+    },
+    "realmedqa/kg_strict_entity_first_thr0.1_k10_rt1p0": {
+      "vanilla": 0.0,
+      "kg": 0.6053,
+      "vanilla_raw": 0.0,
+      "kg_raw": 0.46,
+      "vanilla_answer_em": 0.0,
+      "kg_answer_em": 0.0,
+      "vanilla_answer_f1": 0.0,
+      "kg_answer_f1": 0.0,
+      "n": 100
+    }
+  },
+  "completed_at": "2026-06-12T21:48:36.976520",
+  "wandb_run_id": "rv5u8j47"
+}

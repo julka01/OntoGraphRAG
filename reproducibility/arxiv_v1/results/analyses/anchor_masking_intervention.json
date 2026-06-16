@@ -1,0 +1,101 @@
+{
+ "created_at": "2026-06-14T01:41:04",
+ "mode": "run",
+ "note": "No KG rebuild. Dry-run mode reads saved rows only; --run reruns retrieval/generation on existing KG.",
+ "dataset": "2wikimultihopqa",
+ "policy": "strict",
+ "trigger": {
+  "sd_uq_lte": 1e-09,
+  "seu_gte": 0.5,
+  "wrong_only": true,
+  "require_populated_route": true
+ },
+ "candidate_count": 1,
+ "candidates": [
+  {
+   "question_id": "2ec440560bb011ebab90acde48001122",
+   "question": "Who is the maternal grandfather of Antiochus X Eusebes?",
+   "expected": "ptolemy ix lathyros",
+   "task_type": "free_text",
+   "saved_response": "antiochus ix",
+   "saved_correct": false,
+   "saved_sd_uq": 6.360277840069866e-10,
+   "saved_seu": 0.6666666666666666,
+   "saved_route": "entity_first",
+   "saved_route_reason": "success"
+  }
+ ],
+ "results": [
+  {
+   "question_id": "2ec440560bb011ebab90acde48001122",
+   "question": "Who is the maternal grandfather of Antiochus X Eusebes?",
+   "expected": "ptolemy ix lathyros",
+   "task_type": "free_text",
+   "saved_response": "antiochus ix",
+   "saved_correct": false,
+   "saved_sd_uq": 6.360277840069866e-10,
+   "saved_seu": 0.6666666666666666,
+   "saved_route": "entity_first",
+   "saved_route_reason": "success",
+   "intervention_anchor_entity_id": "",
+   "baseline_rerun": {
+    "response": "I couldn't find any relevant information in the knowledge graph to answer your question.",
+    "raw_response": "I couldn't find any relevant information in the knowledge graph to answer your question.",
+    "correct": false,
+    "graph_state": {
+     "route": "entity_first_empty",
+     "search_method": "entity_first",
+     "seed_entity_ids": [],
+     "seed_entity_names": [],
+     "entity_ids": [],
+     "relationship_ids": [],
+     "path_ids": [],
+     "chunk_ids": [],
+     "seed_signature": "<empty>",
+     "path_signature": "<empty>",
+     "subgraph_signature": "<empty>",
+     "chunk_signature": "<empty>",
+     "entity_count": 0,
+     "relationship_count": 0,
+     "path_count": 0,
+     "chunk_count": 0
+    },
+    "route": "entity_first_empty",
+    "route_reason": "strict_no_graph_signal",
+    "search_method": "entity_first"
+   },
+   "baseline_diversity": {
+    "sample_count": 1,
+    "empty_state_count": 1,
+    "seed_entity_entropy": -0.0,
+    "seed_entity_entropy_norm": 0.0,
+    "path_entropy": -0.0,
+    "path_entropy_norm": 0.0,
+    "subgraph_entropy": -0.0,
+    "subgraph_entropy_norm": 0.0,
+    "chunk_entropy": -0.0,
+    "chunk_entropy_norm": 0.0,
+    "route_entropy": -0.0,
+    "route_entropy_norm": 0.0,
+    "seed_entity_jaccard": 1.0,
+    "entity_jaccard": 1.0,
+    "path_jaccard": 1.0,
+    "subgraph_jaccard": 1.0,
+    "chunk_jaccard": 1.0,
+    "dominant_seed_entity_id": "",
+    "dominant_seed_entity_fraction": 0.0,
+    "chunk_text_jaccard": 1.0,
+    "discrete_semantic_entropy": 0.0,
+    "sd_uq": 0.0,
+    "responses": [
+     "I couldn't find any relevant information in the knowledge graph to answer your question."
+    ]
+   },
+   "masked_rerun": null,
+   "masked_diversity": null,
+   "answer_changed": false,
+   "state_changed": false,
+   "correctness_improved": false
+  }
+ ]
+}

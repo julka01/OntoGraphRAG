@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "dataset": "bioasq",
+  "created_at": "2026-03-29T15:54:51.362977",
+  "selection_strategy": "seeded_sample",
+  "subset_seed": 7,
+  "requested_num_samples": 10,
+  "available_question_count": 90,
+  "selection_count": 10,
+  "question_ids": [
+    "620c27e93a8413c653000006",
+    "62211f453a8413c653000072",
+    "62190ca03a8413c653000035",
+    "61f593f8882a024a1000000f",
+    "620c01ae3a8413c653000005",
+    "5fdb4100a43ad31278000015",
+    "6217dba43a8413c653000029",
+    "62190bac3a8413c653000034",
+    "6027549d1cb411341a0000ea",
+    "6028f5851cb411341a0000ff"
+  ],
+  "selection_key": "n10_seed7",
+  "subset_hash": "d3e3d7c0bd60",
+  "subset_tag": "n10_seed7_hd3e3d7c0bd60",
+  "subset_id": "bioasq__n10_seed7_hd3e3d7c0bd60"
+}

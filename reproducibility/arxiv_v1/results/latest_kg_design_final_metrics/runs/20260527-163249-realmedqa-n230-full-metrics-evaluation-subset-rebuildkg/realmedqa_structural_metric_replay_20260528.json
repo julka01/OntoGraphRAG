@@ -1,0 +1,105 @@
+{
+  "source_run": "20260527-163249-realmedqa-n230-full-metrics-evaluation-subset-rebuildkg",
+  "source_dataset": "realmedqa",
+  "source_questions": 230,
+  "replay_date": "2026-05-28",
+  "replay_scope": "canonical_pair_only",
+  "notes": [
+    "This replay reused the saved answer logs from the source run and recomputed GPS and SPS-UQ only.",
+    "No generation or retrieval was rerun.",
+    "RealMedQA is a shared-corpus dataset, so the replay used question_id=null to match the original structural-metric contract.",
+    "The existing KG predates the newest builder enrichments, so this replay mainly reflects the metric-logic changes rather than a rebuilt richer KG."
+  ],
+  "cases": {
+    "dense_floor_vanilla": {
+      "answered_rows": 219,
+      "old": {
+        "gps_null_rate": 0.5388127853881278,
+        "gps_auroc_non_null": 0.7216494845360826,
+        "gps_null_breakdown": {
+          "no_q_entities": 0.2054794520547945,
+          "no_a_entities": 0.0182648401826484,
+          "trivial_overlap": 0.3150684931506849
+        },
+        "sps_null_rate": 0.3470319634703196,
+        "sps_auroc_non_null": 0.7797101449275361,
+        "sps_null_breakdown": {
+          "no_q_entities": 0.2054794520547945,
+          "trivial_overlap": 0.1415525114155251
+        }
+      },
+      "new": {
+        "gps_defined": 176,
+        "gps_null_rate": 0.19634703196347036,
+        "gps_auroc_non_null": 0.6946078431372549,
+        "gps_null_breakdown_counts": {
+          "defined": 176,
+          "no_q_entities": 30,
+          "no_a_entities": 1,
+          "trivial_overlap": 12
+        },
+        "sps_defined": 176,
+        "sps_null_rate": 0.19634703196347036,
+        "sps_auroc_non_null": 0.7299019607843138,
+        "sps_null_breakdown_counts": {
+          "defined": 176,
+          "no_q_entities": 30,
+          "no_a_entities": 1,
+          "trivial_overlap": 12
+        }
+      },
+      "recovered": {
+        "gps_from_old_0.5_sentinel_rows": 168,
+        "sps_from_old_null_reason_counts": {
+          "no_q_entities": 11,
+          "trivial_overlap": 30
+        }
+      }
+    },
+    "kg_entity_first_kg": {
+      "answered_rows": 223,
+      "old": {
+        "gps_null_rate": 0.5560538116591929,
+        "gps_auroc_non_null": 0.46236559139784944,
+        "gps_null_breakdown": {
+          "no_q_entities": 0.21076233183856502,
+          "no_a_entities": 0.004484304932735426,
+          "trivial_overlap": 0.34080717488789236
+        },
+        "sps_null_rate": 0.3632286995515695,
+        "sps_auroc_non_null": 0.5105820105820105,
+        "sps_null_breakdown": {
+          "no_q_entities": 0.21076233183856502,
+          "trivial_overlap": 0.15246636771300448
+        }
+      },
+      "new": {
+        "gps_defined": 178,
+        "gps_null_rate": 0.2017937219730942,
+        "gps_auroc_non_null": 0.49522058823529413,
+        "gps_null_breakdown_counts": {
+          "defined": 178,
+          "no_q_entities": 30,
+          "no_a_entities": 1,
+          "trivial_overlap": 14
+        },
+        "sps_defined": 178,
+        "sps_null_rate": 0.2017937219730942,
+        "sps_auroc_non_null": 0.4845588235294118,
+        "sps_null_breakdown_counts": {
+          "defined": 178,
+          "no_q_entities": 30,
+          "no_a_entities": 1,
+          "trivial_overlap": 14
+        }
+      },
+      "recovered": {
+        "gps_from_old_0.5_sentinel_rows": 173,
+        "sps_from_old_null_reason_counts": {
+          "no_q_entities": 12,
+          "trivial_overlap": 32
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,183 @@
+{
+ "note": "Saved-artifact reporting checks; no KG/retrieval/generation reruns.",
+ "answered_counts": {
+  "pubmedqa": {
+   "dense": {
+    "total": 100,
+    "answered": 100,
+    "failures": 0,
+    "failure_rate": 0.0
+   },
+   "kg": {
+    "total": 100,
+    "answered": 100,
+    "failures": 0,
+    "failure_rate": 0.0
+   }
+  },
+  "realmedqa": {
+   "dense": {
+    "total": 230,
+    "answered": 219,
+    "failures": 11,
+    "failure_rate": 0.04782608695652174
+   },
+   "kg": {
+    "total": 230,
+    "answered": 223,
+    "failures": 7,
+    "failure_rate": 0.030434782608695653
+   },
+   "strict_kg": {
+    "total": 230,
+    "answered": 200,
+    "failures": 30,
+    "failure_rate": 0.13043478260869565
+   }
+  },
+  "hotpotqa": {
+   "dense": {
+    "total": 250,
+    "answered": 226,
+    "failures": 24,
+    "failure_rate": 0.096
+   },
+   "kg": {
+    "total": 250,
+    "answered": 238,
+    "failures": 12,
+    "failure_rate": 0.048
+   }
+  },
+  "hotpotqa_fullwiki": {
+   "dense": {
+    "total": 250,
+    "answered": 208,
+    "failures": 42,
+    "failure_rate": 0.168
+   },
+   "kg": {
+    "total": 250,
+    "answered": 218,
+    "failures": 32,
+    "failure_rate": 0.128
+   }
+  },
+  "2wikimultihopqa": {
+   "dense": {
+    "total": 250,
+    "answered": 212,
+    "failures": 38,
+    "failure_rate": 0.152
+   },
+   "kg": {
+    "total": 250,
+    "answered": 244,
+    "failures": 6,
+    "failure_rate": 0.024
+   },
+   "strict_kg": {
+    "total": 250,
+    "answered": 245,
+    "failures": 5,
+    "failure_rate": 0.02
+   }
+  },
+  "musique": {
+   "dense": {
+    "total": 100,
+    "answered": 90,
+    "failures": 10,
+    "failure_rate": 0.1
+   },
+   "kg": {
+    "total": 100,
+    "answered": 94,
+    "failures": 6,
+    "failure_rate": 0.06
+   }
+  }
+ },
+ "realmedqa_adaptive_strict_complete_case": {
+  "adaptive_answered": 223,
+  "strict_answered": 200,
+  "both_answered": 196
+ },
+ "certificate_effect": {
+  "per_dataset_2x2": {
+   "pubmedqa": {
+    "n": 100,
+    "cert_correct": 0,
+    "cert_wrong": 0,
+    "uncert_correct": 73,
+    "uncert_wrong": 27
+   },
+   "realmedqa": {
+    "n": 223,
+    "cert_correct": 48,
+    "cert_wrong": 0,
+    "uncert_correct": 163,
+    "uncert_wrong": 12
+   },
+   "hotpotqa": {
+    "n": 238,
+    "cert_correct": 5,
+    "cert_wrong": 1,
+    "uncert_correct": 139,
+    "uncert_wrong": 93
+   },
+   "hotpotqa_fullwiki": {
+    "n": 218,
+    "cert_correct": 21,
+    "cert_wrong": 5,
+    "uncert_correct": 124,
+    "uncert_wrong": 68
+   },
+   "2wikimultihopqa": {
+    "n": 244,
+    "cert_correct": 4,
+    "cert_wrong": 0,
+    "uncert_correct": 164,
+    "uncert_wrong": 76
+   },
+   "musique": {
+    "n": 94,
+    "cert_correct": 1,
+    "cert_wrong": 1,
+    "uncert_correct": 36,
+    "uncert_wrong": 56
+   }
+  },
+  "pooled_2x2": {
+   "cert_correct": 79,
+   "cert_wrong": 7,
+   "uncert_correct": 699,
+   "uncert_wrong": 332,
+   "odds_ratio_ha": 5.038598999285203
+  },
+  "mantel_haenszel_or": 3.3924638790995107,
+  "bootstrap_ci": [
+   1.637467633304066,
+   10.987916493140528
+  ],
+  "bootstrap_B": 5000
+ },
+ "headline_effect_sizes": {
+  "note": "Rank-biserial r is reported as 2*AUROC-1, with incorrect answers as the positive class.",
+  "realmedqa_adaptive_sd": {
+   "auroc": 0.8076619273301738,
+   "rank_biserial_r": 0.6153238546603477,
+   "n": 223
+  },
+  "realmedqa_strict_sd": {
+   "auroc": 0.23292627770239707,
+   "rank_biserial_r": -0.5341474445952059,
+   "n": 200
+  },
+  "realmedqa_strict_seu": {
+   "auroc": 0.721166892808684,
+   "rank_biserial_r": 0.4423337856173679,
+   "n": 200
+  }
+ }
+}

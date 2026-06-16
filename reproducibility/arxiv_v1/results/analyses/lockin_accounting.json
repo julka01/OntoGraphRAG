@@ -1,0 +1,550 @@
+{
+ "note": "Saved-artifact analysis only; no retrieval/generation reruns.",
+ "definitions": {
+  "silent": "wrong and DSE=0 and SD-UQ <= 1e-9",
+  "seu_contradiction": "SEU > 0.5",
+  "gps_weak_or_abstained": "GPS undefined/abstained or GPS > 0.5",
+  "answer_state_max_recall": "1 - silent_wrong / wrong"
+ },
+ "per_run": {
+  "pubmedqa": {
+   "vanilla": {
+    "answered": 100,
+    "wrong": 25,
+    "silent_wrong": 21,
+    "not_silent_wrong": 4,
+    "answer_state_max_recall": 0.16,
+    "silent_upper_bound_rate": 0.84,
+    "inspectable_lower_bound": 10,
+    "inspectable_lower_bound_rate": 0.4,
+    "fully_deceptive_residue": 11,
+    "fully_deceptive_residue_rate_of_silent": 0.5238095238095238,
+    "route_known_silent": 0,
+    "buckets": {
+     "correct": 75,
+     "wrong_not_silent": 4,
+     "silent_route_unknown_flagged": 10,
+     "silent_route_unknown_calm": 11
+    },
+    "silent_flags": {
+     "seu_contradiction": 10,
+     "gps_weak_or_abstained": 0,
+     "either_non_answer_family": 10
+    },
+    "route_states_among_silent": {
+     "unknown": 21
+    }
+   },
+   "kg": {
+    "answered": 100,
+    "wrong": 27,
+    "silent_wrong": 18,
+    "not_silent_wrong": 9,
+    "answer_state_max_recall": 0.3333333333333333,
+    "silent_upper_bound_rate": 0.6666666666666666,
+    "inspectable_lower_bound": 18,
+    "inspectable_lower_bound_rate": 0.6666666666666666,
+    "fully_deceptive_residue": 0,
+    "fully_deceptive_residue_rate_of_silent": 0.0,
+    "route_known_silent": 0,
+    "buckets": {
+     "correct": 73,
+     "wrong_not_silent": 9,
+     "silent_route_unknown_flagged": 18
+    },
+    "silent_flags": {
+     "seu_contradiction": 9,
+     "gps_weak_or_abstained": 18,
+     "either_non_answer_family": 18
+    },
+    "route_states_among_silent": {
+     "unknown": 18
+    }
+   }
+  },
+  "realmedqa": {
+   "vanilla": {
+    "answered": 219,
+    "wrong": 11,
+    "silent_wrong": 1,
+    "not_silent_wrong": 10,
+    "answer_state_max_recall": 0.9090909090909091,
+    "silent_upper_bound_rate": 0.09090909090909091,
+    "inspectable_lower_bound": 1,
+    "inspectable_lower_bound_rate": 0.09090909090909091,
+    "fully_deceptive_residue": 0,
+    "fully_deceptive_residue_rate_of_silent": 0.0,
+    "route_known_silent": 0,
+    "buckets": {
+     "correct": 208,
+     "wrong_not_silent": 10,
+     "silent_route_unknown_flagged": 1
+    },
+    "silent_flags": {
+     "seu_contradiction": 1,
+     "gps_weak_or_abstained": 0,
+     "either_non_answer_family": 1
+    },
+    "route_states_among_silent": {
+     "unknown": 1
+    }
+   },
+   "kg": {
+    "answered": 223,
+    "wrong": 12,
+    "silent_wrong": 1,
+    "not_silent_wrong": 11,
+    "answer_state_max_recall": 0.9166666666666666,
+    "silent_upper_bound_rate": 0.08333333333333333,
+    "inspectable_lower_bound": 1,
+    "inspectable_lower_bound_rate": 0.08333333333333333,
+    "fully_deceptive_residue": 0,
+    "fully_deceptive_residue_rate_of_silent": 0.0,
+    "route_known_silent": 0,
+    "buckets": {
+     "correct": 211,
+     "wrong_not_silent": 11,
+     "silent_route_unknown_flagged": 1
+    },
+    "silent_flags": {
+     "seu_contradiction": 0,
+     "gps_weak_or_abstained": 1,
+     "either_non_answer_family": 1
+    },
+    "route_states_among_silent": {
+     "unknown": 1
+    }
+   },
+   "strict": {
+    "answered": 200,
+    "wrong": 66,
+    "silent_wrong": 48,
+    "not_silent_wrong": 18,
+    "answer_state_max_recall": 0.2727272727272727,
+    "silent_upper_bound_rate": 0.7272727272727273,
+    "inspectable_lower_bound": 48,
+    "inspectable_lower_bound_rate": 0.7272727272727273,
+    "fully_deceptive_residue": 0,
+    "fully_deceptive_residue_rate_of_silent": 0.0,
+    "route_known_silent": 48,
+    "buckets": {
+     "correct": 134,
+     "silent_empty_route": 48,
+     "wrong_not_silent": 18
+    },
+    "silent_flags": {
+     "seu_contradiction": 0,
+     "gps_weak_or_abstained": 48,
+     "either_non_answer_family": 48
+    },
+    "route_states_among_silent": {
+     "empty": 48
+    }
+   }
+  },
+  "hotpotqa": {
+   "vanilla": {
+    "answered": 226,
+    "wrong": 78,
+    "silent_wrong": 46,
+    "not_silent_wrong": 32,
+    "answer_state_max_recall": 0.41025641025641024,
+    "silent_upper_bound_rate": 0.5897435897435898,
+    "inspectable_lower_bound": 21,
+    "inspectable_lower_bound_rate": 0.2692307692307692,
+    "fully_deceptive_residue": 25,
+    "fully_deceptive_residue_rate_of_silent": 0.5434782608695652,
+    "route_known_silent": 0,
+    "buckets": {
+     "silent_route_unknown_calm": 25,
+     "silent_route_unknown_flagged": 21,
+     "wrong_not_silent": 32,
+     "correct": 148
+    },
+    "silent_flags": {
+     "seu_contradiction": 21,
+     "gps_weak_or_abstained": 0,
+     "either_non_answer_family": 21
+    },
+    "route_states_among_silent": {
+     "unknown": 46
+    }
+   },
+   "kg": {
+    "answered": 238,
+    "wrong": 94,
+    "silent_wrong": 43,
+    "not_silent_wrong": 51,
+    "answer_state_max_recall": 0.5425531914893617,
+    "silent_upper_bound_rate": 0.4574468085106383,
+    "inspectable_lower_bound": 40,
+    "inspectable_lower_bound_rate": 0.425531914893617,
+    "fully_deceptive_residue": 3,
+    "fully_deceptive_residue_rate_of_silent": 0.06976744186046512,
+    "route_known_silent": 37,
+    "buckets": {
+     "silent_populated_seu_contradiction": 13,
+     "wrong_not_silent": 51,
+     "correct": 144,
+     "silent_populated_gps_weak_or_abstained": 22,
+     "silent_route_unknown_calm": 1,
+     "silent_route_unknown_flagged": 5,
+     "silent_all_families_calm": 2
+    },
+    "silent_flags": {
+     "seu_contradiction": 13,
+     "gps_weak_or_abstained": 39,
+     "either_non_answer_family": 40
+    },
+    "route_states_among_silent": {
+     "populated": 37,
+     "unknown": 6
+    }
+   }
+  },
+  "hotpotqa_fullwiki": {
+   "vanilla": {
+    "answered": 208,
+    "wrong": 58,
+    "silent_wrong": 26,
+    "not_silent_wrong": 32,
+    "answer_state_max_recall": 0.5517241379310345,
+    "silent_upper_bound_rate": 0.4482758620689655,
+    "inspectable_lower_bound": 18,
+    "inspectable_lower_bound_rate": 0.3103448275862069,
+    "fully_deceptive_residue": 8,
+    "fully_deceptive_residue_rate_of_silent": 0.3076923076923077,
+    "route_known_silent": 0,
+    "buckets": {
+     "wrong_not_silent": 32,
+     "correct": 150,
+     "silent_route_unknown_flagged": 18,
+     "silent_route_unknown_calm": 8
+    },
+    "silent_flags": {
+     "seu_contradiction": 18,
+     "gps_weak_or_abstained": 0,
+     "either_non_answer_family": 18
+    },
+    "route_states_among_silent": {
+     "unknown": 26
+    }
+   },
+   "kg": {
+    "answered": 218,
+    "wrong": 73,
+    "silent_wrong": 13,
+    "not_silent_wrong": 60,
+    "answer_state_max_recall": 0.821917808219178,
+    "silent_upper_bound_rate": 0.1780821917808219,
+    "inspectable_lower_bound": 11,
+    "inspectable_lower_bound_rate": 0.1506849315068493,
+    "fully_deceptive_residue": 2,
+    "fully_deceptive_residue_rate_of_silent": 0.15384615384615385,
+    "route_known_silent": 11,
+    "buckets": {
+     "silent_all_families_calm": 2,
+     "correct": 145,
+     "silent_populated_gps_weak_or_abstained": 4,
+     "wrong_not_silent": 60,
+     "silent_populated_seu_contradiction": 5,
+     "silent_route_unknown_flagged": 2
+    },
+    "silent_flags": {
+     "seu_contradiction": 6,
+     "gps_weak_or_abstained": 9,
+     "either_non_answer_family": 11
+    },
+    "route_states_among_silent": {
+     "populated": 11,
+     "unknown": 2
+    }
+   }
+  },
+  "2wikimultihopqa": {
+   "vanilla": {
+    "answered": 212,
+    "wrong": 61,
+    "silent_wrong": 48,
+    "not_silent_wrong": 13,
+    "answer_state_max_recall": 0.21311475409836064,
+    "silent_upper_bound_rate": 0.7868852459016393,
+    "inspectable_lower_bound": 29,
+    "inspectable_lower_bound_rate": 0.47540983606557374,
+    "fully_deceptive_residue": 19,
+    "fully_deceptive_residue_rate_of_silent": 0.3958333333333333,
+    "route_known_silent": 0,
+    "buckets": {
+     "wrong_not_silent": 13,
+     "correct": 151,
+     "silent_route_unknown_flagged": 29,
+     "silent_route_unknown_calm": 19
+    },
+    "silent_flags": {
+     "seu_contradiction": 29,
+     "gps_weak_or_abstained": 0,
+     "either_non_answer_family": 29
+    },
+    "route_states_among_silent": {
+     "unknown": 48
+    }
+   },
+   "kg": {
+    "answered": 244,
+    "wrong": 76,
+    "silent_wrong": 42,
+    "not_silent_wrong": 34,
+    "answer_state_max_recall": 0.4473684210526316,
+    "silent_upper_bound_rate": 0.5526315789473685,
+    "inspectable_lower_bound": 41,
+    "inspectable_lower_bound_rate": 0.5394736842105263,
+    "fully_deceptive_residue": 1,
+    "fully_deceptive_residue_rate_of_silent": 0.023809523809523808,
+    "route_known_silent": 41,
+    "buckets": {
+     "silent_populated_seu_contradiction": 22,
+     "wrong_not_silent": 34,
+     "correct": 168,
+     "silent_populated_gps_weak_or_abstained": 18,
+     "silent_route_unknown_flagged": 1,
+     "silent_all_families_calm": 1
+    },
+    "silent_flags": {
+     "seu_contradiction": 22,
+     "gps_weak_or_abstained": 39,
+     "either_non_answer_family": 41
+    },
+    "route_states_among_silent": {
+     "populated": 41,
+     "unknown": 1
+    }
+   },
+   "strict": {
+    "answered": 245,
+    "wrong": 145,
+    "silent_wrong": 130,
+    "not_silent_wrong": 15,
+    "answer_state_max_recall": 0.10344827586206896,
+    "silent_upper_bound_rate": 0.896551724137931,
+    "inspectable_lower_bound": 129,
+    "inspectable_lower_bound_rate": 0.8896551724137931,
+    "fully_deceptive_residue": 1,
+    "fully_deceptive_residue_rate_of_silent": 0.007692307692307693,
+    "route_known_silent": 130,
+    "buckets": {
+     "wrong_not_silent": 15,
+     "correct": 100,
+     "silent_empty_route": 110,
+     "silent_populated_seu_contradiction": 13,
+     "silent_populated_gps_weak_or_abstained": 6,
+     "silent_all_families_calm": 1
+    },
+    "silent_flags": {
+     "seu_contradiction": 13,
+     "gps_weak_or_abstained": 127,
+     "either_non_answer_family": 129
+    },
+    "route_states_among_silent": {
+     "empty": 110,
+     "populated": 20
+    }
+   }
+  },
+  "musique": {
+   "vanilla": {
+    "answered": 90,
+    "wrong": 47,
+    "silent_wrong": 24,
+    "not_silent_wrong": 23,
+    "answer_state_max_recall": 0.48936170212765956,
+    "silent_upper_bound_rate": 0.5106382978723404,
+    "inspectable_lower_bound": 19,
+    "inspectable_lower_bound_rate": 0.40425531914893614,
+    "fully_deceptive_residue": 5,
+    "fully_deceptive_residue_rate_of_silent": 0.20833333333333334,
+    "route_known_silent": 0,
+    "buckets": {
+     "correct": 43,
+     "wrong_not_silent": 23,
+     "silent_route_unknown_flagged": 19,
+     "silent_route_unknown_calm": 5
+    },
+    "silent_flags": {
+     "seu_contradiction": 19,
+     "gps_weak_or_abstained": 0,
+     "either_non_answer_family": 19
+    },
+    "route_states_among_silent": {
+     "unknown": 24
+    }
+   },
+   "kg": {
+    "answered": 94,
+    "wrong": 57,
+    "silent_wrong": 24,
+    "not_silent_wrong": 33,
+    "answer_state_max_recall": 0.5789473684210527,
+    "silent_upper_bound_rate": 0.42105263157894735,
+    "inspectable_lower_bound": 23,
+    "inspectable_lower_bound_rate": 0.40350877192982454,
+    "fully_deceptive_residue": 1,
+    "fully_deceptive_residue_rate_of_silent": 0.041666666666666664,
+    "route_known_silent": 0,
+    "buckets": {
+     "wrong_not_silent": 33,
+     "correct": 37,
+     "silent_route_unknown_flagged": 23,
+     "silent_route_unknown_calm": 1
+    },
+    "silent_flags": {
+     "seu_contradiction": 17,
+     "gps_weak_or_abstained": 21,
+     "either_non_answer_family": 23
+    },
+    "route_states_among_silent": {
+     "unknown": 24
+    }
+   }
+  }
+ },
+ "pooled": {
+  "vanilla": {
+   "answered": 1055,
+   "wrong": 280,
+   "silent_wrong": 166,
+   "not_silent_wrong": 114,
+   "answer_state_max_recall": 0.40714285714285714,
+   "silent_upper_bound_rate": 0.5928571428571429,
+   "inspectable_lower_bound": 98,
+   "inspectable_lower_bound_rate": 0.35,
+   "fully_deceptive_residue": 68,
+   "fully_deceptive_residue_rate_of_silent": 0.40963855421686746,
+   "route_known_silent": 0,
+   "buckets": {
+    "correct": 775,
+    "wrong_not_silent": 114,
+    "silent_route_unknown_flagged": 98,
+    "silent_route_unknown_calm": 68
+   },
+   "silent_flags": {
+    "seu_contradiction": 98,
+    "gps_weak_or_abstained": 0,
+    "either_non_answer_family": 98
+   },
+   "route_states_among_silent": {
+    "unknown": 166
+   }
+  },
+  "kg": {
+   "answered": 1117,
+   "wrong": 339,
+   "silent_wrong": 141,
+   "not_silent_wrong": 198,
+   "answer_state_max_recall": 0.584070796460177,
+   "silent_upper_bound_rate": 0.415929203539823,
+   "inspectable_lower_bound": 134,
+   "inspectable_lower_bound_rate": 0.3952802359882006,
+   "fully_deceptive_residue": 7,
+   "fully_deceptive_residue_rate_of_silent": 0.04964539007092199,
+   "route_known_silent": 89,
+   "buckets": {
+    "correct": 778,
+    "wrong_not_silent": 198,
+    "silent_route_unknown_flagged": 50,
+    "silent_populated_seu_contradiction": 40,
+    "silent_populated_gps_weak_or_abstained": 44,
+    "silent_route_unknown_calm": 2,
+    "silent_all_families_calm": 5
+   },
+   "silent_flags": {
+    "seu_contradiction": 67,
+    "gps_weak_or_abstained": 127,
+    "either_non_answer_family": 134
+   },
+   "route_states_among_silent": {
+    "unknown": 52,
+    "populated": 89
+   }
+  },
+  "strict": {
+   "answered": 445,
+   "wrong": 211,
+   "silent_wrong": 178,
+   "not_silent_wrong": 33,
+   "answer_state_max_recall": 0.15639810426540285,
+   "silent_upper_bound_rate": 0.8436018957345972,
+   "inspectable_lower_bound": 177,
+   "inspectable_lower_bound_rate": 0.8388625592417062,
+   "fully_deceptive_residue": 1,
+   "fully_deceptive_residue_rate_of_silent": 0.0056179775280898875,
+   "route_known_silent": 178,
+   "buckets": {
+    "correct": 234,
+    "silent_empty_route": 158,
+    "wrong_not_silent": 33,
+    "silent_populated_seu_contradiction": 13,
+    "silent_populated_gps_weak_or_abstained": 6,
+    "silent_all_families_calm": 1
+   },
+   "silent_flags": {
+    "seu_contradiction": 13,
+    "gps_weak_or_abstained": 175,
+    "either_non_answer_family": 177
+   },
+   "route_states_among_silent": {
+    "empty": 158,
+    "populated": 20
+   }
+  }
+ },
+ "paired_migration": {
+  "realmedqa": {
+   "shared": 196,
+   "state_transitions": {
+    "correct->correct": 132,
+    "correct->wrong_not_silent": 13,
+    "correct->wrong_silent": 43,
+    "wrong_not_silent->correct": 1,
+    "wrong_not_silent->wrong_not_silent": 4,
+    "wrong_not_silent->wrong_silent": 2,
+    "wrong_silent->wrong_not_silent": 1
+   },
+   "route_transitions": {
+    "unknown->empty": 45,
+    "unknown->populated": 151
+   },
+   "silent_indicator_transitions": {
+    "0->0": 132,
+    "0->1": 47,
+    "1->0": 7,
+    "1->1": 10
+   }
+  },
+  "2wikimultihopqa": {
+   "shared": 242,
+   "state_transitions": {
+    "correct->correct": 78,
+    "correct->wrong_not_silent": 2,
+    "correct->wrong_silent": 87,
+    "wrong_not_silent->correct": 12,
+    "wrong_not_silent->wrong_not_silent": 9,
+    "wrong_not_silent->wrong_silent": 12,
+    "wrong_silent->correct": 8,
+    "wrong_silent->wrong_not_silent": 3,
+    "wrong_silent->wrong_silent": 31
+   },
+   "route_transitions": {
+    "populated->empty": 83,
+    "populated->populated": 125,
+    "unknown->empty": 27,
+    "unknown->populated": 7
+   },
+   "silent_indicator_transitions": {
+    "0->0": 24,
+    "0->1": 41,
+    "1->0": 4,
+    "1->1": 173
+   }
+  }
+ }
+}

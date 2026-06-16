@@ -1,0 +1,27 @@
+\begin{table*}[t]
+\centering
+\small
+\caption{%
+  Hop-wise 2WikiMultiHopQA diagnostics on the same fixed $n=250$ subset.
+  The table uses clean answered rows; $n_{\mathrm{w}}$ is the AUROC positive
+  class.
+  AUROC is omitted when a hop slice has only one correctness class.
+  The $\geq$5-hop bucket contains four questions and is kept only in the
+  released JSON artefact.%
+}
+\label{tab:twowiki_hopwise_diagnostics}
+\setlength{\tabcolsep}{3.4pt}
+\begin{tabular}{@{}llrrrrrrrrrr@{}}
+\toprule
+Policy & Hop & $n$ & $n_{\mathrm{w}}$ & Acc. & SD mean & VN mean & SEU mean &
+SD AUC & VN AUC & SEU AUC & GPS AUC \\
+\midrule
+Dense vanilla & 2-hop & 150 & 42 & 0.720 & 0.000 & 0.092 & 0.612 & 0.615 & 0.639 & 0.615 & 0.491 \\
+Dense vanilla & 4-hop & 58 & 16 & 0.724 & 0.000 & 0.198 & 0.458 & 0.628 & 0.571 & 0.656 & 0.410 \\
+Adaptive KG & 2-hop & 182 & 57 & 0.687 & 0.003 & 0.191 & 0.544 & 0.702 & 0.668 & 0.611 & 0.335 \\
+Adaptive KG & 4-hop & 58 & 16 & 0.724 & 0.002 & 0.248 & 0.466 & 0.600 & 0.638 & 0.646 & 0.452 \\
+Strict KG & 2-hop & 183 & 83 & 0.546 & 0.003 & 0.127 & 0.569 & 0.560 & 0.680 & 0.378 & 0.353 \\
+Strict KG & 4-hop & 58 & 58 & 0.000 & 0.000 & 0.000 & 0.500 & -- & -- & -- & -- \\
+\bottomrule
+\end{tabular}
+\end{table*}

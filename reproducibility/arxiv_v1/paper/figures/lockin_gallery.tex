@@ -1,0 +1,78 @@
+\begin{table*}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.2}
+\caption{%
+  \textbf{Consolidated case gallery from the reported runs.}
+  \texttimes{} rows are verified lock-in failures: the KG answer is wrong yet
+  repeated across all samples ($\mathrm{DSE}=0$, SD-UQ at or near the floor);
+  the diagnostic columns show which family, if any, still fires.
+  \checkmark{} rows are KG successes on bridge questions, where the same
+  retrieval stability is helpful because the path reaches the right entity
+  and relation, plus one correct answer despite GPS abstention.
+  The Baltic Cup row is the hardest failure: the retrieved evidence
+  \emph{entails} the wrong answer, so every scalar family reports low risk and
+  only the provenance trace remains auditable.
+  GPS $=0.5$ denotes abstention.
+  The cases are selected for illustration, not sampled; prevalence claims
+  rest on Tables~\ref{tab:silent_failures} and
+  \ref{tab:failure_taxonomy}, not on this gallery.%
+}
+\label{tab:lockin_gallery}
+\begin{tabular}{@{}c>{\raggedright\arraybackslash}p{0.26\textwidth}
+                  l
+                  >{\raggedright\arraybackslash}p{0.22\textwidth}
+                  l c c@{}}
+\toprule
+\textbf{KG} & \textbf{Question (dataset)} & \textbf{Gold} & \textbf{Anchor / path}
+& \textbf{KG answer} & \textbf{SEU} & \textbf{GPS} \\
+\midrule
+\texttimes & Osireion is behind the temple of which pharaoh? (HotpotQA)
+ & Seti I
+ & \emph{Ramesses II} neighbourhood of the Abydos temple
+ & Ramesses II & $1.00$ & $0.44$ \\
+\texttimes & Who is the paternal grandfather of Uskhal Khan? (2Wiki)
+ & Khutughtu Khan
+ & \emph{Toghon Tem\"ur} (father, one hop; bridge skipped)
+ & Toghon Tem\"ur & $0.60$ & $0.00$ \\
+\texttimes & Who created Mickey Mouse's spouse? (MuSiQue)
+ & Walt Disney
+ & \emph{Ub Iwerks} via Mickey Mouse $\to$ creator
+ & Ub Iwerks & $0.75$ & $0.00$ \\
+\texttimes & Who is Ieuan ab Owain Glynd\^wr's paternal grandfather? (2Wiki)
+ & Gruffudd Fychan II
+ & \emph{Owain Glynd\^wr} (father, one hop; bridge skipped)
+ & Owain Glynd\^wr & $0.43$ & $0.24$ \\
+\texttimes & Which country skipped the 1991 Baltic Cup? (HotpotQA)
+ & Belarus
+ & \emph{Estonia} via Baltic Cup participants
+ & Estonia & $0.00$ & $0.00$ \\
+\texttimes & Are TEC-1 and Dubna 48K based on the same processor? (HotpotQA)
+ & yes
+ & weak graph state; no usable anchor, GPS abstains
+ & no & $0.75$ & $0.50$ \\
+\texttimes & 2010 population of the city popular with tourists? (MuSiQue)
+ & 8.005 million
+ & wrong city; only linkable answer string four hops away
+ & 2{,}217 & $0.67$ & $0.94$ \\
+\midrule
+\checkmark & Who is the spouse of the director of \emph{Fire-Eater}? (2Wiki)
+ & Pirkko Saisio
+ & film $\to$ director $\to$ spouse bridge preserved
+ & Pirkko Saisio & $0.60$ & $0.44$ \\
+\checkmark & Who is the father of the director of \emph{The Cup} (1999)? (2Wiki)
+ & Thinley Norbu
+ & film $\to$ director $\to$ father bridge preserved
+ & Thinley Norbu & $0.69$ & $0.35$ \\
+\checkmark & Birthplace of the director of \emph{Dollar} (1938)? (2Wiki)
+ & Helsingfors
+ & film $\to$ director $\to$ birthplace bridge preserved
+ & Helsingfors & $0.50$ & $0.60$ \\
+\checkmark & Dow Jones fall at the highest US unemployment rate? (MuSiQue)
+ & 54.7\%
+ & chain resolved correctly; GPS still abstains
+ & 54.7\% & $0.72$ & $0.50$ \\
+\bottomrule
+\end{tabular}
+\end{table*}

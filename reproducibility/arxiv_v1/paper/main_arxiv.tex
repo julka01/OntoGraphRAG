@@ -1,0 +1,123 @@
+\documentclass[10pt,twocolumn]{article}
+
+% ── Layout ───────────────────────────────────────────────────────────────────
+\usepackage[margin=0.85in,columnsep=0.24in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{microtype}
+\usepackage{newtxtext,newtxmath}
+\usepackage{abstract}
+\usepackage{dblfloatfix}
+\usepackage[font=small,labelfont=bf]{caption}
+
+% ── Core packages ────────────────────────────────────────────────────────────
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,backgrounds,shapes.geometric,calc}
+\usepackage[authoryear,round]{natbib}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage{xurl}   % allow line breaks inside long bibliography URLs
+
+\usepackage{colortbl}   % \cellcolor for the taxonomy table
+\definecolor{goodgreen}{HTML}{2ECC71}
+\definecolor{badred}{HTML}{E74C3C}
+
+\renewcommand{\figurename}{Figure}
+\renewcommand{\tablename}{Table}
+\renewcommand{\abstractnamefont}{\normalfont\large\bfseries}
+\renewcommand{\abstracttextfont}{\normalfont\small}
+\setlength{\absleftindent}{0.35in}
+\setlength{\absrightindent}{0.35in}
+\setlength{\abovecaptionskip}{6pt}
+\setlength{\belowcaptionskip}{2pt}
+\setlength{\parindent}{1em}
+\setlength{\parskip}{0pt}
+
+% ── Theorem environments ─────────────────────────────────────────────────────
+\newtheorem{definition}{Definition}
+
+% ── Hyphenation hints for long technical terms ───────────────────────────────
+\hyphenation{know-ledge-graph KG-RAG van-il-la sub-graph per-tur-ba-tion
+             cal-i-bra-tion un-cer-tain-ty over-con-fi-dence semi-su-per-vised
+             en-tro-py re-trieval}
+\emergencystretch=2em
+
+% ── Math shorthands ──────────────────────────────────────────────────────────
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\cG}{\mathcal{G}}
+\newcommand{\cE}{\mathcal{E}}
+\newcommand{\cC}{\mathcal{C}}
+\newcommand{\system}{OntoGraphRAG}
+\DeclareMathOperator{\AUROC}{AUROC}
+\DeclareMathOperator{\AUREC}{AUREC}
+
+% ── Title ────────────────────────────────────────────────────────────────────
+\title{When Answer Agreement Fails:\\
+Retrieval-State Lock-In in Retrieval-Augmented Generation}
+\author{\large Sahib Julka\\[0.25em]
+\normalsize LMU University Hospital, LMU Munich\\
+\normalsize \texttt{sahib.julka@med.lmu.de}}
+\date{}
+
+\begin{document}
+
+\twocolumn[
+\maketitle
+\begin{onecolabstract}
+Many black-box uncertainty methods used with retrieval-augmented generation
+(RAG) read agreement among sampled answers as confidence.
+That reasoning fails under \textbf{retrieval-state lock-in}: repeated samples see
+the same defective retrieval state, empty or wrong, and the answer settles around
+the error.
+To diagnose the failure, the analysis separates three objects that a single
+confidence score conflates: answer-state uncertainty (variation across sampled answers),
+evidence-state uncertainty (whether retrieved passages support the answer), and
+retrieval-state diagnostics (whether the graph retrieval state supplies
+answer-relevant support).
+Across six question-answering (QA) snapshots in an ontology-guided
+knowledge-graph RAG (KG-RAG) system, answer-level uncertainty misses many
+errors even under the deployable policies: at the operational five-sample
+budget ($N=5$), $42\%$ of KG-RAG and $59\%$ of dense-retrieval errors show zero answer
+dispersion.
+The collapse is sharpest in a strict graph-only stress test (a mechanism probe,
+not a deployment policy or one-component ablation); there, an answer-dispersion
+score ranks clinical errors worse than chance (AUROC $0.233$).
+A route decomposition splits the silent mass into an empty retrieval state
+(\emph{absence}) and wrong-but-coherent neighbourhoods on bridge questions
+(\emph{presence}); the latter remains open.
+The recommendation follows directly: report the three families separately, and
+treat an answer as low-risk only when all three agree, a conjunctive audit
+rule that selects a small, high-precision subset. The rule is strongest on the
+clinical calibration domain and weaker on open-domain multi-hop QA.
+The point is diagnostic, not a claim that KG-RAG is more accurate than dense
+retrieval: confidence in RAG is object-specific, and exposing the retrieval
+state makes some confidence failures easier to diagnose.
+\end{onecolabstract}
+\vspace{1.0em}
+]
+
+\input{introduction}
+\input{related_work}
+\input{background}
+\input{system_description}
+\input{metric_formulations}
+\input{experimental_setup}
+\input{results}
+\input{conclusion}
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\appendix
+\onecolumn
+\input{appendix}
+
+\end{document}

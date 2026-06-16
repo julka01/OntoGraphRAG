@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "dataset": "pubmedqa",
+  "created_at": "2026-03-29T15:54:51.359184",
+  "selection_strategy": "seeded_sample",
+  "subset_seed": 7,
+  "requested_num_samples": 10,
+  "available_question_count": 500,
+  "selection_count": 10,
+  "question_ids": [
+    "25887165",
+    "17682349",
+    "24622801",
+    "19482903",
+    "8375607",
+    "20850631",
+    "18928979",
+    "19398929",
+    "17062234",
+    "18235194"
+  ],
+  "selection_key": "n10_seed7",
+  "subset_hash": "fa05deebc15e",
+  "subset_tag": "n10_seed7_hfa05deebc15e",
+  "subset_id": "pubmedqa__n10_seed7_hfa05deebc15e"
+}

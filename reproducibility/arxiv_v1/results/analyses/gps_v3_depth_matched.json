@@ -1,0 +1,251 @@
+{
+ "method": "GPS-v3 depth-matched replay from saved GPS-v2 stores",
+ "frozen": {
+  "tau": 0.6,
+  "gamma": 0.4
+ },
+ "adaptive": {
+  "pubmedqa": {
+   "kg": {
+    "answered": 100,
+    "usable": 0,
+    "auroc": null,
+    "ci": [
+     null,
+     null
+    ],
+    "aurec": null
+   },
+   "vanilla": {
+    "answered": 100,
+    "usable": 0,
+    "auroc": null,
+    "ci": [
+     null,
+     null
+    ],
+    "aurec": null
+   },
+   "artifact": "results/latest_kg_design_final_metrics/runs/20260518-171029-pubmedqa-n100-full-metrics-evaluation-subset-rebuildkg/gps_v2_replay_pubmedqa_20260610.json"
+  },
+  "realmedqa": {
+   "kg": {
+    "answered": 223,
+    "usable": 195,
+    "auroc": 0.7574110671936758,
+    "ci": [
+     0.5902395151114582,
+     0.8989251832477639
+    ],
+    "aurec": 0.02182361136147535
+   },
+   "vanilla": {
+    "answered": 219,
+    "usable": 192,
+    "auroc": 0.8889266304347826,
+    "ci": [
+     0.8015721903456859,
+     0.9590850614439325
+    ],
+    "aurec": 0.00602272695683536
+   },
+   "artifact": "results/latest_kg_design_final_metrics/runs/20260527-163249-realmedqa-n230-full-metrics-evaluation-subset-rebuildkg/gps_v2_replay_realmedqa_20260610.json"
+  },
+  "hotpotqa": {
+   "kg": {
+    "answered": 238,
+    "usable": 158,
+    "auroc": 0.5138305322128851,
+    "ci": [
+     0.4181715059341065,
+     0.6097770195406931
+    ],
+    "aurec": 0.3801498247924273
+   },
+   "vanilla": {
+    "answered": 226,
+    "usable": 153,
+    "auroc": 0.5417513206013815,
+    "ci": [
+     0.4364167002755932,
+     0.6400783024038839
+    ],
+    "aurec": 0.2900228691354011
+   },
+   "artifact": "results/latest_kg_design_final_metrics/runs/20260531-174507-hotpotqa-n250-full-metrics-evaluation-subset-rebuildkg/gps_v2_replay_hotpotqa_20260610.json"
+  },
+  "hotpotqa_fullwiki": {
+   "kg": {
+    "answered": 218,
+    "usable": 185,
+    "auroc": 0.5432,
+    "ci": [
+     0.45123153518403814,
+     0.6284347267388121
+    ],
+    "aurec": 0.28132749778137406
+   },
+   "vanilla": {
+    "answered": 208,
+    "usable": 179,
+    "auroc": 0.4725796568627451,
+    "ci": [
+     0.37930799515445185,
+     0.5650405486120004
+    ],
+    "aurec": 0.3001356057411301
+   },
+   "artifact": "results/latest_kg_design_final_metrics/runs/20260602-121814-hotpotqa-fullwiki-n250-full-metrics-evaluation-subset-rebuildkg/gps_v2_replay_hotpotqa_fullwiki_20260610.json"
+  },
+  "2wikimultihopqa": {
+   "kg": {
+    "answered": 244,
+    "usable": 182,
+    "auroc": 0.3844246031746032,
+    "ci": [
+     0.3053239725025596,
+     0.46707610692177637
+    ],
+    "aurec": 0.3702925899664673
+   },
+   "vanilla": {
+    "answered": 212,
+    "usable": 151,
+    "auroc": 0.45484234234234233,
+    "ci": [
+     0.37037862651372655,
+     0.5418352345118648
+    ],
+    "aurec": 0.26295845040357657
+   },
+   "artifact": "results/latest_kg_design_final_metrics/runs/20260528-231830-2wikimultihopqa-n250-full-metrics-evaluation-subset-rebuildkg/gps_v2_replay_2wikimultihopqa_20260610.json"
+  },
+  "musique": {
+   "kg": {
+    "answered": 94,
+    "usable": 83,
+    "auroc": 0.6816789215686274,
+    "ci": [
+     0.5578766233766234,
+     0.7959084268349697
+    ],
+    "aurec": 0.46779700177400074
+   },
+   "vanilla": {
+    "answered": 90,
+    "usable": 75,
+    "auroc": 0.615,
+    "ci": [
+     0.48313203373687247,
+     0.7354389359141882
+    ],
+    "aurec": 0.4386011372351838
+   },
+   "artifact": "results/latest_kg_design_final_metrics/runs/20260519-163109-musique-n100-full-metrics-evaluation-subset-rebuildkg/gps_v2_replay_musique_20260610.json"
+  }
+ },
+ "strict": {
+  "realmedqa": {
+   "kg": {
+    "answered": 200,
+    "usable": 142,
+    "auroc": 0.7455357142857144,
+    "ci": [
+     0.606053409506095,
+     0.8666826923076922
+    ],
+    "aurec": 0.045909393754989467
+   },
+   "artifact": "results/latest_kg_design_final_metrics/runs/20260528-174538-realmedqa-n230-full-metrics-evaluation-subset/gps_v2_replay_realmedqa_strict_20260610.json"
+  },
+  "2wikimultihopqa": {
+   "kg": {
+    "answered": 245,
+    "usable": 99,
+    "auroc": 0.4834004024144869,
+    "ci": [
+     0.3717516069788797,
+     0.5973762129683181
+    ],
+    "aurec": 0.26721248893229377
+   },
+   "artifact": "results/latest_kg_design_final_metrics/runs/20260529-120453-2wikimultihopqa-n250-full-metrics-evaluation-subset/gps_v2_replay_2wikimultihopqa_strict_20260610.json"
+  }
+ },
+ "correlations": {
+  "sd_vs_seu": {
+   "rho": 0.03433911288609434,
+   "ci": [
+    -0.039134308164138355,
+    0.10471027356893514
+   ],
+   "n": 803
+  },
+  "sd_vs_gps": {
+   "rho": -0.26527136556620284,
+   "ci": [
+    -0.33023103033084783,
+    -0.19594130413505517
+   ],
+   "n": 803
+  },
+  "seu_vs_gps": {
+   "rho": -0.09933459386528493,
+   "ci": [
+    -0.16335016986653497,
+    -0.03250148270718265
+   ],
+   "n": 803
+  }
+ },
+ "composite": {
+  "pubmedqa": {
+   "n": 100,
+   "sd_auc": 0.6986301369863014,
+   "seu_auc": 0.5943683409436835,
+   "gps_risk_auc": 0.5,
+   "combined_auc": 0.8132927447995941,
+   "combined_aurec": 0.09729408345193587
+  },
+  "realmedqa": {
+   "n": 223,
+   "sd_auc": 0.8076619273301738,
+   "seu_auc": 0.5013823064770933,
+   "gps_risk_auc": 0.7031990521327014,
+   "combined_auc": 0.7290679304897314,
+   "combined_aurec": 0.022131551299752274
+  },
+  "hotpotqa": {
+   "n": 238,
+   "sd_auc": 0.6354905437352245,
+   "seu_auc": 0.47691341607565013,
+   "gps_risk_auc": 0.5506796690307328,
+   "combined_auc": 0.5725842198581561,
+   "combined_aurec": 0.32931284507296377
+  },
+  "hotpotqa_fullwiki": {
+   "n": 218,
+   "sd_auc": 0.6717052432687767,
+   "seu_auc": 0.5646669815777043,
+   "gps_risk_auc": 0.549456778460085,
+   "combined_auc": 0.6607463391591875,
+   "combined_aurec": 0.22878122965085135
+  },
+  "2wikimultihopqa": {
+   "n": 244,
+   "sd_auc": 0.6851112155388471,
+   "seu_auc": 0.6425046992481203,
+   "gps_risk_auc": 0.41412124060150374,
+   "combined_auc": 0.6188909774436091,
+   "combined_aurec": 0.2253961637965682
+  },
+  "musique": {
+   "n": 94,
+   "sd_auc": 0.6311047889995257,
+   "seu_auc": 0.6263632053105737,
+   "gps_risk_auc": 0.6396396396396397,
+   "combined_auc": 0.7446657183499287,
+   "combined_aurec": 0.4313132483167665
+  }
+ }
+}

@@ -1,0 +1,77 @@
+\begin{figure}[t]
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tikzpicture}[
+  font=\footnotesize\sffamily,
+  >={Stealth[length=2mm,width=1.5mm]},
+  stage/.style={draw=black!55, line width=0.5pt, rounded corners=2pt,
+                fill=white, minimum height=0.62cm, minimum width=3.45cm,
+                align=center, inner xsep=5pt, inner ysep=3pt,
+                font=\footnotesize\sffamily},
+  bad/.style={stage, draw=badred!75!black, fill=badred!8},
+  note/.style={font=\scriptsize\itshape\sffamily, text=black!55,
+               align=left, anchor=west},
+  raillab/.style={font=\scriptsize\sffamily, align=center, rotate=90},
+  flow/.style={->, line width=0.55pt, black!60},
+]
+\node[stage] (q)    at (0,0)     {Question};
+\node[bad]   (anc)  at (0,-1.0)  {Wrong entity anchor};
+\node[bad]   (nbh)  at (0,-2.1)  {Retrieved graph\\neighbourhood};
+\node[bad]   (ret)  at (0,-3.2)  {Repeated retrieval state};
+\node[bad]   (ans)  at (0,-4.2)  {Repeated wrong answer};
+\node[bad]   (unc)  at (0,-5.3)  {Near-zero answer\\uncertainty};
+
+\draw[flow] (q) -- (anc);
+\draw[flow] (anc) -- (nbh);
+\draw[flow] (nbh) -- (ret);
+\draw[flow] (ret) -- (ans)
+  node[midway, right=2pt, font=\scriptsize\sffamily, text=black!50]
+  {$\times\,N$ samples};
+\draw[flow] (ans) -- (unc);
+
+% ── diagnostic rail: which family observes which stage ──────────────────────
+% retrieval-state family: anchor + neighbourhood
+\draw[line width=2.2pt, black!30]
+  (-2.00,-0.70) -- (-2.00,-2.45);
+\node[raillab, text=black!45] at (-2.30,-1.58)
+  {retrieval-state\\GPS $0.44$ (supported)};
+% evidence-state family (the one that fires): retrieval state vs answer
+\draw[line width=2.2pt, badred!75!black]
+  (-2.00,-2.85) -- (-2.00,-4.55);
+\node[raillab, text=badred!75!black, font=\scriptsize\bfseries\sffamily]
+  at (-2.30,-3.70) {evidence-state\\SEU $=1.0$ fires};
+% answer-state family (silent by construction)
+\draw[line width=2.2pt, black!30]
+  (-2.00,-4.95) -- (-2.00,-5.65);
+\node[raillab, text=black!45] at (-2.30,-5.30)
+  {answer-state\\silent};
+
+\node[note] at (1.95,0)
+  {``Osireion \ldots\ named after\\which pharaoh?'' (gold: Seti~I)};
+\node[note] at (1.95,-1.0) {Ramesses~II};
+\node[note] at (1.95,-2.1) {coherent, wrong builder};
+\node[note] at (1.95,-3.2) {same evidence every sample};
+\node[note] at (1.95,-4.2) {``Ramesses~II'' $\times 5$};
+\node[note] at (1.95,-5.3)
+  {$\mathrm{DSE}=0$, $\mathrm{SD\text{-}UQ}\approx 0$};
+\end{tikzpicture}%
+}
+\caption{%
+  \textbf{Worked presence-lock-in trace}, instantiated with the
+  HotpotQA Osireion case also listed in
+  Appendix Table~\ref{tab:lockin_gallery}.
+  The retriever anchors to a strongly associated but wrong entity, the
+  resulting graph neighbourhood is internally coherent, every sample receives
+  the same evidence, and the repeated wrong answer presents near-zero
+  answer-state uncertainty.
+  The left rail shows where each diagnostic family attaches: the answer-state
+  family is silent by construction, GPS remains low because the wrong answer
+  is reachable in the retrieved graph, and only the evidence-state signal
+  fires---the retrieved passages contradict the repeated answer.
+  This traces the \emph{presence} variant; in the \emph{absence} variant
+  (Section~\ref{sec:results_collapse}) the chain instead repeats an empty
+  retrieval state, and the warning moves to the retrieval-state abstention
+  observable.%
+}
+\label{fig:lockin_trace}
+\end{figure}

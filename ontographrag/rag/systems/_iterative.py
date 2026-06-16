@@ -2,6 +2,7 @@ import logging
 from typing import Dict, Any, List, Optional
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
+from ontographrag.rag.graph_state import summarize_context_graph_state
 
 class IterativeRetrievalMixin:
     """Iterative multi-hop sub-question retrieval.
@@ -70,6 +71,8 @@ class IterativeRetrievalMixin:
         similarity_threshold: float,
         document_names: List[str],
         question_id: str = None,
+        anchor_mask_entity_ids: Optional[List[str]] = None,
+        anchor_mask_entity_names: Optional[List[str]] = None,
     ) -> Optional[Dict[str, Any]]:
         """
         Per-hop retrieval with bridge answer extraction between hops (IRCoT / StepChain).
@@ -143,6 +146,8 @@ class IterativeRetrievalMixin:
                 question_id=question_id,
                 llm=llm,
                 document_names=document_names,
+                anchor_mask_entity_ids=anchor_mask_entity_ids,
+                anchor_mask_entity_names=anchor_mask_entity_names,
             )
 
             # Hybrid retrieval for multi-hop KG-RAG:
@@ -382,7 +387,7 @@ class IterativeRetrievalMixin:
         final_total_score = sum(c.get("score", 0.0) for c in all_chunks)
         final_docs = {c["document"] for c in all_chunks if c.get("document")}
 
-        return {
+        result = {
             "query": question,
             "chunks": all_chunks,
             "entities": merged_entities,
@@ -402,8 +407,16 @@ class IterativeRetrievalMixin:
                 "retrieval_mode_config": getattr(self, "retrieval_mode", "hybrid_auto"),
                 "subquestion_count": len(sub_questions),
                 "active_hop_count": len(active_hops),
+                "anchor_mask_entity_ids": [
+                    str(eid) for eid in (anchor_mask_entity_ids or []) if str(eid).strip()
+                ],
+                "anchor_mask_entity_names": [
+                    str(name) for name in (anchor_mask_entity_names or []) if str(name).strip()
+                ],
             },
             # Anchored to hop-0 question-entity matches only, not bridge-induced later hops
             "seed_entity_count": _hop0_seed_count,
             "grounding_quality": _hop0_grounding,
         }
+        result["graph_state"] = summarize_context_graph_state(result)
+        return result

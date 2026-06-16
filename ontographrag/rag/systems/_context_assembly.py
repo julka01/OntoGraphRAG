@@ -1,5 +1,6 @@
 import logging
 from typing import Dict, Any, List, Optional, Set, Tuple
+from ontographrag.rag.graph_state import summarize_context_graph_state
 from ontographrag.rag.retrieval_sampling import (
     compute_candidate_limit,
     select_ranked_subset,
@@ -253,6 +254,7 @@ class ContextAssemblyMixin:
                 )
             ),
         }
+        pruned["graph_state"] = summarize_context_graph_state(pruned)
         return pruned
 
     @classmethod

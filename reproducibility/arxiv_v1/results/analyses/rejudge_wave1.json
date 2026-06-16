@@ -1,0 +1,113 @@
+{
+ "judge_model": "meta-llama/llama-3.3-70b-instruct",
+ "hotpotqa_kg": {
+  "n_judged": 238,
+  "n_failed": 0,
+  "agreement": 0.9663865546218487,
+  "kappa": 0.9306930693069307,
+  "accuracy_original": 0.6050420168067226,
+  "accuracy_independent": 0.5714285714285714,
+  "auroc_under_independent_labels": {
+   "sd_uq": {
+    "auroc": 0.6089965397923877,
+    "n": 238
+   },
+   "seu": {
+    "auroc": 0.47887831603229525,
+    "n": 238
+   },
+   "gps": {
+    "auroc": 0.5598162071846282,
+    "n": 158
+   }
+  }
+ },
+ "hotpotqa_fullwiki_kg": {
+  "n_judged": 218,
+  "n_failed": 0,
+  "agreement": 0.9541284403669725,
+  "kappa": 0.8997516784696036,
+  "accuracy_original": 0.6651376146788991,
+  "accuracy_independent": 0.6284403669724771,
+  "auroc_under_independent_labels": {
+   "sd_uq": {
+    "auroc": 0.6362980985852031,
+    "n": 218
+   },
+   "seu": {
+    "auroc": 0.5694331801387762,
+    "n": 218
+   },
+   "gps": {
+    "auroc": 0.5079960019990005,
+    "n": 185
+   }
+  }
+ },
+ "2wikimultihopqa_kg": {
+  "n_judged": 244,
+  "n_failed": 0,
+  "agreement": 0.9877049180327869,
+  "kappa": 0.9714374902450444,
+  "accuracy_original": 0.6885245901639344,
+  "accuracy_independent": 0.6844262295081968,
+  "auroc_under_independent_labels": {
+   "sd_uq": {
+    "auroc": 0.7032817481919278,
+    "n": 244
+   },
+   "seu": {
+    "auroc": 0.6304533789563729,
+    "n": 244
+   },
+   "gps": {
+    "auroc": 0.3495438596491228,
+    "n": 182
+   }
+  }
+ },
+ "2wikimultihopqa_strict": {
+  "n_judged": 245,
+  "n_failed": 0,
+  "agreement": 0.9836734693877551,
+  "kappa": 0.9659958362248439,
+  "accuracy_original": 0.40816326530612246,
+  "accuracy_independent": 0.39183673469387753,
+  "auroc_under_independent_labels": {
+   "sd_uq": {
+    "auroc": 0.5199944071588367,
+    "n": 245
+   },
+   "seu": {
+    "auroc": 0.34063898210290827,
+    "n": 245
+   },
+   "gps": {
+    "auroc": 0.3776091081593928,
+    "n": 99
+   }
+  }
+ },
+ "musique_kg": {
+  "n_judged": 94,
+  "n_failed": 0,
+  "agreement": 0.9148936170212766,
+  "kappa": 0.8233912635039925,
+  "accuracy_original": 0.39361702127659576,
+  "accuracy_independent": 0.4148936170212766,
+  "auroc_under_independent_labels": {
+   "sd_uq": {
+    "auroc": 0.6177156177156178,
+    "n": 94
+   },
+   "seu": {
+    "auroc": 0.6337995337995339,
+    "n": 94
+   },
+   "gps": {
+    "auroc": 0.5798319327731092,
+    "n": 83
+   }
+  }
+ }
+}

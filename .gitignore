@@ -69,6 +69,7 @@ references.bib
 
 # ── Stray directories ─────────────────────────────────────────────────────────
 Users/
+Library/
 
 # Ignore internal Markdown notes, but publish the README-referenced docs.
 *.md
@@ -109,3 +110,9 @@ paper/
 node_modules/
 apoc/
 *.tmp
+.cache/
+
+# ── Release/reproducibility bundles ─────────────────────────────────────────
+!reproducibility/
+!reproducibility/arxiv_v1/
+!reproducibility/arxiv_v1/**

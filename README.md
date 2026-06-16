@@ -154,6 +154,16 @@ tables, per-config AUROC/AUREC summaries, and metric charts. Authenticate with
 run without an account. Local artefacts under `results/runs/<run_id>/` are
 always written either way.
 
+## Reproducing the paper tables
+
+The arXiv v1 paper package is under `reproducibility/arxiv_v1/`. Its
+`MANIFEST.json` records the cached artefacts used for the reported tables and
+figures, including sampled question IDs, saved run outputs, analysis JSONs, GPS
+replay files, generated figure/table sources, and `paper/main_arxiv.pdf`.
+Run `python3 scripts/check_arxiv_package.py` to verify file hashes, source
+phrasing, figure/table references, and a local `tectonic` build. The cached
+check does not rerun KG construction, retrieval, generation, or judging.
+
 ## Configuration
 
 [`.env.example`](.env.example) documents the core variables: Neo4j connection,

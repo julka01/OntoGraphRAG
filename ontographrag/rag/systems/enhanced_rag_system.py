@@ -10,6 +10,7 @@ from ontographrag.rag.answer_guardrails import (
     RUNTIME_GUARDRAIL_ABSTENTION,
     evaluate_runtime_answer_guardrail,
 )
+from ontographrag.rag.graph_state import summarize_context_graph_state
 from ontographrag.rag.retrieval_sampling import compute_candidate_limit
 from ontographrag.rag.reranking import (
     late_interaction_rescore_chunks_for_query,
@@ -258,6 +259,8 @@ Question: {question}"""),
         retrieval_shortlist_factor: int = 4,
         retrieval_sample_id: int = 0,
         llm=None,
+        anchor_mask_entity_ids: Optional[List[str]] = None,
+        anchor_mask_entity_names: Optional[List[str]] = None,
     ) -> Dict[str, Any]:
         """
         Get comprehensive RAG context including chunks, entities, and relationships using vector search.
@@ -352,6 +355,8 @@ Question: {question}"""),
                     question_id=question_id,
                     llm=llm,
                     document_names=document_names,
+                    anchor_mask_entity_ids=anchor_mask_entity_ids,
+                    anchor_mask_entity_names=anchor_mask_entity_names,
                 )
             if entity_context and entity_context["chunks"]:
                 logging.info(
@@ -422,6 +427,8 @@ Question: {question}"""),
                     max_hops=max_hops,
                     question_id=question_id,
                     document_names=document_names,
+                    anchor_mask_entity_ids=anchor_mask_entity_ids,
+                    anchor_mask_entity_names=anchor_mask_entity_names,
                 )
             if rfge_ctx and rfge_ctx.get("chunks"):
                 logging.info(
@@ -752,6 +759,8 @@ Question: {question}"""),
         retrieval_temperature: float = 0.0,
         retrieval_shortlist_factor: int = 4,
         retrieval_sample_id: int = 0,
+        anchor_mask_entity_ids: Optional[List[str]] = None,
+        anchor_mask_entity_names: Optional[List[str]] = None,
     ) -> Dict[str, Any]:
         """
         Generate a RAG response using the knowledge graph with adaptive retrieval.
@@ -793,6 +802,8 @@ Question: {question}"""),
                         similarity_threshold=similarity_threshold,
                         document_names=document_names or [],
                         question_id=question_id,
+                        anchor_mask_entity_ids=anchor_mask_entity_ids,
+                        anchor_mask_entity_names=anchor_mask_entity_names,
                     )
                     if mh_ctx and mh_ctx.get("chunks"):
                         context = mh_ctx
@@ -818,6 +829,8 @@ Question: {question}"""),
                     retrieval_shortlist_factor=retrieval_shortlist_factor,
                     retrieval_sample_id=retrieval_sample_id,
                     llm=llm,
+                    anchor_mask_entity_ids=anchor_mask_entity_ids,
+                    anchor_mask_entity_names=anchor_mask_entity_names,
                 )
 
             if self._should_run_query_fusion(question, context, max_hops=max_hops):
@@ -837,6 +850,8 @@ Question: {question}"""),
                             retrieval_shortlist_factor=retrieval_shortlist_factor,
                             retrieval_sample_id=retrieval_sample_id,
                             llm=llm,
+                            anchor_mask_entity_ids=anchor_mask_entity_ids,
+                            anchor_mask_entity_names=anchor_mask_entity_names,
                         )
                     except Exception as fusion_exc:
                         logging.debug(
@@ -1022,6 +1037,7 @@ Question: {question}"""),
                 confidence = min(confidence, 0.6)
             if guardrail.get("enabled") and guardrail.get("final_decision") not in {"keep", "retry_keep"}:
                 confidence = 0.0
+            context["graph_state"] = summarize_context_graph_state(context)
 
             return {
                 "response": response,

@@ -46,6 +46,7 @@ os.environ["EMBEDDING_PROVIDER"] = "sentence_transformers"
 
 from ontographrag.rag.systems.vanilla_rag_system import VanillaRAGSystem
 from ontographrag.rag.systems.enhanced_rag_system import EnhancedRAGSystem
+from ontographrag.rag.graph_state import graph_state_diversity, summarize_context_graph_state
 from ontographrag.providers.model_providers import (
     get_provider as get_model_provider,
     LangChainRunnableAdapter,
@@ -1470,7 +1471,19 @@ class MIRAGEEvaluationPipeline:
             "grounding_quality", "seed_entity_count",
             "vanilla_search_method", "kg_search_method",
             "kg_retrieval_route", "kg_route_reason",
+            "vanilla_retrieval_overlap", "kg_retrieval_overlap",
             "kg_retrieval_mode_config",
+        ]
+        # Per-sample graph-state diversity across the N uncertainty samples
+        + [
+            "kg_graph_state_sample_count",
+            "kg_seed_entity_jaccard", "kg_path_jaccard",
+            "kg_subgraph_jaccard", "kg_chunk_jaccard",
+            "kg_seed_entity_entropy", "kg_seed_entity_entropy_norm",
+            "kg_path_entropy", "kg_path_entropy_norm",
+            "kg_subgraph_entropy", "kg_subgraph_entropy_norm",
+            "kg_chunk_entropy", "kg_chunk_entropy_norm",
+            "kg_dominant_seed_entity_id", "kg_dominant_seed_entity_fraction",
         ]
         # Canonical UQ metrics × 2 systems
         + [f"{sys}_{m}"
@@ -1955,7 +1968,8 @@ class MIRAGEEvaluationPipeline:
         retrieval_temperature: float = 0.0,
         retrieval_shortlist_factor: int = 4,
         generate_kwargs: Optional[Dict[str, Any]] = None,
-    ) -> Tuple[List[str], List[str], float]:
+        return_graph_state_traces: bool = False,
+    ):
         """Collect multiple responses for proper semantic-entropy estimation.
 
         extra_context_texts is NOT forwarded to sampling calls — retrieval must
@@ -1974,6 +1988,7 @@ class MIRAGEEvaluationPipeline:
         responses: List[str] = []
         retrieved_chunk_texts: List[str] = []
         per_sample_chunk_sets: List[set] = []
+        graph_state_traces: List[Dict[str, Any]] = []
 
         # Base result is only used as a retrieval-context anchor. The output-side
         # UQ sample set must come from one consistent sampling policy, so we do
@@ -2011,6 +2026,12 @@ class MIRAGEEvaluationPipeline:
 
                 sample_chunks = self._extract_chunk_texts_from_result(sampled_result)
                 per_sample_chunk_sets.append(set(sample_chunks))
+                if return_graph_state_traces:
+                    sample_context = sampled_result.get("context", {}) or {}
+                    graph_state_traces.append(
+                        sample_context.get("graph_state")
+                        or summarize_context_graph_state(sample_context)
+                    )
 
                 # If we still don't have chunk context, take from sampled call
                 if not retrieved_chunk_texts:
@@ -2023,6 +2044,8 @@ class MIRAGEEvaluationPipeline:
             responses = [str(base_result.get("response", "")).strip()]
 
         mean_jaccard = self._mean_pairwise_jaccard(per_sample_chunk_sets)
+        if return_graph_state_traces:
+            return responses, retrieved_chunk_texts, mean_jaccard, graph_state_traces
         return responses, retrieved_chunk_texts, mean_jaccard
         
     def _get_neo4j_driver(self):
@@ -3468,10 +3491,17 @@ class MIRAGEEvaluationPipeline:
                     kg_samples = []
                     kg_chunk_texts = self._extract_chunk_texts_from_result(kg_result)
                     kg_retrieval_overlap = 0.0
+                    kg_graph_state_traces = []
+                    kg_graph_state_diversity = graph_state_diversity([])
                     kg_uncertainty = self._default_uncertainty_metrics()
                 else:
                     with self._temporary_env(retrieval_env_overrides):
-                        kg_samples, kg_chunk_texts, kg_retrieval_overlap = self._collect_sample_responses(
+                        (
+                            kg_samples,
+                            kg_chunk_texts,
+                            kg_retrieval_overlap,
+                            kg_graph_state_traces,
+                        ) = self._collect_sample_responses(
                             rag_system=kg_rag,
                             question=question,
                             answer_instructions=answer_instructions,
@@ -3482,6 +3512,7 @@ class MIRAGEEvaluationPipeline:
                             question_id=_question_id,
                             retrieval_temperature=retrieval_temperature,
                             retrieval_shortlist_factor=retrieval_shortlist_factor,
+                            return_graph_state_traces=True,
                             generate_kwargs={
                                 "allow_decomposition": bool(
                                     kg_generation.get("allow_decomposition", task_type not in {"binary"})
@@ -3489,6 +3520,7 @@ class MIRAGEEvaluationPipeline:
                                 "runtime_guardrail": kg_generation.get("runtime_guardrail"),
                             },
                         )
+                    kg_graph_state_diversity = graph_state_diversity(kg_graph_state_traces)
                     kg_context_str = "\n\n".join(kg_chunk_texts[:3]) if kg_chunk_texts else ""
                     kg_uncertainty = compute_all_uncertainty_metrics(
                         responses=kg_samples,
@@ -3500,6 +3532,25 @@ class MIRAGEEvaluationPipeline:
 
                 vanilla_retrieval_overlaps.append(float(vanilla_retrieval_overlap or 0.0))
                 kg_retrieval_overlaps.append(float(kg_retrieval_overlap or 0.0))
+                detail_entry.update({
+                    "kg_graph_state_sample_count": kg_graph_state_diversity.get("sample_count", 0),
+                    "kg_seed_entity_entropy": kg_graph_state_diversity.get("seed_entity_entropy", 0.0),
+                    "kg_seed_entity_entropy_norm": kg_graph_state_diversity.get("seed_entity_entropy_norm", 0.0),
+                    "kg_path_entropy": kg_graph_state_diversity.get("path_entropy", 0.0),
+                    "kg_path_entropy_norm": kg_graph_state_diversity.get("path_entropy_norm", 0.0),
+                    "kg_subgraph_entropy": kg_graph_state_diversity.get("subgraph_entropy", 0.0),
+                    "kg_subgraph_entropy_norm": kg_graph_state_diversity.get("subgraph_entropy_norm", 0.0),
+                    "kg_chunk_entropy": kg_graph_state_diversity.get("chunk_entropy", 0.0),
+                    "kg_chunk_entropy_norm": kg_graph_state_diversity.get("chunk_entropy_norm", 0.0),
+                    "kg_seed_entity_jaccard": kg_graph_state_diversity.get("seed_entity_jaccard", 0.0),
+                    "kg_path_jaccard": kg_graph_state_diversity.get("path_jaccard", 0.0),
+                    "kg_subgraph_jaccard": kg_graph_state_diversity.get("subgraph_jaccard", 0.0),
+                    "kg_chunk_jaccard": kg_graph_state_diversity.get("chunk_jaccard", 0.0),
+                    "kg_dominant_seed_entity_id": kg_graph_state_diversity.get("dominant_seed_entity_id", ""),
+                    "kg_dominant_seed_entity_fraction": kg_graph_state_diversity.get("dominant_seed_entity_fraction", 0.0),
+                    # Keep bounded raw traces for targeted debugging/intervention selection.
+                    "kg_graph_state_traces": kg_graph_state_traces[: self.entropy_samples],
+                })
 
                 # Structural metrics: graph-based uncertainty (no extra LLM sampling).
                 _structural_max_hops = self._structural_metric_max_hops(

@@ -1284,14 +1284,16 @@ async def chat(request: Request, body: dict = Body(..., max_length=65536)):
                 result["response_raw"] = result.get("response", "")
                 result["response"] = normalized_response
 
-        # Compute GPS confidence score (best structural metric): fraction of answer
-        # entities reachable from question entities in the KG.  GPS = 1 − support,
-        # so confidence = 1 − GPS = support.  Only computed when a KG is loaded.
+        # Compute GPS-derived structural support: fraction of answer entities
+        # reachable from question entities in the KG. GPS = 1 - support, so
+        # support = 1 - GPS. Undefined GPS remains unavailable rather than
+        # being exposed as the 0.5 sentinel used by legacy scalar callers.
         kg_confidence: Optional[float] = None
+        kg_confidence_null_reason: Optional[str] = None
         if kg_name and "response" in result:
             try:
-                from experiments.uncertainty_metrics import compute_graph_path_support
-                _gps = compute_graph_path_support(
+                from experiments.uncertainty_metrics import compute_graph_path_support_detailed
+                _gps_detail = compute_graph_path_support_detailed(
                     question=question,
                     answer=result["response"],
                     neo4j_uri=os.getenv("NEO4J_URI", "bolt://localhost:7687"),
@@ -1300,8 +1302,10 @@ async def chat(request: Request, body: dict = Body(..., max_length=65536)):
                     neo4j_database=os.getenv("NEO4J_DATABASE", "neo4j"),
                     kg_name=kg_name,
                 )
-                # GPS is uncertainty (0 = fully supported); convert to confidence
-                kg_confidence = round(1.0 - _gps, 3) if _gps is not None else None
+                kg_confidence_null_reason = _gps_detail.get("null_reason")
+                _gps = _gps_detail.get("score")
+                if not kg_confidence_null_reason and _gps is not None:
+                    kg_confidence = round(1.0 - float(_gps), 3)
             except Exception as _conf_err:
                 logger.debug("GPS confidence computation skipped: %s", _conf_err)
 
@@ -1377,8 +1381,10 @@ async def chat(request: Request, body: dict = Body(..., max_length=65536)):
                 "entity_count": result.get("entity_count", 0),
                 "relationship_count": result.get("relationship_count", 0),
                 "confidence": result.get("confidence", 0.0),
-                "kg_confidence": kg_confidence,   # Graph Path Support (GPS) structural confidence score
+                "kg_confidence": kg_confidence,   # GPS-derived structural support
+                "kg_confidence_null_reason": kg_confidence_null_reason,
                 "structural_support": kg_confidence,
+                "structural_support_null_reason": kg_confidence_null_reason,
                 "grounding_support": grounding_support,
                 "guardrail": result.get("guardrail", {}),
                 "dataset_name": dataset_name or None,

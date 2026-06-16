@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "dataset": "hotpotqa",
+  "created_at": "2026-03-29T15:54:51.593919",
+  "selection_strategy": "seeded_sample",
+  "subset_seed": 7,
+  "requested_num_samples": 10,
+  "available_question_count": 7395,
+  "selection_count": 10,
+  "question_ids": [
+    "5abe689a55429976d4830b16",
+    "5ab7f7465542993667794071",
+    "5a77b0395542997042120ae1",
+    "5a7a845755429941d65f2684",
+    "5a7e0ed25542991319bc9424",
+    "5a7fd6fc5542995d8a8ddf31",
+    "5a83a4bc554299123d8c217f",
+    "5a737e4655429908901be2cc",
+    "5a7eb8f655429934daa2fc50",
+    "5ade61fd554299728e26c704"
+  ],
+  "selection_key": "n10_seed7",
+  "subset_hash": "abcd9788b051",
+  "subset_tag": "n10_seed7_habcd9788b051",
+  "subset_id": "hotpotqa__n10_seed7_habcd9788b051"
+}

@@ -1,0 +1,515 @@
+{
+  "datasets": [
+    "realmedqa"
+  ],
+  "num_samples_per_dataset": 100,
+  "subset_seed": 42,
+  "evaluation_mode": "full_metrics",
+  "retrieval_study": "strict_entity",
+  "kg_builder_profile": "full",
+  "judge_model": "openai/gpt-4o-mini",
+  "generation_model": "openai/gpt-4o-mini",
+  "judge_independent": false,
+  "metric_names": [
+    "semantic_entropy",
+    "discrete_semantic_entropy",
+    "sre_uq",
+    "p_true",
+    "selfcheckgpt",
+    "vn_entropy",
+    "sd_uq",
+    "graph_path_support",
+    "graph_path_disagreement",
+    "competing_answer_alternatives",
+    "evidence_vn_entropy",
+    "subgraph_informativeness",
+    "subgraph_perturbation_stability",
+    "support_entailment_uncertainty",
+    "evidence_conflict_uncertainty"
+  ],
+  "results": [
+    {
+      "dataset": "realmedqa",
+      "track": "biomedical_grounding",
+      "config_results": [
+        {
+          "dataset": "realmedqa",
+          "track": "biomedical_grounding",
+          "config": {
+            "name": "kg_strict_entity_first_thr0.1_k10_rt0p0",
+            "similarity_threshold": 0.1,
+            "max_chunks": 10,
+            "retrieval_temperature": 0.0,
+            "retrieval_shortlist_factor": 4,
+            "retrieval_variant": "kg_strict_entity_first",
+            "retrieval_stack": {
+              "query_fusion": false,
+              "late_interaction": false,
+              "first_stage_late_interaction": false,
+              "reranker": false
+            },
+            "kg_system": {
+              "retrieval_mode": "entity_first",
+              "use_rfge": false,
+              "use_per_entity_ann": false,
+              "allow_vector_augmentation": false,
+              "allow_vector_fallback": false
+            },
+            "executed_systems": [
+              "kg_rag"
+            ]
+          },
+          "subset_seed": 42,
+          "selection_file": "results/selections/realmedqa__n100_seed42.json",
+          "selection_key": "n100_seed42",
+          "subset_hash": "e1599ddb41e2",
+          "subset_tag": "n100_seed42_he1599ddb41e2",
+          "subset_id": "realmedqa__n100_seed42_he1599ddb41e2",
+          "num_questions_logged": 100,
+          "reported_accuracy_variant": "clean_excluding_generation_failures",
+          "vanilla_accuracy": 0.0,
+          "kg_accuracy": 0.6813186813186813,
+          "vanilla_accuracy_raw": 0.0,
+          "kg_accuracy_raw": 0.62,
+          "vanilla_answered_questions": 0,
+          "kg_answered_questions": 91,
+          "question_details_file": "results/n20_probe/runs/20260612-222103-realmedqa-n100-full-metrics-evaluation-subset/questions/realmedqa_n100_seed42_he1599ddb41e2_kg_strict_entity_first_thr0.1_k10_rt0p0_questions.json",
+          "question_table_key": "tables/realmedqa/n100_seed42_he1599ddb41e2/kg_strict_entity_first_thr0.1_k10_rt0p0/questions_and_responses",
+          "vanilla_answer_em": 0.0,
+          "kg_answer_em": 0.0,
+          "vanilla_answer_f1": 0.0,
+          "kg_answer_f1": 0.0,
+          "structural_metrics": {
+            "vanilla_avg_graph_path_support": 0.5,
+            "kg_avg_graph_path_support": 0.23566666666666666,
+            "vanilla_avg_graph_path_disagreement": 0.6808531922325831,
+            "kg_avg_graph_path_disagreement": 0.6808531922325831,
+            "vanilla_avg_competing_answer_alternatives": 0.0,
+            "kg_avg_competing_answer_alternatives": 0.10633333333333334,
+            "vanilla_avg_evidence_vn_entropy": 0.76171951374115,
+            "kg_avg_evidence_vn_entropy": 0.76171951374115,
+            "vanilla_avg_subgraph_informativeness": 0.7209380426708867,
+            "kg_avg_subgraph_informativeness": 0.7209380426708867,
+            "vanilla_avg_subgraph_perturbation_stability": 0.5,
+            "kg_avg_subgraph_perturbation_stability": 0.31825,
+            "vanilla_avg_support_entailment_uncertainty": 0.5,
+            "kg_avg_support_entailment_uncertainty": 0.4817321428571429,
+            "vanilla_avg_evidence_conflict_uncertainty": 0.0,
+            "kg_avg_evidence_conflict_uncertainty": 0.007111111111111111
+          },
+          "metrics_by_approach": {
+            "vanilla_rag": {
+              "semantic_entropy": 0.0,
+              "discrete_semantic_entropy": 0.0,
+              "sre_uq": 0.0,
+              "p_true": 0.5,
+              "selfcheckgpt": 0.5,
+              "vn_entropy": 0.0,
+              "sd_uq": 0.5,
+              "graph_path_support": 0.5,
+              "graph_path_disagreement": 0.6808531922325831,
+              "competing_answer_alternatives": 0.0,
+              "evidence_vn_entropy": 0.76171951374115,
+              "subgraph_informativeness": 0.7209380426708867,
+              "subgraph_perturbation_stability": 0.5,
+              "support_entailment_uncertainty": 0.5,
+              "evidence_conflict_uncertainty": 0.0
+            },
+            "kg_rag": {
+              "semantic_entropy": 0.22033708269219018,
+              "discrete_semantic_entropy": 0.2292306085961332,
+              "sre_uq": 2.2556434364782496,
+              "p_true": 0.8690000000000003,
+              "selfcheckgpt": 0.04939999999999999,
+              "vn_entropy": 0.14155346646475267,
+              "sd_uq": 0.046468833817025545,
+              "graph_path_support": 0.23566666666666666,
+              "graph_path_disagreement": 0.6808531922325831,
+              "competing_answer_alternatives": 0.10633333333333334,
+              "evidence_vn_entropy": 0.76171951374115,
+              "subgraph_informativeness": 0.7209380426708867,
+              "subgraph_perturbation_stability": 0.31825,
+              "support_entailment_uncertainty": 0.4817321428571429,
+              "evidence_conflict_uncertainty": 0.007111111111111111
+            }
+          },
+          "auroc_aurec": {
+            "vanilla_rag": {
+              "semantic_entropy_auroc": NaN,
+              "semantic_entropy_aurec": NaN,
+              "discrete_semantic_entropy_auroc": NaN,
+              "discrete_semantic_entropy_aurec": NaN,
+              "sre_uq_auroc": NaN,
+              "sre_uq_aurec": NaN,
+              "p_true_auroc": NaN,
+              "p_true_aurec": NaN,
+              "selfcheckgpt_auroc": NaN,
+              "selfcheckgpt_aurec": NaN,
+              "vn_entropy_auroc": NaN,
+              "vn_entropy_aurec": NaN,
+              "sd_uq_auroc": NaN,
+              "sd_uq_aurec": NaN,
+              "graph_path_support_auroc": NaN,
+              "graph_path_support_aurec": NaN,
+              "graph_path_disagreement_auroc": NaN,
+              "graph_path_disagreement_aurec": NaN,
+              "competing_answer_alternatives_auroc": NaN,
+              "competing_answer_alternatives_aurec": NaN,
+              "evidence_vn_entropy_auroc": NaN,
+              "evidence_vn_entropy_aurec": NaN,
+              "subgraph_informativeness_auroc": NaN,
+              "subgraph_informativeness_aurec": NaN,
+              "subgraph_perturbation_stability_auroc": NaN,
+              "subgraph_perturbation_stability_aurec": NaN,
+              "support_entailment_uncertainty_auroc": NaN,
+              "support_entailment_uncertainty_aurec": NaN,
+              "evidence_conflict_uncertainty_auroc": NaN,
+              "evidence_conflict_uncertainty_aurec": NaN
+            },
+            "kg_rag": {
+              "semantic_entropy_auroc": 0.3559510567296997,
+              "semantic_entropy_aurec": 0.38201941043181153,
+              "discrete_semantic_entropy_auroc": 0.3523359288097886,
+              "discrete_semantic_entropy_aurec": 0.38358895919235586,
+              "sre_uq_auroc": 0.12513904338153503,
+              "sre_uq_aurec": 0.6165705970659964,
+              "p_true_auroc": 0.3487208008898776,
+              "p_true_aurec": 0.38424797832318863,
+              "selfcheckgpt_auroc": 0.4699666295884316,
+              "selfcheckgpt_aurec": 0.3105207727168297,
+              "vn_entropy_auroc": 0.1446051167964405,
+              "vn_entropy_aurec": 0.6199375951606545,
+              "sd_uq_auroc": 0.1696329254727475,
+              "sd_uq_aurec": 0.5479940156651475,
+              "graph_path_support_auroc": 0.5877192982456141,
+              "graph_path_support_aurec": 0.037093798962499785,
+              "graph_path_disagreement_auroc": 0.42296996662958836,
+              "graph_path_disagreement_aurec": 0.3316557749085272,
+              "competing_answer_alternatives_auroc": 0.38904338153503887,
+              "competing_answer_alternatives_aurec": 0.39946885312877745,
+              "evidence_vn_entropy_auroc": 0.3615127919911012,
+              "evidence_vn_entropy_aurec": 0.45771688810212324,
+              "subgraph_informativeness_auroc": 0.42880978865406005,
+              "subgraph_informativeness_aurec": 0.3145289134494811,
+              "subgraph_perturbation_stability_auroc": 0.6081871345029239,
+              "subgraph_perturbation_stability_aurec": 0.03411227489311386,
+              "support_entailment_uncertainty_auroc": 0.78587319243604,
+              "support_entailment_uncertainty_aurec": 0.11613664936124561,
+              "evidence_conflict_uncertainty_auroc": 0.43548387096774194,
+              "evidence_conflict_uncertainty_aurec": 0.3376572135520558,
+              "graph_path_support_null_no_q_entities": 0.12087912087912088,
+              "graph_path_support_null_no_a_entities": 0.18681318681318682,
+              "graph_path_support_null_trivial_overlap": 0.03296703296703297,
+              "graph_path_support_null_rate": 0.34065934065934067,
+              "graph_path_support_auroc_non_null": 0.5877192982456141,
+              "graph_path_support_aurec_non_null": 0.037093798962499785,
+              "subgraph_perturbation_stability_null_no_q_entities": 0.12087912087912088,
+              "subgraph_perturbation_stability_null_no_a_entities": 0.18681318681318682,
+              "subgraph_perturbation_stability_null_trivial_overlap": 0.03296703296703297,
+              "subgraph_perturbation_stability_null_rate": 0.34065934065934067,
+              "subgraph_perturbation_stability_auroc_non_null": 0.6081871345029239,
+              "subgraph_perturbation_stability_aurec_non_null": 0.03411227489311386
+            }
+          },
+          "complementarity": {
+            "both_correct": 0,
+            "vanilla_only": 0,
+            "kg_only": 62,
+            "neither_correct": 38,
+            "both_correct_pct": 0.0,
+            "vanilla_only_pct": 0.0,
+            "kg_only_pct": 62.0,
+            "neither_correct_pct": 38.0
+          },
+          "accuracy_by_task_type": {
+            "free_text": {
+              "n": 100,
+              "vanilla_accuracy": 0.0,
+              "kg_accuracy": 0.6813,
+              "vanilla_accuracy_raw": 0.0,
+              "kg_accuracy_raw": 0.62,
+              "auroc_aurec": {
+                "vanilla_rag": {
+                  "semantic_entropy_auroc": NaN,
+                  "semantic_entropy_aurec": NaN,
+                  "discrete_semantic_entropy_auroc": NaN,
+                  "discrete_semantic_entropy_aurec": NaN,
+                  "sre_uq_auroc": NaN,
+                  "sre_uq_aurec": NaN,
+                  "p_true_auroc": NaN,
+                  "p_true_aurec": NaN,
+                  "selfcheckgpt_auroc": NaN,
+                  "selfcheckgpt_aurec": NaN,
+                  "vn_entropy_auroc": NaN,
+                  "vn_entropy_aurec": NaN,
+                  "sd_uq_auroc": NaN,
+                  "sd_uq_aurec": NaN,
+                  "graph_path_support_auroc": NaN,
+                  "graph_path_support_aurec": NaN,
+                  "graph_path_disagreement_auroc": NaN,
+                  "graph_path_disagreement_aurec": NaN,
+                  "competing_answer_alternatives_auroc": NaN,
+                  "competing_answer_alternatives_aurec": NaN,
+                  "evidence_vn_entropy_auroc": NaN,
+                  "evidence_vn_entropy_aurec": NaN,
+                  "subgraph_informativeness_auroc": NaN,
+                  "subgraph_informativeness_aurec": NaN,
+                  "subgraph_perturbation_stability_auroc": NaN,
+                  "subgraph_perturbation_stability_aurec": NaN,
+                  "support_entailment_uncertainty_auroc": NaN,
+                  "support_entailment_uncertainty_aurec": NaN,
+                  "evidence_conflict_uncertainty_auroc": NaN,
+                  "evidence_conflict_uncertainty_aurec": NaN
+                },
+                "kg_rag": {
+                  "semantic_entropy_auroc": 0.3559510567296997,
+                  "semantic_entropy_aurec": 0.38201941043181153,
+                  "discrete_semantic_entropy_auroc": 0.3523359288097886,
+                  "discrete_semantic_entropy_aurec": 0.38358895919235586,
+                  "sre_uq_auroc": 0.12513904338153503,
+                  "sre_uq_aurec": 0.6165705970659964,
+                  "p_true_auroc": 0.3487208008898776,
+                  "p_true_aurec": 0.38424797832318863,
+                  "selfcheckgpt_auroc": 0.4699666295884316,
+                  "selfcheckgpt_aurec": 0.3105207727168297,
+                  "vn_entropy_auroc": 0.1446051167964405,
+                  "vn_entropy_aurec": 0.6199375951606545,
+                  "sd_uq_auroc": 0.1696329254727475,
+                  "sd_uq_aurec": 0.5479940156651475,
+                  "graph_path_support_auroc": 0.5877192982456141,
+                  "graph_path_support_aurec": 0.037093798962499785,
+                  "graph_path_disagreement_auroc": 0.42296996662958836,
+                  "graph_path_disagreement_aurec": 0.3316557749085272,
+                  "competing_answer_alternatives_auroc": 0.38904338153503887,
+                  "competing_answer_alternatives_aurec": 0.39946885312877745,
+                  "evidence_vn_entropy_auroc": 0.3615127919911012,
+                  "evidence_vn_entropy_aurec": 0.45771688810212324,
+                  "subgraph_informativeness_auroc": 0.42880978865406005,
+                  "subgraph_informativeness_aurec": 0.3145289134494811,
+                  "subgraph_perturbation_stability_auroc": 0.6081871345029239,
+                  "subgraph_perturbation_stability_aurec": 0.03411227489311386,
+                  "support_entailment_uncertainty_auroc": 0.78587319243604,
+                  "support_entailment_uncertainty_aurec": 0.11613664936124561,
+                  "evidence_conflict_uncertainty_auroc": 0.43548387096774194,
+                  "evidence_conflict_uncertainty_aurec": 0.3376572135520558,
+                  "graph_path_support_null_no_q_entities": 0.12087912087912088,
+                  "graph_path_support_null_no_a_entities": 0.18681318681318682,
+                  "graph_path_support_null_trivial_overlap": 0.03296703296703297,
+                  "graph_path_support_null_rate": 0.34065934065934067,
+                  "graph_path_support_auroc_non_null": 0.5877192982456141,
+                  "graph_path_support_aurec_non_null": 0.037093798962499785,
+                  "subgraph_perturbation_stability_null_no_q_entities": 0.12087912087912088,
+                  "subgraph_perturbation_stability_null_no_a_entities": 0.18681318681318682,
+                  "subgraph_perturbation_stability_null_trivial_overlap": 0.03296703296703297,
+                  "subgraph_perturbation_stability_null_rate": 0.34065934065934067,
+                  "subgraph_perturbation_stability_auroc_non_null": 0.6081871345029239,
+                  "subgraph_perturbation_stability_aurec_non_null": 0.03411227489311386
+                }
+              }
+            }
+          },
+          "accuracy_by_hop_count": {},
+          "retrieval_determinism_confound": true,
+          "kg_routing_distribution": {
+            "n": 91,
+            "routes": {
+              "entity_first": {
+                "count": 67,
+                "pct": 0.7362637362637363
+              },
+              "entity_first_empty": {
+                "count": 24,
+                "pct": 0.26373626373626374
+              }
+            },
+            "route_reasons": {
+              "strict_no_graph_signal": {
+                "count": 24,
+                "pct": 0.26373626373626374
+              },
+              "success": {
+                "count": 67,
+                "pct": 0.7362637362637363
+              }
+            },
+            "pure_entity_first_rate": 0.7362637362637363,
+            "graph_route_rate": 0.7362637362637363,
+            "dense_fallback_rate": 0.0,
+            "unknown_route_rate": 0.0
+          },
+          "kg_pure_entity_first_rate": 0.7362637362637363,
+          "kg_dense_fallback_rate": 0.0,
+          "kg_unknown_route_rate": 0.0,
+          "kg_avg_retrieval_overlap": 0.67,
+          "vanilla_avg_retrieval_overlap": 0.0,
+          "ece": {
+            "vanilla_rag": {},
+            "kg_rag": {
+              "semantic_entropy_ece": 0.36736874554624427,
+              "discrete_semantic_entropy_ece": 0.36940812338340423,
+              "sre_uq_ece": 0.3560488971165787,
+              "p_true_ece": 0.33211233211233215,
+              "selfcheckgpt_ece": NaN,
+              "vn_entropy_ece": 0.4444224995168045,
+              "sd_uq_ece": 0.37731969686953704,
+              "graph_path_support_ece": 0.11574074074074073,
+              "graph_path_disagreement_ece": NaN,
+              "competing_answer_alternatives_ece": NaN,
+              "evidence_vn_entropy_ece": 0.6846841290323862,
+              "subgraph_informativeness_ece": NaN,
+              "subgraph_perturbation_stability_ece": 0.15767361111111117,
+              "support_entailment_uncertainty_ece": 0.30531686358754023,
+              "evidence_conflict_uncertainty_ece": 0.35653235653235654
+            }
+          },
+          "precision_at_k": {
+            "vanilla_rag": {},
+            "kg_rag": {
+              "semantic_entropy_ppv@10": 0.1,
+              "semantic_entropy_ppv@20": 0.15789473684210525,
+              "semantic_entropy_ppv@30": 0.17857142857142858,
+              "discrete_semantic_entropy_ppv@10": 0.1,
+              "discrete_semantic_entropy_ppv@20": 0.15789473684210525,
+              "discrete_semantic_entropy_ppv@30": 0.14285714285714285,
+              "sre_uq_ppv@10": 0.1,
+              "sre_uq_ppv@20": 0.05263157894736842,
+              "sre_uq_ppv@30": 0.10714285714285714,
+              "p_true_ppv@10": 0.1,
+              "p_true_ppv@20": 0.15789473684210525,
+              "p_true_ppv@30": 0.14285714285714285,
+              "selfcheckgpt_ppv@10": 0.3,
+              "selfcheckgpt_ppv@20": 0.3157894736842105,
+              "selfcheckgpt_ppv@30": 0.32142857142857145,
+              "vn_entropy_ppv@10": 0.2,
+              "vn_entropy_ppv@20": 0.15789473684210525,
+              "vn_entropy_ppv@30": 0.17857142857142858,
+              "sd_uq_ppv@10": 0.2,
+              "sd_uq_ppv@20": 0.15789473684210525,
+              "sd_uq_ppv@30": 0.17857142857142858,
+              "graph_path_support_ppv@10": 0.16666666666666666,
+              "graph_path_support_ppv@20": 0.08333333333333333,
+              "graph_path_support_ppv@30": 0.05555555555555555,
+              "graph_path_disagreement_ppv@10": 0.3,
+              "graph_path_disagreement_ppv@20": 0.2631578947368421,
+              "graph_path_disagreement_ppv@30": 0.21428571428571427,
+              "competing_answer_alternatives_ppv@10": 0.1,
+              "competing_answer_alternatives_ppv@20": 0.10526315789473684,
+              "competing_answer_alternatives_ppv@30": 0.25,
+              "evidence_vn_entropy_ppv@10": 0.3,
+              "evidence_vn_entropy_ppv@20": 0.2631578947368421,
+              "evidence_vn_entropy_ppv@30": 0.2857142857142857,
+              "subgraph_informativeness_ppv@10": 0.2,
+              "subgraph_informativeness_ppv@20": 0.21052631578947367,
+              "subgraph_informativeness_ppv@30": 0.2857142857142857,
+              "subgraph_perturbation_stability_ppv@10": 0.16666666666666666,
+              "subgraph_perturbation_stability_ppv@20": 0.08333333333333333,
+              "subgraph_perturbation_stability_ppv@30": 0.1111111111111111,
+              "support_entailment_uncertainty_ppv@10": 0.4,
+              "support_entailment_uncertainty_ppv@20": 0.631578947368421,
+              "support_entailment_uncertainty_ppv@30": 0.5714285714285714,
+              "evidence_conflict_uncertainty_ppv@10": 0.2,
+              "evidence_conflict_uncertainty_ppv@20": 0.2631578947368421,
+              "evidence_conflict_uncertainty_ppv@30": 0.2857142857142857
+            },
+            "baseline": {
+              "error_rate_kg": 0.31868131868131866
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "track_aggregates": {
+    "biomedical_grounding": [
+      {
+        "config_name": "kg_strict_entity_first_thr0.1_k10_rt0p0",
+        "num_datasets": 1,
+        "datasets": [
+          "realmedqa"
+        ],
+        "vanilla_macro_accuracy": 0.0,
+        "kg_macro_accuracy": 0.6813186813186813
+      }
+    ]
+  },
+  "retrieval_selection": {
+    "per_dataset": {
+      "realmedqa": {
+        "vanilla_rag": {
+          "config_name": "kg_strict_entity_first_thr0.1_k10_rt0p0",
+          "accuracy": 0.0,
+          "answer_f1": 0.0,
+          "answer_em": 0.0,
+          "answered_questions": 0,
+          "accuracy_raw": 0.0
+        },
+        "kg_rag": {
+          "config_name": "kg_strict_entity_first_thr0.1_k10_rt0p0",
+          "accuracy": 0.6813186813186813,
+          "answer_f1": 0.0,
+          "answer_em": 0.0,
+          "answered_questions": 91,
+          "accuracy_raw": 0.62
+        }
+      }
+    },
+    "overall": {
+      "vanilla_rag": {
+        "best_config": {
+          "config_name": "kg_strict_entity_first_thr0.1_k10_rt0p0",
+          "num_datasets": 1,
+          "datasets": [
+            "realmedqa"
+          ],
+          "macro_accuracy": 0.0,
+          "macro_answer_f1": 0.0,
+          "macro_answer_em": 0.0,
+          "macro_answered_questions": 0.0,
+          "macro_accuracy_raw": 0.0
+        },
+        "all_configs": [
+          {
+            "config_name": "kg_strict_entity_first_thr0.1_k10_rt0p0",
+            "num_datasets": 1,
+            "datasets": [
+              "realmedqa"
+            ],
+            "macro_accuracy": 0.0,
+            "macro_answer_f1": 0.0,
+            "macro_answer_em": 0.0,
+            "macro_answered_questions": 0.0,
+            "macro_accuracy_raw": 0.0
+          }
+        ]
+      },
+      "kg_rag": {
+        "best_config": {
+          "config_name": "kg_strict_entity_first_thr0.1_k10_rt0p0",
+          "num_datasets": 1,
+          "datasets": [
+            "realmedqa"
+          ],
+          "macro_accuracy": 0.6813186813186813,
+          "macro_answer_f1": 0.0,
+          "macro_answer_em": 0.0,
+          "macro_answered_questions": 91.0,
+          "macro_accuracy_raw": 0.62
+        },
+        "all_configs": [
+          {
+            "config_name": "kg_strict_entity_first_thr0.1_k10_rt0p0",
+            "num_datasets": 1,
+            "datasets": [
+              "realmedqa"
+            ],
+            "macro_accuracy": 0.6813186813186813,
+            "macro_answer_f1": 0.0,
+            "macro_answer_em": 0.0,
+            "macro_answered_questions": 91.0,
+            "macro_accuracy_raw": 0.62
+          }
+        ]
+      }
+    }
+  }
+}

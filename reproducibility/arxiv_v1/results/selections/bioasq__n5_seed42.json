@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "dataset": "bioasq",
+  "created_at": "2026-03-29T23:29:18.392794",
+  "selection_strategy": "seeded_sample",
+  "subset_seed": 42,
+  "requested_num_samples": 5,
+  "available_question_count": 90,
+  "selection_count": 5,
+  "question_ids": [
+    "62211c853a8413c65300006d",
+    "6217e7a63a8413c653000033",
+    "61f5ee57882a024a10000012",
+    "6206c428c9dfcb9c0900003f",
+    "621fcaf93a8413c653000065"
+  ],
+  "selection_key": "n5_seed42",
+  "subset_hash": "2e37f830ace6",
+  "subset_tag": "n5_seed42_h2e37f830ace6",
+  "subset_id": "bioasq__n5_seed42_h2e37f830ace6"
+}

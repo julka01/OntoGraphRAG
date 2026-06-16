@@ -1,0 +1,1012 @@
+{
+  "datasets": [
+    "2wikimultihopqa"
+  ],
+  "num_samples_per_dataset": 100,
+  "subset_seed": 42,
+  "evaluation_mode": "full_metrics",
+  "retrieval_study": "final_pair",
+  "kg_builder_profile": "full",
+  "judge_model": "openai/gpt-4o-mini",
+  "generation_model": "openai/gpt-4o-mini",
+  "judge_independent": false,
+  "metric_names": [
+    "semantic_entropy",
+    "discrete_semantic_entropy",
+    "sre_uq",
+    "p_true",
+    "selfcheckgpt",
+    "vn_entropy",
+    "sd_uq",
+    "graph_path_support",
+    "graph_path_disagreement",
+    "competing_answer_alternatives",
+    "evidence_vn_entropy",
+    "subgraph_informativeness",
+    "subgraph_perturbation_stability",
+    "support_entailment_uncertainty",
+    "evidence_conflict_uncertainty"
+  ],
+  "results": [
+    {
+      "dataset": "2wikimultihopqa",
+      "track": "multihop_reasoning",
+      "config_results": [
+        {
+          "dataset": "2wikimultihopqa",
+          "track": "multihop_reasoning",
+          "config": {
+            "name": "dense_floor_thr0.1_k10_rt0p0",
+            "similarity_threshold": 0.1,
+            "max_chunks": 10,
+            "retrieval_temperature": 0.0,
+            "retrieval_shortlist_factor": 4,
+            "retrieval_variant": "dense_floor",
+            "retrieval_stack": {
+              "query_fusion": false,
+              "late_interaction": false,
+              "first_stage_late_interaction": false,
+              "reranker": false
+            },
+            "kg_system": {
+              "retrieval_mode": "vector_only",
+              "use_rfge": false
+            },
+            "executed_systems": [
+              "vanilla_rag"
+            ]
+          },
+          "subset_seed": 42,
+          "selection_file": "results/selections/2wikimultihopqa__n100_seed42.json",
+          "selection_key": "n100_seed42",
+          "subset_hash": "7767a87f44f4",
+          "subset_tag": "n100_seed42_h7767a87f44f4",
+          "subset_id": "2wikimultihopqa__n100_seed42_h7767a87f44f4",
+          "num_questions_logged": 100,
+          "reported_accuracy_variant": "clean_excluding_generation_failures",
+          "vanilla_accuracy": 0.0,
+          "kg_accuracy": 0.0,
+          "vanilla_accuracy_raw": 0.0,
+          "kg_accuracy_raw": 0.0,
+          "vanilla_answered_questions": 0,
+          "kg_answered_questions": 0,
+          "question_details_file": "results/n20_probe/runs/20260612-235058-2wikimultihopqa-n100-full-metrics-evaluation-subset/questions/2wikimultihopqa_n100_seed42_h7767a87f44f4_dense_floor_thr0.1_k10_rt0p0_questions.json",
+          "question_table_key": "tables/2wikimultihopqa/n100_seed42_h7767a87f44f4/dense_floor_thr0.1_k10_rt0p0/questions_and_responses",
+          "vanilla_answer_em": 0.0,
+          "kg_answer_em": 0.0,
+          "vanilla_answer_f1": 0.0,
+          "kg_answer_f1": 0.0,
+          "structural_metrics": {
+            "vanilla_avg_graph_path_support": 0.5,
+            "kg_avg_graph_path_support": 0.5,
+            "vanilla_avg_graph_path_disagreement": 0.7144527088891925,
+            "kg_avg_graph_path_disagreement": 0.7144527088891925,
+            "vanilla_avg_competing_answer_alternatives": 0.0,
+            "kg_avg_competing_answer_alternatives": 0.0,
+            "vanilla_avg_evidence_vn_entropy": 0.6808520632847782,
+            "kg_avg_evidence_vn_entropy": 0.6808520632847782,
+            "vanilla_avg_subgraph_informativeness": 0.722367040482414,
+            "kg_avg_subgraph_informativeness": 0.722367040482414,
+            "vanilla_avg_subgraph_perturbation_stability": 0.5,
+            "kg_avg_subgraph_perturbation_stability": 0.5,
+            "vanilla_avg_support_entailment_uncertainty": 0.5,
+            "kg_avg_support_entailment_uncertainty": 0.5,
+            "vanilla_avg_evidence_conflict_uncertainty": 0.0,
+            "kg_avg_evidence_conflict_uncertainty": 0.0
+          },
+          "metrics_by_approach": {
+            "vanilla_rag": {
+              "semantic_entropy": 0.0,
+              "discrete_semantic_entropy": 0.0,
+              "sre_uq": 0.0,
+              "p_true": 0.5,
+              "selfcheckgpt": 0.5,
+              "vn_entropy": 0.0,
+              "sd_uq": 0.5,
+              "graph_path_support": 0.5,
+              "graph_path_disagreement": 0.7144527088891925,
+              "competing_answer_alternatives": 0.0,
+              "evidence_vn_entropy": 0.6808520632847782,
+              "subgraph_informativeness": 0.722367040482414,
+              "subgraph_perturbation_stability": 0.5,
+              "support_entailment_uncertainty": 0.5,
+              "evidence_conflict_uncertainty": 0.0
+            },
+            "kg_rag": {
+              "semantic_entropy": 0.0,
+              "discrete_semantic_entropy": 0.0,
+              "sre_uq": 0.0,
+              "p_true": 0.5,
+              "selfcheckgpt": 0.5,
+              "vn_entropy": 0.0,
+              "sd_uq": 0.5,
+              "graph_path_support": 0.5,
+              "graph_path_disagreement": 0.7144527088891925,
+              "competing_answer_alternatives": 0.0,
+              "evidence_vn_entropy": 0.6808520632847782,
+              "subgraph_informativeness": 0.722367040482414,
+              "subgraph_perturbation_stability": 0.5,
+              "support_entailment_uncertainty": 0.5,
+              "evidence_conflict_uncertainty": 0.0
+            }
+          },
+          "auroc_aurec": {
+            "vanilla_rag": {
+              "semantic_entropy_auroc": NaN,
+              "semantic_entropy_aurec": NaN,
+              "discrete_semantic_entropy_auroc": NaN,
+              "discrete_semantic_entropy_aurec": NaN,
+              "sre_uq_auroc": NaN,
+              "sre_uq_aurec": NaN,
+              "p_true_auroc": NaN,
+              "p_true_aurec": NaN,
+              "selfcheckgpt_auroc": NaN,
+              "selfcheckgpt_aurec": NaN,
+              "vn_entropy_auroc": NaN,
+              "vn_entropy_aurec": NaN,
+              "sd_uq_auroc": NaN,
+              "sd_uq_aurec": NaN,
+              "graph_path_support_auroc": NaN,
+              "graph_path_support_aurec": NaN,
+              "graph_path_disagreement_auroc": NaN,
+              "graph_path_disagreement_aurec": NaN,
+              "competing_answer_alternatives_auroc": NaN,
+              "competing_answer_alternatives_aurec": NaN,
+              "evidence_vn_entropy_auroc": NaN,
+              "evidence_vn_entropy_aurec": NaN,
+              "subgraph_informativeness_auroc": NaN,
+              "subgraph_informativeness_aurec": NaN,
+              "subgraph_perturbation_stability_auroc": NaN,
+              "subgraph_perturbation_stability_aurec": NaN,
+              "support_entailment_uncertainty_auroc": NaN,
+              "support_entailment_uncertainty_aurec": NaN,
+              "evidence_conflict_uncertainty_auroc": NaN,
+              "evidence_conflict_uncertainty_aurec": NaN
+            },
+            "kg_rag": {
+              "semantic_entropy_auroc": NaN,
+              "semantic_entropy_aurec": NaN,
+              "discrete_semantic_entropy_auroc": NaN,
+              "discrete_semantic_entropy_aurec": NaN,
+              "sre_uq_auroc": NaN,
+              "sre_uq_aurec": NaN,
+              "p_true_auroc": NaN,
+              "p_true_aurec": NaN,
+              "selfcheckgpt_auroc": NaN,
+              "selfcheckgpt_aurec": NaN,
+              "vn_entropy_auroc": NaN,
+              "vn_entropy_aurec": NaN,
+              "sd_uq_auroc": NaN,
+              "sd_uq_aurec": NaN,
+              "graph_path_support_auroc": NaN,
+              "graph_path_support_aurec": NaN,
+              "graph_path_disagreement_auroc": NaN,
+              "graph_path_disagreement_aurec": NaN,
+              "competing_answer_alternatives_auroc": NaN,
+              "competing_answer_alternatives_aurec": NaN,
+              "evidence_vn_entropy_auroc": NaN,
+              "evidence_vn_entropy_aurec": NaN,
+              "subgraph_informativeness_auroc": NaN,
+              "subgraph_informativeness_aurec": NaN,
+              "subgraph_perturbation_stability_auroc": NaN,
+              "subgraph_perturbation_stability_aurec": NaN,
+              "support_entailment_uncertainty_auroc": NaN,
+              "support_entailment_uncertainty_aurec": NaN,
+              "evidence_conflict_uncertainty_auroc": NaN,
+              "evidence_conflict_uncertainty_aurec": NaN
+            }
+          },
+          "complementarity": {
+            "both_correct": 0,
+            "vanilla_only": 0,
+            "kg_only": 0,
+            "neither_correct": 100,
+            "both_correct_pct": 0.0,
+            "vanilla_only_pct": 0.0,
+            "kg_only_pct": 0.0,
+            "neither_correct_pct": 100.0
+          },
+          "accuracy_by_task_type": {
+            "binary": {
+              "n": 9,
+              "vanilla_accuracy": 0.0,
+              "kg_accuracy": 0.0,
+              "vanilla_accuracy_raw": 0.0,
+              "kg_accuracy_raw": 0.0,
+              "auroc_aurec": {
+                "vanilla_rag": {
+                  "semantic_entropy_auroc": NaN,
+                  "semantic_entropy_aurec": NaN,
+                  "discrete_semantic_entropy_auroc": NaN,
+                  "discrete_semantic_entropy_aurec": NaN,
+                  "sre_uq_auroc": NaN,
+                  "sre_uq_aurec": NaN,
+                  "p_true_auroc": NaN,
+                  "p_true_aurec": NaN,
+                  "selfcheckgpt_auroc": NaN,
+                  "selfcheckgpt_aurec": NaN,
+                  "vn_entropy_auroc": NaN,
+                  "vn_entropy_aurec": NaN,
+                  "sd_uq_auroc": NaN,
+                  "sd_uq_aurec": NaN,
+                  "graph_path_support_auroc": NaN,
+                  "graph_path_support_aurec": NaN,
+                  "graph_path_disagreement_auroc": NaN,
+                  "graph_path_disagreement_aurec": NaN,
+                  "competing_answer_alternatives_auroc": NaN,
+                  "competing_answer_alternatives_aurec": NaN,
+                  "evidence_vn_entropy_auroc": NaN,
+                  "evidence_vn_entropy_aurec": NaN,
+                  "subgraph_informativeness_auroc": NaN,
+                  "subgraph_informativeness_aurec": NaN,
+                  "subgraph_perturbation_stability_auroc": NaN,
+                  "subgraph_perturbation_stability_aurec": NaN,
+                  "support_entailment_uncertainty_auroc": NaN,
+                  "support_entailment_uncertainty_aurec": NaN,
+                  "evidence_conflict_uncertainty_auroc": NaN,
+                  "evidence_conflict_uncertainty_aurec": NaN
+                },
+                "kg_rag": {
+                  "semantic_entropy_auroc": NaN,
+                  "semantic_entropy_aurec": NaN,
+                  "discrete_semantic_entropy_auroc": NaN,
+                  "discrete_semantic_entropy_aurec": NaN,
+                  "sre_uq_auroc": NaN,
+                  "sre_uq_aurec": NaN,
+                  "p_true_auroc": NaN,
+                  "p_true_aurec": NaN,
+                  "selfcheckgpt_auroc": NaN,
+                  "selfcheckgpt_aurec": NaN,
+                  "vn_entropy_auroc": NaN,
+                  "vn_entropy_aurec": NaN,
+                  "sd_uq_auroc": NaN,
+                  "sd_uq_aurec": NaN,
+                  "graph_path_support_auroc": NaN,
+                  "graph_path_support_aurec": NaN,
+                  "graph_path_disagreement_auroc": NaN,
+                  "graph_path_disagreement_aurec": NaN,
+                  "competing_answer_alternatives_auroc": NaN,
+                  "competing_answer_alternatives_aurec": NaN,
+                  "evidence_vn_entropy_auroc": NaN,
+                  "evidence_vn_entropy_aurec": NaN,
+                  "subgraph_informativeness_auroc": NaN,
+                  "subgraph_informativeness_aurec": NaN,
+                  "subgraph_perturbation_stability_auroc": NaN,
+                  "subgraph_perturbation_stability_aurec": NaN,
+                  "support_entailment_uncertainty_auroc": NaN,
+                  "support_entailment_uncertainty_aurec": NaN,
+                  "evidence_conflict_uncertainty_auroc": NaN,
+                  "evidence_conflict_uncertainty_aurec": NaN
+                }
+              }
+            },
+            "free_text": {
+              "n": 91,
+              "vanilla_accuracy": 0.0,
+              "kg_accuracy": 0.0,
+              "vanilla_accuracy_raw": 0.0,
+              "kg_accuracy_raw": 0.0,
+              "auroc_aurec": {
+                "vanilla_rag": {
+                  "semantic_entropy_auroc": NaN,
+                  "semantic_entropy_aurec": NaN,
+                  "discrete_semantic_entropy_auroc": NaN,
+                  "discrete_semantic_entropy_aurec": NaN,
+                  "sre_uq_auroc": NaN,
+                  "sre_uq_aurec": NaN,
+                  "p_true_auroc": NaN,
+                  "p_true_aurec": NaN,
+                  "selfcheckgpt_auroc": NaN,
+                  "selfcheckgpt_aurec": NaN,
+                  "vn_entropy_auroc": NaN,
+                  "vn_entropy_aurec": NaN,
+                  "sd_uq_auroc": NaN,
+                  "sd_uq_aurec": NaN,
+                  "graph_path_support_auroc": NaN,
+                  "graph_path_support_aurec": NaN,
+                  "graph_path_disagreement_auroc": NaN,
+                  "graph_path_disagreement_aurec": NaN,
+                  "competing_answer_alternatives_auroc": NaN,
+                  "competing_answer_alternatives_aurec": NaN,
+                  "evidence_vn_entropy_auroc": NaN,
+                  "evidence_vn_entropy_aurec": NaN,
+                  "subgraph_informativeness_auroc": NaN,
+                  "subgraph_informativeness_aurec": NaN,
+                  "subgraph_perturbation_stability_auroc": NaN,
+                  "subgraph_perturbation_stability_aurec": NaN,
+                  "support_entailment_uncertainty_auroc": NaN,
+                  "support_entailment_uncertainty_aurec": NaN,
+                  "evidence_conflict_uncertainty_auroc": NaN,
+                  "evidence_conflict_uncertainty_aurec": NaN
+                },
+                "kg_rag": {
+                  "semantic_entropy_auroc": NaN,
+                  "semantic_entropy_aurec": NaN,
+                  "discrete_semantic_entropy_auroc": NaN,
+                  "discrete_semantic_entropy_aurec": NaN,
+                  "sre_uq_auroc": NaN,
+                  "sre_uq_aurec": NaN,
+                  "p_true_auroc": NaN,
+                  "p_true_aurec": NaN,
+                  "selfcheckgpt_auroc": NaN,
+                  "selfcheckgpt_aurec": NaN,
+                  "vn_entropy_auroc": NaN,
+                  "vn_entropy_aurec": NaN,
+                  "sd_uq_auroc": NaN,
+                  "sd_uq_aurec": NaN,
+                  "graph_path_support_auroc": NaN,
+                  "graph_path_support_aurec": NaN,
+                  "graph_path_disagreement_auroc": NaN,
+                  "graph_path_disagreement_aurec": NaN,
+                  "competing_answer_alternatives_auroc": NaN,
+                  "competing_answer_alternatives_aurec": NaN,
+                  "evidence_vn_entropy_auroc": NaN,
+                  "evidence_vn_entropy_aurec": NaN,
+                  "subgraph_informativeness_auroc": NaN,
+                  "subgraph_informativeness_aurec": NaN,
+                  "subgraph_perturbation_stability_auroc": NaN,
+                  "subgraph_perturbation_stability_aurec": NaN,
+                  "support_entailment_uncertainty_auroc": NaN,
+                  "support_entailment_uncertainty_aurec": NaN,
+                  "evidence_conflict_uncertainty_auroc": NaN,
+                  "evidence_conflict_uncertainty_aurec": NaN
+                }
+              }
+            }
+          },
+          "accuracy_by_hop_count": {
+            "2-hop": {
+              "n": 72,
+              "vanilla_accuracy": 0.0,
+              "kg_accuracy": 0.0,
+              "vanilla_accuracy_clean": 0.0,
+              "kg_accuracy_clean": 0.0,
+              "vanilla_accuracy_shared_clean": 0.0,
+              "kg_accuracy_shared_clean": 0.0,
+              "vanilla_answer_em": 0.0,
+              "kg_answer_em": 0.0,
+              "vanilla_answer_f1": 0.0,
+              "kg_answer_f1": 0.0,
+              "metrics_by_approach": {
+                "vanilla_rag": {
+                  "sd_uq": 0.5,
+                  "vn_entropy": 0.0,
+                  "support_entailment_uncertainty": 0.5
+                },
+                "kg_rag": {
+                  "sd_uq": 0.5,
+                  "vn_entropy": 0.0,
+                  "support_entailment_uncertainty": 0.5
+                }
+              }
+            },
+            "4-hop": {
+              "n": 27,
+              "vanilla_accuracy": 0.0,
+              "kg_accuracy": 0.0,
+              "vanilla_accuracy_clean": 0.0,
+              "kg_accuracy_clean": 0.0,
+              "vanilla_accuracy_shared_clean": 0.0,
+              "kg_accuracy_shared_clean": 0.0,
+              "vanilla_answer_em": 0.0,
+              "kg_answer_em": 0.0,
+              "vanilla_answer_f1": 0.0,
+              "kg_answer_f1": 0.0,
+              "metrics_by_approach": {
+                "vanilla_rag": {
+                  "sd_uq": 0.5,
+                  "vn_entropy": 0.0,
+                  "support_entailment_uncertainty": 0.5
+                },
+                "kg_rag": {
+                  "sd_uq": 0.5,
+                  "vn_entropy": 0.0,
+                  "support_entailment_uncertainty": 0.5
+                }
+              }
+            },
+            "5+-hop": {
+              "n": 1,
+              "vanilla_accuracy": 0.0,
+              "kg_accuracy": 0.0,
+              "vanilla_accuracy_clean": 0.0,
+              "kg_accuracy_clean": 0.0,
+              "vanilla_accuracy_shared_clean": 0.0,
+              "kg_accuracy_shared_clean": 0.0,
+              "vanilla_answer_em": 0.0,
+              "kg_answer_em": 0.0,
+              "vanilla_answer_f1": 0.0,
+              "kg_answer_f1": 0.0,
+              "metrics_by_approach": {
+                "vanilla_rag": {
+                  "sd_uq": 0.5,
+                  "vn_entropy": 0.0,
+                  "support_entailment_uncertainty": 0.5
+                },
+                "kg_rag": {
+                  "sd_uq": 0.5,
+                  "vn_entropy": 0.0,
+                  "support_entailment_uncertainty": 0.5
+                }
+              }
+            }
+          },
+          "retrieval_determinism_confound": false,
+          "kg_routing_distribution": {
+            "n": 0,
+            "routes": {},
+            "route_reasons": {},
+            "pure_entity_first_rate": 0.0,
+            "graph_route_rate": 0.0,
+            "dense_fallback_rate": 0.0,
+            "unknown_route_rate": 0.0
+          },
+          "kg_pure_entity_first_rate": 0.0,
+          "kg_dense_fallback_rate": 0.0,
+          "kg_unknown_route_rate": 0.0,
+          "kg_avg_retrieval_overlap": 0.0,
+          "vanilla_avg_retrieval_overlap": 0.0,
+          "ece": {
+            "vanilla_rag": {},
+            "kg_rag": {}
+          },
+          "precision_at_k": {
+            "vanilla_rag": {},
+            "kg_rag": {},
+            "baseline": {}
+          }
+        },
+        {
+          "dataset": "2wikimultihopqa",
+          "track": "multihop_reasoning",
+          "config": {
+            "name": "kg_entity_first_thr0.1_k10_rt0p0",
+            "similarity_threshold": 0.1,
+            "max_chunks": 10,
+            "retrieval_temperature": 0.0,
+            "retrieval_shortlist_factor": 4,
+            "retrieval_variant": "kg_entity_first",
+            "retrieval_stack": {
+              "query_fusion": true,
+              "late_interaction": true,
+              "first_stage_late_interaction": true,
+              "reranker": true
+            },
+            "kg_system": {
+              "retrieval_mode": "entity_first",
+              "use_rfge": false
+            },
+            "executed_systems": [
+              "kg_rag"
+            ]
+          },
+          "subset_seed": 42,
+          "selection_file": "results/selections/2wikimultihopqa__n100_seed42.json",
+          "selection_key": "n100_seed42",
+          "subset_hash": "7767a87f44f4",
+          "subset_tag": "n100_seed42_h7767a87f44f4",
+          "subset_id": "2wikimultihopqa__n100_seed42_h7767a87f44f4",
+          "num_questions_logged": 100,
+          "reported_accuracy_variant": "clean_excluding_generation_failures",
+          "vanilla_accuracy": 0.0,
+          "kg_accuracy": 0.0,
+          "vanilla_accuracy_raw": 0.0,
+          "kg_accuracy_raw": 0.0,
+          "vanilla_answered_questions": 0,
+          "kg_answered_questions": 0,
+          "question_details_file": "results/n20_probe/runs/20260612-235058-2wikimultihopqa-n100-full-metrics-evaluation-subset/questions/2wikimultihopqa_n100_seed42_h7767a87f44f4_kg_entity_first_thr0.1_k10_rt0p0_questions.json",
+          "question_table_key": "tables/2wikimultihopqa/n100_seed42_h7767a87f44f4/kg_entity_first_thr0.1_k10_rt0p0/questions_and_responses",
+          "vanilla_answer_em": 0.0,
+          "kg_answer_em": 0.0,
+          "vanilla_answer_f1": 0.0,
+          "kg_answer_f1": 0.0,
+          "structural_metrics": {
+            "vanilla_avg_graph_path_support": 0.5,
+            "kg_avg_graph_path_support": 0.5,
+            "vanilla_avg_graph_path_disagreement": 0.7144527088891925,
+            "kg_avg_graph_path_disagreement": 0.7144527088891925,
+            "vanilla_avg_competing_answer_alternatives": 0.0,
+            "kg_avg_competing_answer_alternatives": 0.0,
+            "vanilla_avg_evidence_vn_entropy": 0.6808520632847782,
+            "kg_avg_evidence_vn_entropy": 0.6808520632847782,
+            "vanilla_avg_subgraph_informativeness": 0.722367040482414,
+            "kg_avg_subgraph_informativeness": 0.722367040482414,
+            "vanilla_avg_subgraph_perturbation_stability": 0.5,
+            "kg_avg_subgraph_perturbation_stability": 0.5,
+            "vanilla_avg_support_entailment_uncertainty": 0.5,
+            "kg_avg_support_entailment_uncertainty": 0.5,
+            "vanilla_avg_evidence_conflict_uncertainty": 0.0,
+            "kg_avg_evidence_conflict_uncertainty": 0.0
+          },
+          "metrics_by_approach": {
+            "vanilla_rag": {
+              "semantic_entropy": 0.0,
+              "discrete_semantic_entropy": 0.0,
+              "sre_uq": 0.0,
+              "p_true": 0.5,
+              "selfcheckgpt": 0.5,
+              "vn_entropy": 0.0,
+              "sd_uq": 0.5,
+              "graph_path_support": 0.5,
+              "graph_path_disagreement": 0.7144527088891925,
+              "competing_answer_alternatives": 0.0,
+              "evidence_vn_entropy": 0.6808520632847782,
+              "subgraph_informativeness": 0.722367040482414,
+              "subgraph_perturbation_stability": 0.5,
+              "support_entailment_uncertainty": 0.5,
+              "evidence_conflict_uncertainty": 0.0
+            },
+            "kg_rag": {
+              "semantic_entropy": 0.0,
+              "discrete_semantic_entropy": 0.0,
+              "sre_uq": 0.0,
+              "p_true": 0.5,
+              "selfcheckgpt": 0.5,
+              "vn_entropy": 0.0,
+              "sd_uq": 0.5,
+              "graph_path_support": 0.5,
+              "graph_path_disagreement": 0.7144527088891925,
+              "competing_answer_alternatives": 0.0,
+              "evidence_vn_entropy": 0.6808520632847782,
+              "subgraph_informativeness": 0.722367040482414,
+              "subgraph_perturbation_stability": 0.5,
+              "support_entailment_uncertainty": 0.5,
+              "evidence_conflict_uncertainty": 0.0
+            }
+          },
+          "auroc_aurec": {
+            "vanilla_rag": {
+              "semantic_entropy_auroc": NaN,
+              "semantic_entropy_aurec": NaN,
+              "discrete_semantic_entropy_auroc": NaN,
+              "discrete_semantic_entropy_aurec": NaN,
+              "sre_uq_auroc": NaN,
+              "sre_uq_aurec": NaN,
+              "p_true_auroc": NaN,
+              "p_true_aurec": NaN,
+              "selfcheckgpt_auroc": NaN,
+              "selfcheckgpt_aurec": NaN,
+              "vn_entropy_auroc": NaN,
+              "vn_entropy_aurec": NaN,
+              "sd_uq_auroc": NaN,
+              "sd_uq_aurec": NaN,
+              "graph_path_support_auroc": NaN,
+              "graph_path_support_aurec": NaN,
+              "graph_path_disagreement_auroc": NaN,
+              "graph_path_disagreement_aurec": NaN,
+              "competing_answer_alternatives_auroc": NaN,
+              "competing_answer_alternatives_aurec": NaN,
+              "evidence_vn_entropy_auroc": NaN,
+              "evidence_vn_entropy_aurec": NaN,
+              "subgraph_informativeness_auroc": NaN,
+              "subgraph_informativeness_aurec": NaN,
+              "subgraph_perturbation_stability_auroc": NaN,
+              "subgraph_perturbation_stability_aurec": NaN,
+              "support_entailment_uncertainty_auroc": NaN,
+              "support_entailment_uncertainty_aurec": NaN,
+              "evidence_conflict_uncertainty_auroc": NaN,
+              "evidence_conflict_uncertainty_aurec": NaN
+            },
+            "kg_rag": {
+              "semantic_entropy_auroc": NaN,
+              "semantic_entropy_aurec": NaN,
+              "discrete_semantic_entropy_auroc": NaN,
+              "discrete_semantic_entropy_aurec": NaN,
+              "sre_uq_auroc": NaN,
+              "sre_uq_aurec": NaN,
+              "p_true_auroc": NaN,
+              "p_true_aurec": NaN,
+              "selfcheckgpt_auroc": NaN,
+              "selfcheckgpt_aurec": NaN,
+              "vn_entropy_auroc": NaN,
+              "vn_entropy_aurec": NaN,
+              "sd_uq_auroc": NaN,
+              "sd_uq_aurec": NaN,
+              "graph_path_support_auroc": NaN,
+              "graph_path_support_aurec": NaN,
+              "graph_path_disagreement_auroc": NaN,
+              "graph_path_disagreement_aurec": NaN,
+              "competing_answer_alternatives_auroc": NaN,
+              "competing_answer_alternatives_aurec": NaN,
+              "evidence_vn_entropy_auroc": NaN,
+              "evidence_vn_entropy_aurec": NaN,
+              "subgraph_informativeness_auroc": NaN,
+              "subgraph_informativeness_aurec": NaN,
+              "subgraph_perturbation_stability_auroc": NaN,
+              "subgraph_perturbation_stability_aurec": NaN,
+              "support_entailment_uncertainty_auroc": NaN,
+              "support_entailment_uncertainty_aurec": NaN,
+              "evidence_conflict_uncertainty_auroc": NaN,
+              "evidence_conflict_uncertainty_aurec": NaN
+            }
+          },
+          "complementarity": {
+            "both_correct": 0,
+            "vanilla_only": 0,
+            "kg_only": 0,
+            "neither_correct": 100,
+            "both_correct_pct": 0.0,
+            "vanilla_only_pct": 0.0,
+            "kg_only_pct": 0.0,
+            "neither_correct_pct": 100.0
+          },
+          "accuracy_by_task_type": {
+            "binary": {
+              "n": 9,
+              "vanilla_accuracy": 0.0,
+              "kg_accuracy": 0.0,
+              "vanilla_accuracy_raw": 0.0,
+              "kg_accuracy_raw": 0.0,
+              "auroc_aurec": {
+                "vanilla_rag": {
+                  "semantic_entropy_auroc": NaN,
+                  "semantic_entropy_aurec": NaN,
+                  "discrete_semantic_entropy_auroc": NaN,
+                  "discrete_semantic_entropy_aurec": NaN,
+                  "sre_uq_auroc": NaN,
+                  "sre_uq_aurec": NaN,
+                  "p_true_auroc": NaN,
+                  "p_true_aurec": NaN,
+                  "selfcheckgpt_auroc": NaN,
+                  "selfcheckgpt_aurec": NaN,
+                  "vn_entropy_auroc": NaN,
+                  "vn_entropy_aurec": NaN,
+                  "sd_uq_auroc": NaN,
+                  "sd_uq_aurec": NaN,
+                  "graph_path_support_auroc": NaN,
+                  "graph_path_support_aurec": NaN,
+                  "graph_path_disagreement_auroc": NaN,
+                  "graph_path_disagreement_aurec": NaN,
+                  "competing_answer_alternatives_auroc": NaN,
+                  "competing_answer_alternatives_aurec": NaN,
+                  "evidence_vn_entropy_auroc": NaN,
+                  "evidence_vn_entropy_aurec": NaN,
+                  "subgraph_informativeness_auroc": NaN,
+                  "subgraph_informativeness_aurec": NaN,
+                  "subgraph_perturbation_stability_auroc": NaN,
+                  "subgraph_perturbation_stability_aurec": NaN,
+                  "support_entailment_uncertainty_auroc": NaN,
+                  "support_entailment_uncertainty_aurec": NaN,
+                  "evidence_conflict_uncertainty_auroc": NaN,
+                  "evidence_conflict_uncertainty_aurec": NaN
+                },
+                "kg_rag": {
+                  "semantic_entropy_auroc": NaN,
+                  "semantic_entropy_aurec": NaN,
+                  "discrete_semantic_entropy_auroc": NaN,
+                  "discrete_semantic_entropy_aurec": NaN,
+                  "sre_uq_auroc": NaN,
+                  "sre_uq_aurec": NaN,
+                  "p_true_auroc": NaN,
+                  "p_true_aurec": NaN,
+                  "selfcheckgpt_auroc": NaN,
+                  "selfcheckgpt_aurec": NaN,
+                  "vn_entropy_auroc": NaN,
+                  "vn_entropy_aurec": NaN,
+                  "sd_uq_auroc": NaN,
+                  "sd_uq_aurec": NaN,
+                  "graph_path_support_auroc": NaN,
+                  "graph_path_support_aurec": NaN,
+                  "graph_path_disagreement_auroc": NaN,
+                  "graph_path_disagreement_aurec": NaN,
+                  "competing_answer_alternatives_auroc": NaN,
+                  "competing_answer_alternatives_aurec": NaN,
+                  "evidence_vn_entropy_auroc": NaN,
+                  "evidence_vn_entropy_aurec": NaN,
+                  "subgraph_informativeness_auroc": NaN,
+                  "subgraph_informativeness_aurec": NaN,
+                  "subgraph_perturbation_stability_auroc": NaN,
+                  "subgraph_perturbation_stability_aurec": NaN,
+                  "support_entailment_uncertainty_auroc": NaN,
+                  "support_entailment_uncertainty_aurec": NaN,
+                  "evidence_conflict_uncertainty_auroc": NaN,
+                  "evidence_conflict_uncertainty_aurec": NaN
+                }
+              }
+            },
+            "free_text": {
+              "n": 91,
+              "vanilla_accuracy": 0.0,
+              "kg_accuracy": 0.0,
+              "vanilla_accuracy_raw": 0.0,
+              "kg_accuracy_raw": 0.0,
+              "auroc_aurec": {
+                "vanilla_rag": {
+                  "semantic_entropy_auroc": NaN,
+                  "semantic_entropy_aurec": NaN,
+                  "discrete_semantic_entropy_auroc": NaN,
+                  "discrete_semantic_entropy_aurec": NaN,
+                  "sre_uq_auroc": NaN,
+                  "sre_uq_aurec": NaN,
+                  "p_true_auroc": NaN,
+                  "p_true_aurec": NaN,
+                  "selfcheckgpt_auroc": NaN,
+                  "selfcheckgpt_aurec": NaN,
+                  "vn_entropy_auroc": NaN,
+                  "vn_entropy_aurec": NaN,
+                  "sd_uq_auroc": NaN,
+                  "sd_uq_aurec": NaN,
+                  "graph_path_support_auroc": NaN,
+                  "graph_path_support_aurec": NaN,
+                  "graph_path_disagreement_auroc": NaN,
+                  "graph_path_disagreement_aurec": NaN,
+                  "competing_answer_alternatives_auroc": NaN,
+                  "competing_answer_alternatives_aurec": NaN,
+                  "evidence_vn_entropy_auroc": NaN,
+                  "evidence_vn_entropy_aurec": NaN,
+                  "subgraph_informativeness_auroc": NaN,
+                  "subgraph_informativeness_aurec": NaN,
+                  "subgraph_perturbation_stability_auroc": NaN,
+                  "subgraph_perturbation_stability_aurec": NaN,
+                  "support_entailment_uncertainty_auroc": NaN,
+                  "support_entailment_uncertainty_aurec": NaN,
+                  "evidence_conflict_uncertainty_auroc": NaN,
+                  "evidence_conflict_uncertainty_aurec": NaN
+                },
+                "kg_rag": {
+                  "semantic_entropy_auroc": NaN,
+                  "semantic_entropy_aurec": NaN,
+                  "discrete_semantic_entropy_auroc": NaN,
+                  "discrete_semantic_entropy_aurec": NaN,
+                  "sre_uq_auroc": NaN,
+                  "sre_uq_aurec": NaN,
+                  "p_true_auroc": NaN,
+                  "p_true_aurec": NaN,
+                  "selfcheckgpt_auroc": NaN,
+                  "selfcheckgpt_aurec": NaN,
+                  "vn_entropy_auroc": NaN,
+                  "vn_entropy_aurec": NaN,
+                  "sd_uq_auroc": NaN,
+                  "sd_uq_aurec": NaN,
+                  "graph_path_support_auroc": NaN,
+                  "graph_path_support_aurec": NaN,
+                  "graph_path_disagreement_auroc": NaN,
+                  "graph_path_disagreement_aurec": NaN,
+                  "competing_answer_alternatives_auroc": NaN,
+                  "competing_answer_alternatives_aurec": NaN,
+                  "evidence_vn_entropy_auroc": NaN,
+                  "evidence_vn_entropy_aurec": NaN,
+                  "subgraph_informativeness_auroc": NaN,
+                  "subgraph_informativeness_aurec": NaN,
+                  "subgraph_perturbation_stability_auroc": NaN,
+                  "subgraph_perturbation_stability_aurec": NaN,
+                  "support_entailment_uncertainty_auroc": NaN,
+                  "support_entailment_uncertainty_aurec": NaN,
+                  "evidence_conflict_uncertainty_auroc": NaN,
+                  "evidence_conflict_uncertainty_aurec": NaN
+                }
+              }
+            }
+          },
+          "accuracy_by_hop_count": {
+            "2-hop": {
+              "n": 72,
+              "vanilla_accuracy": 0.0,
+              "kg_accuracy": 0.0,
+              "vanilla_accuracy_clean": 0.0,
+              "kg_accuracy_clean": 0.0,
+              "vanilla_accuracy_shared_clean": 0.0,
+              "kg_accuracy_shared_clean": 0.0,
+              "vanilla_answer_em": 0.0,
+              "kg_answer_em": 0.0,
+              "vanilla_answer_f1": 0.0,
+              "kg_answer_f1": 0.0,
+              "metrics_by_approach": {
+                "vanilla_rag": {
+                  "sd_uq": 0.5,
+                  "vn_entropy": 0.0,
+                  "support_entailment_uncertainty": 0.5
+                },
+                "kg_rag": {
+                  "sd_uq": 0.5,
+                  "vn_entropy": 0.0,
+                  "support_entailment_uncertainty": 0.5
+                }
+              }
+            },
+            "4-hop": {
+              "n": 27,
+              "vanilla_accuracy": 0.0,
+              "kg_accuracy": 0.0,
+              "vanilla_accuracy_clean": 0.0,
+              "kg_accuracy_clean": 0.0,
+              "vanilla_accuracy_shared_clean": 0.0,
+              "kg_accuracy_shared_clean": 0.0,
+              "vanilla_answer_em": 0.0,
+              "kg_answer_em": 0.0,
+              "vanilla_answer_f1": 0.0,
+              "kg_answer_f1": 0.0,
+              "metrics_by_approach": {
+                "vanilla_rag": {
+                  "sd_uq": 0.5,
+                  "vn_entropy": 0.0,
+                  "support_entailment_uncertainty": 0.5
+                },
+                "kg_rag": {
+                  "sd_uq": 0.5,
+                  "vn_entropy": 0.0,
+                  "support_entailment_uncertainty": 0.5
+                }
+              }
+            },
+            "5+-hop": {
+              "n": 1,
+              "vanilla_accuracy": 0.0,
+              "kg_accuracy": 0.0,
+              "vanilla_accuracy_clean": 0.0,
+              "kg_accuracy_clean": 0.0,
+              "vanilla_accuracy_shared_clean": 0.0,
+              "kg_accuracy_shared_clean": 0.0,
+              "vanilla_answer_em": 0.0,
+              "kg_answer_em": 0.0,
+              "vanilla_answer_f1": 0.0,
+              "kg_answer_f1": 0.0,
+              "metrics_by_approach": {
+                "vanilla_rag": {
+                  "sd_uq": 0.5,
+                  "vn_entropy": 0.0,
+                  "support_entailment_uncertainty": 0.5
+                },
+                "kg_rag": {
+                  "sd_uq": 0.5,
+                  "vn_entropy": 0.0,
+                  "support_entailment_uncertainty": 0.5
+                }
+              }
+            }
+          },
+          "retrieval_determinism_confound": false,
+          "kg_routing_distribution": {
+            "n": 0,
+            "routes": {},
+            "route_reasons": {},
+            "pure_entity_first_rate": 0.0,
+            "graph_route_rate": 0.0,
+            "dense_fallback_rate": 0.0,
+            "unknown_route_rate": 0.0
+          },
+          "kg_pure_entity_first_rate": 0.0,
+          "kg_dense_fallback_rate": 0.0,
+          "kg_unknown_route_rate": 0.0,
+          "kg_avg_retrieval_overlap": 0.0,
+          "vanilla_avg_retrieval_overlap": 0.0,
+          "ece": {
+            "vanilla_rag": {},
+            "kg_rag": {}
+          },
+          "precision_at_k": {
+            "vanilla_rag": {},
+            "kg_rag": {},
+            "baseline": {}
+          }
+        }
+      ]
+    }
+  ],
+  "track_aggregates": {
+    "multihop_reasoning": [
+      {
+        "config_name": "dense_floor_thr0.1_k10_rt0p0",
+        "num_datasets": 1,
+        "datasets": [
+          "2wikimultihopqa"
+        ],
+        "vanilla_macro_accuracy": 0.0,
+        "kg_macro_accuracy": 0.0
+      },
+      {
+        "config_name": "kg_entity_first_thr0.1_k10_rt0p0",
+        "num_datasets": 1,
+        "datasets": [
+          "2wikimultihopqa"
+        ],
+        "vanilla_macro_accuracy": 0.0,
+        "kg_macro_accuracy": 0.0
+      }
+    ]
+  },
+  "retrieval_selection": {
+    "per_dataset": {
+      "2wikimultihopqa": {
+        "vanilla_rag": {
+          "config_name": "kg_entity_first_thr0.1_k10_rt0p0",
+          "accuracy": 0.0,
+          "answer_f1": 0.0,
+          "answer_em": 0.0,
+          "answered_questions": 0,
+          "accuracy_raw": 0.0
+        },
+        "kg_rag": {
+          "config_name": "kg_entity_first_thr0.1_k10_rt0p0",
+          "accuracy": 0.0,
+          "answer_f1": 0.0,
+          "answer_em": 0.0,
+          "answered_questions": 0,
+          "accuracy_raw": 0.0
+        }
+      }
+    },
+    "overall": {
+      "vanilla_rag": {
+        "best_config": {
+          "config_name": "kg_entity_first_thr0.1_k10_rt0p0",
+          "num_datasets": 1,
+          "datasets": [
+            "2wikimultihopqa"
+          ],
+          "macro_accuracy": 0.0,
+          "macro_answer_f1": 0.0,
+          "macro_answer_em": 0.0,
+          "macro_answered_questions": 0.0,
+          "macro_accuracy_raw": 0.0
+        },
+        "all_configs": [
+          {
+            "config_name": "dense_floor_thr0.1_k10_rt0p0",
+            "num_datasets": 1,
+            "datasets": [
+              "2wikimultihopqa"
+            ],
+            "macro_accuracy": 0.0,
+            "macro_answer_f1": 0.0,
+            "macro_answer_em": 0.0,
+            "macro_answered_questions": 0.0,
+            "macro_accuracy_raw": 0.0
+          },
+          {
+            "config_name": "kg_entity_first_thr0.1_k10_rt0p0",
+            "num_datasets": 1,
+            "datasets": [
+              "2wikimultihopqa"
+            ],
+            "macro_accuracy": 0.0,
+            "macro_answer_f1": 0.0,
+            "macro_answer_em": 0.0,
+            "macro_answered_questions": 0.0,
+            "macro_accuracy_raw": 0.0
+          }
+        ]
+      },
+      "kg_rag": {
+        "best_config": {
+          "config_name": "kg_entity_first_thr0.1_k10_rt0p0",
+          "num_datasets": 1,
+          "datasets": [
+            "2wikimultihopqa"
+          ],
+          "macro_accuracy": 0.0,
+          "macro_answer_f1": 0.0,
+          "macro_answer_em": 0.0,
+          "macro_answered_questions": 0.0,
+          "macro_accuracy_raw": 0.0
+        },
+        "all_configs": [
+          {
+            "config_name": "dense_floor_thr0.1_k10_rt0p0",
+            "num_datasets": 1,
+            "datasets": [
+              "2wikimultihopqa"
+            ],
+            "macro_accuracy": 0.0,
+            "macro_answer_f1": 0.0,
+            "macro_answer_em": 0.0,
+            "macro_answered_questions": 0.0,
+            "macro_accuracy_raw": 0.0
+          },
+          {
+            "config_name": "kg_entity_first_thr0.1_k10_rt0p0",
+            "num_datasets": 1,
+            "datasets": [
+              "2wikimultihopqa"
+            ],
+            "macro_accuracy": 0.0,
+            "macro_answer_f1": 0.0,
+            "macro_answer_em": 0.0,
+            "macro_answered_questions": 0.0,
+            "macro_accuracy_raw": 0.0
+          }
+        ]
+      }
+    }
+  }
+}

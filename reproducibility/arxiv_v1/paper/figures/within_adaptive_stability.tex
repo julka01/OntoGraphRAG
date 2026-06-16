@@ -1,0 +1,25 @@
+\begin{table*}[t]
+\centering
+\small
+\caption{%
+  Within-adaptive retrieval-stability sanity check from an archived
+  2WikiMultiHopQA $n=100$ trace that retained per-question chunk-overlap
+  fields.  The newer $n=250$ run is the headline result; this table is a
+  mechanism check.
+  Bands are population tertiles of per-question chunk overlap; because a
+  large fraction of questions sit at exactly $1.0$ overlap, ties spill
+  across the tertile boundary.
+  AUROC treats incorrect answers as the positive class.%
+}
+\label{tab:within_adaptive_stability}
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{@{}lrrrrrrr@{}}
+\toprule
+Overlap band & $n$ & Range & Acc. & DSE AUC & SD AUC & VN AUC & DSE mean \\
+\midrule
+Low & 33 & 0.400--0.840 & 0.364 & 0.415 & 0.714 & 0.750 & 0.277 \\
+Medium & 33 & 0.850--1.000 & 0.545 & 0.667 & 0.800 & 0.752 & 0.103 \\
+High & 34 & 1.000--1.000 & 0.294 & 0.467 & 0.633 & 0.583 & 0.157 \\
+\bottomrule
+\end{tabular}
+\end{table*}

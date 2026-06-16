@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "dataset": "multihoprag",
+  "created_at": "2026-03-29T21:47:36.299101",
+  "selection_strategy": "seeded_sample",
+  "subset_seed": 1,
+  "requested_num_samples": 10,
+  "available_question_count": 2255,
+  "selection_count": 10,
+  "question_ids": [
+    "multihoprag_298",
+    "multihoprag_439",
+    "multihoprag_557",
+    "multihoprag_634",
+    "multihoprag_984",
+    "multihoprag_1195",
+    "multihoprag_1774",
+    "multihoprag_2088",
+    "multihoprag_2193",
+    "multihoprag_2297"
+  ],
+  "selection_key": "n10_seed1",
+  "subset_hash": "dfccceb95a6b",
+  "subset_tag": "n10_seed1_hdfccceb95a6b",
+  "subset_id": "multihoprag__n10_seed1_hdfccceb95a6b"
+}

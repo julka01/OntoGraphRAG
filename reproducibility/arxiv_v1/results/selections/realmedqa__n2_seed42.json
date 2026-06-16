@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "dataset": "realmedqa",
+  "created_at": "2026-06-12T20:20:02.168322",
+  "selection_strategy": "seeded_sample",
+  "subset_seed": 42,
+  "requested_num_samples": 2,
+  "available_question_count": 230,
+  "selection_count": 2,
+  "question_ids": [
+    "realmedqa_a0cca3d59bfb",
+    "realmedqa_4251ac4a22b1"
+  ],
+  "selection_key": "n2_seed42",
+  "subset_hash": "0fa1e103cf1f",
+  "subset_tag": "n2_seed42_h0fa1e103cf1f",
+  "subset_id": "realmedqa__n2_seed42_h0fa1e103cf1f"
+}

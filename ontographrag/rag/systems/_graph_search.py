@@ -324,6 +324,7 @@ class GraphSearchMixin:
         question_id: str = None,
         document_names: List[str] = None,
         allowed_rel_types: Optional[List[str]] = None,
+        excluded_entity_ids: Optional[Set[str]] = None,
     ) -> Dict[str, Any]:
         """
         Multi-hop graph traversal from seed entities.
@@ -339,6 +340,8 @@ class GraphSearchMixin:
           1. How many distinct seed entities connect to them (higher = more central)
           2. Minimum hop distance (closer = higher priority)
         """
+        excluded_entity_ids = {str(eid) for eid in (excluded_entity_ids or set()) if str(eid).strip()}
+        seed_entity_ids = [eid for eid in seed_entity_ids if str(eid) not in excluded_entity_ids]
         if not seed_entity_ids:
             return {"neighbors": {}, "paths": []}
 
@@ -361,6 +364,7 @@ class GraphSearchMixin:
             params: Dict[str, Any] = {
                 "seed_ids": seed_entity_ids,
                 "max_neighbors": effective_max_neighbors,
+                "excluded_entity_ids": list(excluded_entity_ids),
             }
 
             seed_scope = "true"
@@ -403,6 +407,7 @@ class GraphSearchMixin:
               AND {seed_scope}
             MATCH path = (seed)-[*1..{effective_max_hops}]-(neighbor:__Entity__)
             WHERE NOT neighbor.id IN $seed_ids
+              AND NOT neighbor.id IN $excluded_entity_ids
               AND neighbor.id IS NOT NULL
               AND ALL(r IN relationships(path) WHERE NOT type(r) IN ['HAS_ENTITY', 'FROM_CHUNK', 'PART_OF', 'MENTIONED_IN', 'MENTIONS', 'QUALIFIES']
                 AND coalesce(r.confidence, 1.0) >= 0.4{rog_rel_filter})
@@ -692,7 +697,19 @@ class GraphSearchMixin:
 
         return {eid: float(v[idx[eid]]) for eid in all_entity_ids}
 
-    def _entity_first_search(self, graph, query: str, max_chunks: int = 20, kg_name: str = None, max_hops: int = 2, question_id: str = None, llm=None, document_names: List[str] = None) -> Optional[Dict[str, Any]]:
+    def _entity_first_search(
+        self,
+        graph,
+        query: str,
+        max_chunks: int = 20,
+        kg_name: str = None,
+        max_hops: int = 2,
+        question_id: str = None,
+        llm=None,
+        document_names: List[str] = None,
+        anchor_mask_entity_ids: Optional[List[str]] = None,
+        anchor_mask_entity_names: Optional[List[str]] = None,
+    ) -> Optional[Dict[str, Any]]:
         """
         Entity-first retrieval: find KG entities whose names appear in the question,
         walk the graph from those seeds, then retrieve the chunks those entities came from.
@@ -874,7 +891,7 @@ class GraphSearchMixin:
                 if new_rank > existing_rank:
                     merged_by_id[row["id"]] = row
 
-            matched = sorted(
+            matched_all = sorted(
                 merged_by_id.values(),
                 key=lambda row: (
                     int(row.get("exact_in_query", 0)),
@@ -884,7 +901,32 @@ class GraphSearchMixin:
                     len(str(row.get("name") or row.get("id") or "")),
                 ),
                 reverse=True,
-            )[:self._MAX_ENTITY_SEEDS]
+            )
+            mask_ids = {
+                str(eid).strip()
+                for eid in (anchor_mask_entity_ids or [])
+                if str(eid).strip()
+            }
+            mask_names = {
+                str(name).strip().lower()
+                for name in (anchor_mask_entity_names or [])
+                if str(name).strip()
+            }
+            if mask_ids or mask_names:
+                before_mask = len(matched_all)
+                matched_all = [
+                    row for row in matched_all
+                    if str(row.get("id") or "").strip() not in mask_ids
+                    and str(row.get("name") or "").strip().lower() not in mask_names
+                ]
+                logging.info(
+                    "Anchor mask removed %d/%d entity candidates: ids=%s names=%s",
+                    before_mask - len(matched_all),
+                    before_mask,
+                    sorted(mask_ids)[:5],
+                    sorted(mask_names)[:5],
+                )
+            matched = matched_all[:self._MAX_ENTITY_SEEDS]
 
             matched_query_token_count = self._count_matched_query_tokens(
                 query,
@@ -967,6 +1009,7 @@ class GraphSearchMixin:
                 question_id=question_id,
                 document_names=document_names,
                 allowed_rel_types=allowed_rel_types,
+                excluded_entity_ids=mask_ids,
             )
             for nid, ninfo in expansion["neighbors"].items():
                 if nid not in entities:
@@ -1248,7 +1291,11 @@ class GraphSearchMixin:
                 "retrieval_route": "entity_first",
                 "route_reason": "success",
                 "diagnostics": {
-                    "seed_entities": [entities[eid].get("name", eid) for eid in seed_ids[:10]],
+                    "seed_entity_ids": seed_ids[:10],
+                    "seed_entity_names": [entities[eid].get("description", eid) for eid in seed_ids[:10]],
+                    "seed_entities": [entities[eid].get("description", eid) for eid in seed_ids[:10]],
+                    "anchor_mask_entity_ids": sorted(mask_ids),
+                    "anchor_mask_entity_names": sorted(mask_names),
                     "ann_match_count": len([e for e in matched if e.get("_source_kind") == "embedding"]),
                     "symbolic_match_count": len([e for e in matched if e.get("_source_kind") == "symbolic"]),
                     "rfge_fired": False,
@@ -1274,6 +1321,8 @@ class GraphSearchMixin:
         max_hops: int = 2,
         question_id: str = None,
         document_names: List[str] = None,
+        anchor_mask_entity_ids: Optional[List[str]] = None,
+        anchor_mask_entity_names: Optional[List[str]] = None,
     ) -> Optional[Dict[str, Any]]:
         """
         Retriever-first graph expansion (RFGE).
@@ -1308,6 +1357,16 @@ class GraphSearchMixin:
                 return None
 
             # Step 2: collect entity seeds from returned chunks.
+            mask_ids = {
+                str(eid).strip()
+                for eid in (anchor_mask_entity_ids or [])
+                if str(eid).strip()
+            }
+            mask_names = {
+                str(name).strip().lower()
+                for name in (anchor_mask_entity_names or [])
+                if str(name).strip()
+            }
             vec_entity_ids: List[str] = []
             cosine_by_chunk: Dict[str, float] = {}
             _MAX_ENTITIES_PER_CHUNK = 4  # cap seeds per chunk to avoid generic-entity flooding
@@ -1320,6 +1379,9 @@ class GraphSearchMixin:
                         break
                     eid = ent.get("id")
                     if not eid:
+                        continue
+                    ent_name = str(ent.get("description") or ent.get("name") or eid).strip().lower()
+                    if str(eid) in mask_ids or ent_name in mask_names:
                         continue
                     eid_lower = eid.lower().strip()
                     if len(eid_lower) <= 2 or eid_lower in self._ENTITY_MATCH_STOPWORDS:
@@ -1340,6 +1402,7 @@ class GraphSearchMixin:
                 max_hops=max_hops,
                 question_id=question_id,
                 document_names=document_names,
+                excluded_entity_ids=mask_ids,
             )
 
             # Build the combined entity pool: passage seeds + graph neighbors.
@@ -1503,7 +1566,11 @@ class GraphSearchMixin:
                 "retrieval_route": "rfge",
                 "route_reason": "entity_first_failed",
                 "diagnostics": {
+                    "seed_entity_ids": vec_entity_ids[:10],
+                    "seed_entity_names": vec_entity_ids[:10],
                     "seed_entities": vec_entity_ids[:10],
+                    "anchor_mask_entity_ids": sorted(mask_ids),
+                    "anchor_mask_entity_names": sorted(mask_names),
                     "ann_match_count": 0,
                     "symbolic_match_count": 0,
                     "rfge_fired": True,

@@ -1,0 +1,44 @@
+{
+ "pubmedqa": {
+  "entities": 2354,
+  "entity_types": 291,
+  "chunks": 348,
+  "entity_entity_relations": 3023,
+  "relation_types": 786
+ },
+ "realmedqa": {
+  "entities": 537,
+  "entity_types": 100,
+  "chunks": 143,
+  "entity_entity_relations": 359,
+  "relation_types": 119
+ },
+ "hotpotqa": {
+  "entities": 13546,
+  "entity_types": 1340,
+  "chunks": 2500,
+  "entity_entity_relations": 12355,
+  "relation_types": 4291
+ },
+ "hotpotqa_fullwiki": {
+  "entities": 13498,
+  "entity_types": 1326,
+  "chunks": 2489,
+  "entity_entity_relations": 12012,
+  "relation_types": 4199
+ },
+ "2wikimultihopqa": {
+  "entities": 8328,
+  "entity_types": 497,
+  "chunks": 2489,
+  "entity_entity_relations": 7187,
+  "relation_types": 1822
+ },
+ "musique": {
+  "entities": 15440,
+  "entity_types": 895,
+  "chunks": 1999,
+  "entity_entity_relations": 24858,
+  "relation_types": 5898
+ }
+}

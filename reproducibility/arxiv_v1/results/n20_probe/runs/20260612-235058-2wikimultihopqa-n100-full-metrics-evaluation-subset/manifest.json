@@ -1,0 +1,58 @@
+{
+  "run_id": "20260612-235058-2wikimultihopqa-n100-full-metrics-evaluation-subset",
+  "created_at": "2026-06-12T23:50:58.635340",
+  "datasets": [
+    "2wikimultihopqa"
+  ],
+  "num_samples": 100,
+  "subset_seed": 42,
+  "evaluation_mode": "full_metrics",
+  "retrieval_study": "final_pair",
+  "kg_builder_profile": "full",
+  "dataset_kg_scope": "evaluation_subset",
+  "allow_gold_evidence_contexts": false,
+  "model": "gpt-4o-mini",
+  "embedding_provider": "sentence_transformers",
+  "git_commit": "ed8d829",
+  "rebuild_kg": false,
+  "selection_files": {
+    "2wikimultihopqa": "results/selections/2wikimultihopqa__n100_seed42.json"
+  },
+  "subset_ids": {
+    "2wikimultihopqa": "2wikimultihopqa__n100_seed42_h7767a87f44f4"
+  },
+  "dataset_corpus_profiles": {
+    "2wikimultihopqa": {
+      "dataset": "2wikimultihopqa",
+      "question_context_role": "retrieval_bundle",
+      "requires_shared_corpus_for_fair_retrieval": false,
+      "notes": "Question contexts are the benchmark-provided passage bundle, not pure gold snippets."
+    }
+  },
+  "accuracy": {
+    "2wikimultihopqa/dense_floor_thr0.1_k10_rt0p0": {
+      "vanilla": 0.0,
+      "kg": 0.0,
+      "vanilla_raw": 0.0,
+      "kg_raw": 0.0,
+      "vanilla_answer_em": 0.0,
+      "kg_answer_em": 0.0,
+      "vanilla_answer_f1": 0.0,
+      "kg_answer_f1": 0.0,
+      "n": 100
+    },
+    "2wikimultihopqa/kg_entity_first_thr0.1_k10_rt0p0": {
+      "vanilla": 0.0,
+      "kg": 0.0,
+      "vanilla_raw": 0.0,
+      "kg_raw": 0.0,
+      "vanilla_answer_em": 0.0,
+      "kg_answer_em": 0.0,
+      "vanilla_answer_f1": 0.0,
+      "kg_answer_f1": 0.0,
+      "n": 100
+    }
+  },
+  "completed_at": "2026-06-13T08:00:30.466091",
+  "wandb_run_id": "o22m6vr7"
+}

@@ -1,0 +1,69 @@
+{
+  "run_id": "20260612-224324-realmedqa-n100-full-metrics-evaluation-subset",
+  "created_at": "2026-06-12T22:43:24.714209",
+  "datasets": [
+    "realmedqa"
+  ],
+  "num_samples": 100,
+  "subset_seed": 42,
+  "evaluation_mode": "full_metrics",
+  "retrieval_study": null,
+  "kg_builder_profile": "full",
+  "dataset_kg_scope": "evaluation_subset",
+  "allow_gold_evidence_contexts": false,
+  "model": "gpt-4o-mini",
+  "embedding_provider": "sentence_transformers",
+  "git_commit": "ed8d829",
+  "rebuild_kg": false,
+  "selection_files": {
+    "realmedqa": "results/selections/realmedqa__n100_seed42.json"
+  },
+  "subset_ids": {
+    "realmedqa": "realmedqa__n100_seed42_he1599ddb41e2"
+  },
+  "dataset_corpus_profiles": {
+    "realmedqa": {
+      "dataset": "realmedqa",
+      "question_context_role": "no_context",
+      "requires_shared_corpus_for_fair_retrieval": true,
+      "notes": "Questions are paired with gold NICE recommendations; benchmark against the shared recommendation corpus, not per-question answer text."
+    }
+  },
+  "accuracy": {
+    "realmedqa/thr0.1_k1_rt0p0": {
+      "vanilla": 0.8941,
+      "kg": 0.8925,
+      "vanilla_raw": 0.76,
+      "kg_raw": 0.83,
+      "vanilla_answer_em": 0.0,
+      "kg_answer_em": 0.0,
+      "vanilla_answer_f1": 0.0,
+      "kg_answer_f1": 0.0,
+      "n": 100
+    },
+    "realmedqa/thr0.1_k3_rt0p0": {
+      "vanilla": 0.9565,
+      "kg": 0.9381,
+      "vanilla_raw": 0.88,
+      "kg_raw": 0.91,
+      "vanilla_answer_em": 0.0,
+      "kg_answer_em": 0.0,
+      "vanilla_answer_f1": 0.0,
+      "kg_answer_f1": 0.0,
+      "n": 100
+    },
+    "realmedqa/thr0.1_k10_rt0p0": {
+      "vanilla": 0.9271,
+      "kg": 0.9184,
+      "vanilla_raw": 0.89,
+      "kg_raw": 0.9,
+      "vanilla_answer_em": 0.0,
+      "kg_answer_em": 0.0,
+      "vanilla_answer_f1": 0.0,
+      "kg_answer_f1": 0.0,
+      "n": 100
+    }
+  },
+  "completed_at": "2026-06-13T04:38:58.743599",
+  "wandb_run_id": "8xxigcds"
+}

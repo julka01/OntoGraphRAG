@@ -1,0 +1,58 @@
+{
+  "run_id": "20260531-174507-hotpotqa-n250-full-metrics-evaluation-subset-rebuildkg",
+  "created_at": "2026-05-31T17:45:07.733780",
+  "datasets": [
+    "hotpotqa"
+  ],
+  "num_samples": 250,
+  "subset_seed": 42,
+  "evaluation_mode": "full_metrics",
+  "retrieval_study": "final_pair",
+  "kg_builder_profile": "lightweight",
+  "dataset_kg_scope": "evaluation_subset",
+  "allow_gold_evidence_contexts": false,
+  "model": "gpt-4o-mini",
+  "embedding_provider": "sentence_transformers",
+  "git_commit": "8249cb0",
+  "rebuild_kg": true,
+  "selection_files": {
+    "hotpotqa": "results/selections/hotpotqa__n250_seed42.json"
+  },
+  "subset_ids": {
+    "hotpotqa": "hotpotqa__n250_seed42_hd15f7995a9cc"
+  },
+  "dataset_corpus_profiles": {
+    "hotpotqa": {
+      "dataset": "hotpotqa",
+      "question_context_role": "retrieval_bundle",
+      "requires_shared_corpus_for_fair_retrieval": false,
+      "notes": "Question contexts are the benchmark-provided passage bundle, not pure gold snippets."
+    }
+  },
+  "accuracy": {
+    "hotpotqa/dense_floor_thr0.1_k10_rt0p0": {
+      "vanilla": 0.6549,
+      "kg": 0.0,
+      "vanilla_raw": 0.592,
+      "kg_raw": 0.0,
+      "vanilla_answer_em": 0.428,
+      "kg_answer_em": 0.0,
+      "vanilla_answer_f1": 0.5365,
+      "kg_answer_f1": 0.0,
+      "n": 250
+    },
+    "hotpotqa/kg_entity_first_thr0.1_k10_rt0p0": {
+      "vanilla": 0.0,
+      "kg": 0.605,
+      "vanilla_raw": 0.0,
+      "kg_raw": 0.576,
+      "vanilla_answer_em": 0.0,
+      "kg_answer_em": 0.416,
+      "vanilla_answer_f1": 0.0,
+      "kg_answer_f1": 0.5049,
+      "n": 250
+    }
+  },
+  "completed_at": "2026-06-01T05:54:14.712669",
+  "wandb_run_id": "3ewq2ep5"
+}

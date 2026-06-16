@@ -1,0 +1,452 @@
+[
+  {
+    "policy": "Dense vanilla",
+    "source": "results/latest_kg_design_final_metrics/runs/20260528-231830-2wikimultihopqa-n250-full-metrics-evaluation-subset-rebuildkg/mirage_2wikimultihopqa_results.json",
+    "config": "dense_floor_thr0.1_k10_rt0p0",
+    "prefix": "vanilla",
+    "hop": "2-hop",
+    "summary": {
+      "n": 150,
+      "correct": 108,
+      "wrong": 42,
+      "accuracy": 0.72,
+      "metrics": {
+        "semantic_entropy": {
+          "label": "SE",
+          "usable": 150,
+          "mean": 0.05524949906364905,
+          "auroc": 0.6041666666666666,
+          "aurec": 0.1754311004652944
+        },
+        "sd_uq": {
+          "label": "SD-UQ",
+          "usable": 150,
+          "mean": 2.2441238332129583e-06,
+          "auroc": 0.615189594356261,
+          "aurec": 0.23748127991778414
+        },
+        "vn_entropy": {
+          "label": "VN-Ent.",
+          "usable": 150,
+          "mean": 0.0920291108274921,
+          "auroc": 0.638558201058201,
+          "aurec": 0.20097953100513852
+        },
+        "support_entailment_uncertainty": {
+          "label": "SEU",
+          "usable": 150,
+          "mean": 0.6119312169312169,
+          "auroc": 0.6151895943562611,
+          "aurec": 0.22369737574112888
+        },
+        "graph_path_support": {
+          "label": "GPS",
+          "usable": 80,
+          "mean": 0.7422916666666667,
+          "auroc": 0.4844693701466782,
+          "aurec": 0.24183323408575746
+        }
+      }
+    }
+  },
+  {
+    "policy": "Dense vanilla",
+    "source": "results/latest_kg_design_final_metrics/runs/20260528-231830-2wikimultihopqa-n250-full-metrics-evaluation-subset-rebuildkg/mirage_2wikimultihopqa_results.json",
+    "config": "dense_floor_thr0.1_k10_rt0p0",
+    "prefix": "vanilla",
+    "hop": "4-hop",
+    "summary": {
+      "n": 58,
+      "correct": 42,
+      "wrong": 16,
+      "accuracy": 0.7241379310344828,
+      "metrics": {
+        "semantic_entropy": {
+          "label": "SE",
+          "usable": 58,
+          "mean": 0.012966762922084579,
+          "auroc": 0.5089285714285714,
+          "aurec": 0.27918681832254466
+        },
+        "sd_uq": {
+          "label": "SD-UQ",
+          "usable": 58,
+          "mean": 3.14787173391365e-09,
+          "auroc": 0.6279761904761905,
+          "aurec": 0.19692266709246553
+        },
+        "vn_entropy": {
+          "label": "VN-Ent.",
+          "usable": 58,
+          "mean": 0.19771470144956602,
+          "auroc": 0.5706845238095238,
+          "aurec": 0.2773856827190498
+        },
+        "support_entailment_uncertainty": {
+          "label": "SEU",
+          "usable": 58,
+          "mean": 0.45832307060755345,
+          "auroc": 0.6562499999999999,
+          "aurec": 0.22043739082787467
+        },
+        "graph_path_support": {
+          "label": "GPS",
+          "usable": 46,
+          "mean": 0.9347826086956522,
+          "auroc": 0.4777777777777778,
+          "aurec": 0.2286055495583907
+        }
+      }
+    }
+  },
+  {
+    "policy": "Dense vanilla",
+    "source": "results/latest_kg_design_final_metrics/runs/20260528-231830-2wikimultihopqa-n250-full-metrics-evaluation-subset-rebuildkg/mirage_2wikimultihopqa_results.json",
+    "config": "dense_floor_thr0.1_k10_rt0p0",
+    "prefix": "vanilla",
+    "hop": "5+-hop",
+    "summary": {
+      "n": 4,
+      "correct": 1,
+      "wrong": 3,
+      "accuracy": 0.25,
+      "metrics": {
+        "semantic_entropy": {
+          "label": "SE",
+          "usable": 4,
+          "mean": 0.0,
+          "auroc": 0.5,
+          "aurec": 0.9375
+        },
+        "sd_uq": {
+          "label": "SD-UQ",
+          "usable": 4,
+          "mean": 1.000137381516053e-12,
+          "auroc": 0.0,
+          "aurec": 0.9375
+        },
+        "vn_entropy": {
+          "label": "VN-Ent.",
+          "usable": 4,
+          "mean": 2.5427293337543233e-07,
+          "auroc": 1.0,
+          "aurec": 0.47916666666666663
+        },
+        "support_entailment_uncertainty": {
+          "label": "SEU",
+          "usable": 4,
+          "mean": 0.6227678571428572,
+          "auroc": 0.8333333333333334,
+          "aurec": 0.7291666666666666
+        },
+        "graph_path_support": {
+          "label": "GPS",
+          "usable": 0,
+          "mean": null,
+          "auroc": null,
+          "aurec": null
+        }
+      }
+    }
+  },
+  {
+    "policy": "Adaptive KG",
+    "source": "results/latest_kg_design_final_metrics/runs/20260528-231830-2wikimultihopqa-n250-full-metrics-evaluation-subset-rebuildkg/mirage_2wikimultihopqa_results.json",
+    "config": "kg_entity_first_thr0.1_k10_rt0p0",
+    "prefix": "kg",
+    "hop": "2-hop",
+    "summary": {
+      "n": 182,
+      "correct": 125,
+      "wrong": 57,
+      "accuracy": 0.6868131868131868,
+      "metrics": {
+        "semantic_entropy": {
+          "label": "SE",
+          "usable": 182,
+          "mean": 0.12121260897488967,
+          "auroc": 0.6021754385964913,
+          "aurec": 0.24254292922617499
+        },
+        "sd_uq": {
+          "label": "SD-UQ",
+          "usable": 182,
+          "mean": 0.0029080130335774716,
+          "auroc": 0.7019649122807018,
+          "aurec": 0.18658157563898467
+        },
+        "vn_entropy": {
+          "label": "VN-Ent.",
+          "usable": 182,
+          "mean": 0.1911623610834505,
+          "auroc": 0.667578947368421,
+          "aurec": 0.22653417319612176
+        },
+        "support_entailment_uncertainty": {
+          "label": "SEU",
+          "usable": 182,
+          "mean": 0.5441969736612594,
+          "auroc": 0.6106666666666667,
+          "aurec": 0.23360173044865837
+        },
+        "graph_path_support": {
+          "label": "GPS",
+          "usable": 114,
+          "mean": 0.6890350877192983,
+          "auroc": 0.3742877492877492,
+          "aurec": 0.3992142056735191
+        }
+      }
+    }
+  },
+  {
+    "policy": "Adaptive KG",
+    "source": "results/latest_kg_design_final_metrics/runs/20260528-231830-2wikimultihopqa-n250-full-metrics-evaluation-subset-rebuildkg/mirage_2wikimultihopqa_results.json",
+    "config": "kg_entity_first_thr0.1_k10_rt0p0",
+    "prefix": "kg",
+    "hop": "4-hop",
+    "summary": {
+      "n": 58,
+      "correct": 42,
+      "wrong": 16,
+      "accuracy": 0.7241379310344828,
+      "metrics": {
+        "semantic_entropy": {
+          "label": "SE",
+          "usable": 58,
+          "mean": 0.06344106458718336,
+          "auroc": 0.5744047619047619,
+          "aurec": 0.33587528228420593
+        },
+        "sd_uq": {
+          "label": "SD-UQ",
+          "usable": 58,
+          "mean": 0.001577688408382068,
+          "auroc": 0.5997023809523809,
+          "aurec": 0.2520369305815956
+        },
+        "vn_entropy": {
+          "label": "VN-Ent.",
+          "usable": 58,
+          "mean": 0.2483444576739226,
+          "auroc": 0.6376488095238095,
+          "aurec": 0.1998799865912004
+        },
+        "support_entailment_uncertainty": {
+          "label": "SEU",
+          "usable": 58,
+          "mean": 0.4661535303776682,
+          "auroc": 0.6458333333333334,
+          "aurec": 0.23799987439299022
+        },
+        "graph_path_support": {
+          "label": "GPS",
+          "usable": 49,
+          "mean": 0.9591836734693877,
+          "auroc": 0.4754273504273504,
+          "aurec": 0.3371645151813527
+        }
+      }
+    }
+  },
+  {
+    "policy": "Adaptive KG",
+    "source": "results/latest_kg_design_final_metrics/runs/20260528-231830-2wikimultihopqa-n250-full-metrics-evaluation-subset-rebuildkg/mirage_2wikimultihopqa_results.json",
+    "config": "kg_entity_first_thr0.1_k10_rt0p0",
+    "prefix": "kg",
+    "hop": "5+-hop",
+    "summary": {
+      "n": 4,
+      "correct": 1,
+      "wrong": 3,
+      "accuracy": 0.25,
+      "metrics": {
+        "semantic_entropy": {
+          "label": "SE",
+          "usable": 4,
+          "mean": 0.4616064393891751,
+          "auroc": 0.16666666666666669,
+          "aurec": 0.8541666666666666
+        },
+        "sd_uq": {
+          "label": "SD-UQ",
+          "usable": 4,
+          "mean": 0.011768620489802728,
+          "auroc": 0.6666666666666667,
+          "aurec": 0.7291666666666666
+        },
+        "vn_entropy": {
+          "label": "VN-Ent.",
+          "usable": 4,
+          "mean": 0.5785873234272003,
+          "auroc": 1.0,
+          "aurec": 0.47916666666666663
+        },
+        "support_entailment_uncertainty": {
+          "label": "SEU",
+          "usable": 4,
+          "mean": 0.765625,
+          "auroc": 1.0,
+          "aurec": 0.47916666666666663
+        },
+        "graph_path_support": {
+          "label": "GPS",
+          "usable": 0,
+          "mean": null,
+          "auroc": null,
+          "aurec": null
+        }
+      }
+    }
+  },
+  {
+    "policy": "Strict KG",
+    "source": "results/latest_kg_design_final_metrics/runs/20260529-120453-2wikimultihopqa-n250-full-metrics-evaluation-subset/mirage_2wikimultihopqa_results.json",
+    "config": "kg_strict_entity_first_thr0.1_k10_rt0p0",
+    "prefix": "kg",
+    "hop": "2-hop",
+    "summary": {
+      "n": 183,
+      "correct": 100,
+      "wrong": 83,
+      "accuracy": 0.546448087431694,
+      "metrics": {
+        "semantic_entropy": {
+          "label": "SE",
+          "usable": 183,
+          "mean": 0.08490241118879294,
+          "auroc": 0.5187951807228915,
+          "aurec": 0.3896406537190073
+        },
+        "sd_uq": {
+          "label": "SD-UQ",
+          "usable": 183,
+          "mean": 0.002511664975507873,
+          "auroc": 0.5604819277108434,
+          "aurec": 0.39014695202952515
+        },
+        "vn_entropy": {
+          "label": "VN-Ent.",
+          "usable": 183,
+          "mean": 0.12713408556263917,
+          "auroc": 0.6796987951807228,
+          "aurec": 0.2994477053830221
+        },
+        "support_entailment_uncertainty": {
+          "label": "SEU",
+          "usable": 183,
+          "mean": 0.568581403417469,
+          "auroc": 0.3783734939759036,
+          "aurec": 0.48877594822968917
+        },
+        "graph_path_support": {
+          "label": "GPS",
+          "usable": 79,
+          "mean": 0.5339662447257384,
+          "auroc": 0.4617424242424243,
+          "aurec": 0.34935436252211916
+        }
+      }
+    }
+  },
+  {
+    "policy": "Strict KG",
+    "source": "results/latest_kg_design_final_metrics/runs/20260529-120453-2wikimultihopqa-n250-full-metrics-evaluation-subset/mirage_2wikimultihopqa_results.json",
+    "config": "kg_strict_entity_first_thr0.1_k10_rt0p0",
+    "prefix": "kg",
+    "hop": "4-hop",
+    "summary": {
+      "n": 58,
+      "correct": 0,
+      "wrong": 58,
+      "accuracy": 0.0,
+      "metrics": {
+        "semantic_entropy": {
+          "label": "SE",
+          "usable": 58,
+          "mean": 0.0,
+          "auroc": null,
+          "aurec": 1.0
+        },
+        "sd_uq": {
+          "label": "SD-UQ",
+          "usable": 58,
+          "mean": 1.000141166326615e-12,
+          "auroc": null,
+          "aurec": 1.0
+        },
+        "vn_entropy": {
+          "label": "VN-Ent.",
+          "usable": 58,
+          "mean": 4.58239867384691e-07,
+          "auroc": null,
+          "aurec": 1.0
+        },
+        "support_entailment_uncertainty": {
+          "label": "SEU",
+          "usable": 58,
+          "mean": 0.5,
+          "auroc": null,
+          "aurec": 1.0
+        },
+        "graph_path_support": {
+          "label": "GPS",
+          "usable": 0,
+          "mean": null,
+          "auroc": null,
+          "aurec": null
+        }
+      }
+    }
+  },
+  {
+    "policy": "Strict KG",
+    "source": "results/latest_kg_design_final_metrics/runs/20260529-120453-2wikimultihopqa-n250-full-metrics-evaluation-subset/mirage_2wikimultihopqa_results.json",
+    "config": "kg_strict_entity_first_thr0.1_k10_rt0p0",
+    "prefix": "kg",
+    "hop": "5+-hop",
+    "summary": {
+      "n": 4,
+      "correct": 0,
+      "wrong": 4,
+      "accuracy": 0.0,
+      "metrics": {
+        "semantic_entropy": {
+          "label": "SE",
+          "usable": 4,
+          "mean": 0.23756763480830861,
+          "auroc": null,
+          "aurec": 1.0
+        },
+        "sd_uq": {
+          "label": "SD-UQ",
+          "usable": 4,
+          "mean": 0.001885877441495283,
+          "auroc": null,
+          "aurec": 1.0
+        },
+        "vn_entropy": {
+          "label": "VN-Ent.",
+          "usable": 4,
+          "mean": 0.056758807062621486,
+          "auroc": null,
+          "aurec": 1.0
+        },
+        "support_entailment_uncertainty": {
+          "label": "SEU",
+          "usable": 4,
+          "mean": 0.515625,
+          "auroc": null,
+          "aurec": 1.0
+        },
+        "graph_path_support": {
+          "label": "GPS",
+          "usable": 0,
+          "mean": null,
+          "auroc": null,
+          "aurec": null
+        }
+      }
+    }
+  }
+]

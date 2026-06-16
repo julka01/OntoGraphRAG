@@ -1,0 +1,2652 @@
+{
+ "replay": "gps_v2",
+ "date": "2026-06-10",
+ "dataset": "pubmedqa",
+ "source_result": "results/latest_kg_design_final_metrics/runs/20260518-171029-pubmedqa-n100-full-metrics-evaluation-subset-rebuildkg/mirage_pubmedqa_results.json",
+ "params": {
+  "min_name_length": 4,
+  "max_entities": 5,
+  "tau_loose_store": 0.5,
+  "tau_q_fixed": 0.75,
+  "max_hops": 2,
+  "mode": "frozen"
+ },
+ "v1_logged": {
+  "kg": {
+   "usable": 0,
+   "auroc": null
+  },
+  "vanilla": {
+   "usable": 0,
+   "auroc": null
+  }
+ },
+ "summary": {
+  "kg": [
+   {
+    "tau": 0.6,
+    "gamma": 0.5,
+    "answered": 100,
+    "usable": 0,
+    "coverage": 0.0,
+    "auroc": null,
+    "abstain_reasons": {
+     "no_a_entities": 100
+    }
+   }
+  ],
+  "vanilla": [
+   {
+    "tau": 0.6,
+    "gamma": 0.5,
+    "answered": 100,
+    "usable": 0,
+    "coverage": 0.0,
+    "auroc": null,
+    "abstain_reasons": {
+     "no_a_entities": 100
+    }
+   }
+  ]
+ },
+ "questions": [
+  {
+   "question_id": "18537964",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_050280b3-c6a0-529d-9918-831a1b25c2ef",
+      "pubmedqa_eeda34ee-8515-5846-b09f-cc545f2efcba",
+      "pubmedqa_dc2dbc8f-8ed7-5b0a-86dd-1b858c6f36b7",
+      "pubmedqa_f5bfcfc5-afd6-542f-ab55-bcda9ea7e033",
+      "pubmedqa_f88cbe77-9fd4-56c9-bbd8-435d89094e5e"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_050280b3-c6a0-529d-9918-831a1b25c2ef",
+      "pubmedqa_eeda34ee-8515-5846-b09f-cc545f2efcba",
+      "pubmedqa_dc2dbc8f-8ed7-5b0a-86dd-1b858c6f36b7",
+      "pubmedqa_f5bfcfc5-afd6-542f-ab55-bcda9ea7e033",
+      "pubmedqa_f88cbe77-9fd4-56c9-bbd8-435d89094e5e"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "22540518",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_ae3e02dc-d9ae-596a-9116-bf304e55fffd",
+      "pubmedqa_4e1b67e7-5664-50a1-bdf1-3bee879a0ebb",
+      "pubmedqa_04bb3189-513c-595f-87fd-fe19914ea4ed",
+      "pubmedqa_4a938ed0-c94b-5879-8293-70bf91330e08"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_ae3e02dc-d9ae-596a-9116-bf304e55fffd",
+      "pubmedqa_4e1b67e7-5664-50a1-bdf1-3bee879a0ebb",
+      "pubmedqa_04bb3189-513c-595f-87fd-fe19914ea4ed",
+      "pubmedqa_4a938ed0-c94b-5879-8293-70bf91330e08"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "20629769",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_14b1596a-6775-5cd3-b12c-da55e123c3c9",
+      "pubmedqa_7d855a9f-b6c0-571d-8f5d-604503dd9d2a",
+      "pubmedqa_02d9dc44-9d5b-5986-b8a5-e38ece4f2315",
+      "pubmedqa_40e2afaa-ea9b-5d1f-a1e8-01e47087cda7"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_14b1596a-6775-5cd3-b12c-da55e123c3c9",
+      "pubmedqa_7d855a9f-b6c0-571d-8f5d-604503dd9d2a",
+      "pubmedqa_02d9dc44-9d5b-5986-b8a5-e38ece4f2315",
+      "pubmedqa_40e2afaa-ea9b-5d1f-a1e8-01e47087cda7"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "21481154",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_6b1bff93-dbd2-5897-b29b-8b92f4ac3a12",
+      "pubmedqa_135d8713-fcc9-5411-bf73-990bd529d0b0",
+      "pubmedqa_edf96ec9-c5a4-55b6-ab7e-ed553c0b0233",
+      "pubmedqa_1278fb78-8e6a-5a40-87d4-e5df06d401b8",
+      "pubmedqa_e1785c99-779c-5c8f-b491-fac5b30d6466"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_6b1bff93-dbd2-5897-b29b-8b92f4ac3a12",
+      "pubmedqa_135d8713-fcc9-5411-bf73-990bd529d0b0",
+      "pubmedqa_edf96ec9-c5a4-55b6-ab7e-ed553c0b0233",
+      "pubmedqa_1278fb78-8e6a-5a40-87d4-e5df06d401b8",
+      "pubmedqa_e1785c99-779c-5c8f-b491-fac5b30d6466"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "22902073",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_27697b03-acae-50e0-9e0d-c2da47d6da25",
+      "pubmedqa_143e10c8-0bf3-5c3b-990a-735ae83fc148",
+      "pubmedqa_0aef63ba-82e6-5101-ba74-a87278290a5a",
+      "pubmedqa_cd21e3f2-0f1a-5a2a-bac7-0a0773fdb9dd",
+      "pubmedqa_7171e754-13b5-559a-a874-00f070c76be5"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_27697b03-acae-50e0-9e0d-c2da47d6da25",
+      "pubmedqa_143e10c8-0bf3-5c3b-990a-735ae83fc148",
+      "pubmedqa_0aef63ba-82e6-5101-ba74-a87278290a5a",
+      "pubmedqa_cd21e3f2-0f1a-5a2a-bac7-0a0773fdb9dd",
+      "pubmedqa_7171e754-13b5-559a-a874-00f070c76be5"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "21645374",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_809ffa0e-9e6b-540a-94b3-fa9bce0ebf1f",
+      "pubmedqa_00dbcb62-ae37-52fc-a4e4-8b0f7a04f322",
+      "pubmedqa_0e7cb5ad-35ad-52e8-9045-f0ac4dc5c18e",
+      "pubmedqa_7adf3448-e7d7-5c1b-a00b-ac4eab09e0a7"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_809ffa0e-9e6b-540a-94b3-fa9bce0ebf1f",
+      "pubmedqa_00dbcb62-ae37-52fc-a4e4-8b0f7a04f322",
+      "pubmedqa_0e7cb5ad-35ad-52e8-9045-f0ac4dc5c18e",
+      "pubmedqa_7adf3448-e7d7-5c1b-a00b-ac4eab09e0a7"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "9465206",
+   "kg_correct": false,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_3745ad3c-92ff-53bc-979c-81373c18e544",
+      "pubmedqa_f18864ff-f71c-5c9d-a993-fe0a8e4cc5e5",
+      "pubmedqa_2c90f270-d8c9-5c95-991a-7f4e9a378a44"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_3745ad3c-92ff-53bc-979c-81373c18e544",
+      "pubmedqa_f18864ff-f71c-5c9d-a993-fe0a8e4cc5e5",
+      "pubmedqa_2c90f270-d8c9-5c95-991a-7f4e9a378a44"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "21228436",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_22dc7b80-8189-5272-9ece-53b9399442ee",
+      "pubmedqa_717dcdc6-b83a-59fe-bd39-cb01136fe9db",
+      "pubmedqa_0a707c27-c617-5c1f-9414-2e419b3e6239",
+      "pubmedqa_195dd18c-be4e-5811-8d69-600b0e82c760",
+      "pubmedqa_af8f4b1e-0cf5-5758-baee-ad1cbaf5d550"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_22dc7b80-8189-5272-9ece-53b9399442ee",
+      "pubmedqa_717dcdc6-b83a-59fe-bd39-cb01136fe9db",
+      "pubmedqa_0a707c27-c617-5c1f-9414-2e419b3e6239",
+      "pubmedqa_195dd18c-be4e-5811-8d69-600b0e82c760",
+      "pubmedqa_af8f4b1e-0cf5-5758-baee-ad1cbaf5d550"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "11833948",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_82d86f30-b6c1-5ffe-b081-13e3a0f45b43",
+      "pubmedqa_59daa1ba-68a9-556d-968c-725b8dcd6c87",
+      "pubmedqa_2558e17f-22ad-5b31-a020-e938594455ad",
+      "pubmedqa_55dbce8e-bead-57d3-a31f-ecc8a529068a"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_82d86f30-b6c1-5ffe-b081-13e3a0f45b43",
+      "pubmedqa_59daa1ba-68a9-556d-968c-725b8dcd6c87",
+      "pubmedqa_2558e17f-22ad-5b31-a020-e938594455ad",
+      "pubmedqa_55dbce8e-bead-57d3-a31f-ecc8a529068a"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "10158597",
+   "kg_correct": false,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_3a620d5a-3356-5826-acd1-ed57d6245469",
+      "pubmedqa_186e13a1-7378-544f-be4a-f7e5ea034d1e",
+      "pubmedqa_6703243a-b206-5685-b092-99ec68138ce9"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_3a620d5a-3356-5826-acd1-ed57d6245469",
+      "pubmedqa_186e13a1-7378-544f-be4a-f7e5ea034d1e",
+      "pubmedqa_6703243a-b206-5685-b092-99ec68138ce9"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "23359100",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_a8ad4e46-89dc-5005-a7b4-87a6c623756f",
+      "pubmedqa_e8418b6e-8d1d-5cd0-83c6-0eeca974b621",
+      "pubmedqa_3033c4c1-e5aa-5b12-9c38-42132ba0e2b1",
+      "pubmedqa_5f93aed7-abb4-59f4-b316-9f7793c6ab75",
+      "pubmedqa_65e3c9e7-b604-591f-a53f-a5f6ac0e54d6"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_a8ad4e46-89dc-5005-a7b4-87a6c623756f",
+      "pubmedqa_e8418b6e-8d1d-5cd0-83c6-0eeca974b621",
+      "pubmedqa_3033c4c1-e5aa-5b12-9c38-42132ba0e2b1",
+      "pubmedqa_5f93aed7-abb4-59f4-b316-9f7793c6ab75",
+      "pubmedqa_65e3c9e7-b604-591f-a53f-a5f6ac0e54d6"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "20297950",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_12e12c20-e71f-51de-a4b0-f676b67a37b4",
+      "pubmedqa_f84d3f21-378a-567d-a81f-1c6bb19b4c3d",
+      "pubmedqa_7deb26bc-22b8-5f82-ae71-286fef131be0"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_12e12c20-e71f-51de-a4b0-f676b67a37b4",
+      "pubmedqa_f84d3f21-378a-567d-a81f-1c6bb19b4c3d",
+      "pubmedqa_7deb26bc-22b8-5f82-ae71-286fef131be0"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "9722752",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_6abe896f-14b8-50e9-8ffd-3a0dde48a4f5",
+      "pubmedqa_d691c6dc-83b6-5a6e-8e8e-3942cb488f54",
+      "pubmedqa_e34a52f6-a45c-50df-b108-e9676a545783",
+      "pubmedqa_4a938ed0-c94b-5879-8293-70bf91330e08"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_6abe896f-14b8-50e9-8ffd-3a0dde48a4f5",
+      "pubmedqa_d691c6dc-83b6-5a6e-8e8e-3942cb488f54",
+      "pubmedqa_e34a52f6-a45c-50df-b108-e9676a545783",
+      "pubmedqa_4a938ed0-c94b-5879-8293-70bf91330e08"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "19027440",
+   "kg_correct": false,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_4910d9b0-bf18-595e-840a-7dcb0c21d937",
+      "pubmedqa_240afcb3-f9c4-5a0f-bf50-ef68b7b8b30f",
+      "pubmedqa_880a6a3a-9594-58d9-8d51-91978d2e1113",
+      "pubmedqa_f75327e5-c0bc-57e4-9d68-2ced5fb48682",
+      "pubmedqa_e1785c99-779c-5c8f-b491-fac5b30d6466"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_4910d9b0-bf18-595e-840a-7dcb0c21d937",
+      "pubmedqa_240afcb3-f9c4-5a0f-bf50-ef68b7b8b30f",
+      "pubmedqa_880a6a3a-9594-58d9-8d51-91978d2e1113",
+      "pubmedqa_f75327e5-c0bc-57e4-9d68-2ced5fb48682",
+      "pubmedqa_e1785c99-779c-5c8f-b491-fac5b30d6466"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "18239988",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_9194c1f2-bcae-53f2-a2dc-805ae8237beb",
+      "pubmedqa_0b141819-533a-56ab-84c4-92f6e2f87d6b",
+      "pubmedqa_27c9306a-8ee5-5135-a0dd-e96720711452",
+      "pubmedqa_2dd66d28-c276-5f63-b6a7-29b7ff6d86d9"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_9194c1f2-bcae-53f2-a2dc-805ae8237beb",
+      "pubmedqa_0b141819-533a-56ab-84c4-92f6e2f87d6b",
+      "pubmedqa_27c9306a-8ee5-5135-a0dd-e96720711452",
+      "pubmedqa_2dd66d28-c276-5f63-b6a7-29b7ff6d86d9"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "11079675",
+   "kg_correct": false,
+   "vanilla_correct": false,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_17c98c62-4419-5d59-8e3d-96f94cdb9ffb",
+      "pubmedqa_d8df38d9-ac71-5783-b11d-c8706e58c4f6"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_17c98c62-4419-5d59-8e3d-96f94cdb9ffb",
+      "pubmedqa_d8df38d9-ac71-5783-b11d-c8706e58c4f6"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "12094116",
+   "kg_correct": false,
+   "vanilla_correct": false,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_4a2eb505-0311-536b-bfaa-8844ae6205c2",
+      "pubmedqa_70192ff9-9391-5b5e-8b22-01b1909366df",
+      "pubmedqa_5170834c-6ea7-514b-af68-617133cc04a5"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_4a2eb505-0311-536b-bfaa-8844ae6205c2",
+      "pubmedqa_70192ff9-9391-5b5e-8b22-01b1909366df",
+      "pubmedqa_5170834c-6ea7-514b-af68-617133cc04a5"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "12121321",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_e20a3c56-11c5-574d-ab8d-698e90e73d9c"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_e20a3c56-11c5-574d-ab8d-698e90e73d9c"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "17306983",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_235ed85d-3c99-58f9-a62e-92fb519e683c",
+      "pubmedqa_053c3591-a07f-5fee-81ab-7bc4d14aa096",
+      "pubmedqa_a346795e-899f-5880-8971-adfbf2ab561e",
+      "pubmedqa_5be72913-6f95-57d5-9991-e71233c07d52"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_235ed85d-3c99-58f9-a62e-92fb519e683c",
+      "pubmedqa_053c3591-a07f-5fee-81ab-7bc4d14aa096",
+      "pubmedqa_a346795e-899f-5880-8971-adfbf2ab561e",
+      "pubmedqa_5be72913-6f95-57d5-9991-e71233c07d52"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "22266735",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_aa179f40-c405-5a78-88d1-24f60c0a6682",
+      "pubmedqa_2e7764fd-d9b4-50b1-a232-55c34834c22c",
+      "pubmedqa_0ab19051-685a-585c-b17d-b71bc7151b7f",
+      "pubmedqa_67fb0010-fb70-596d-abf4-a40bbb216cf9",
+      "pubmedqa_c9c233fa-5709-5c12-930e-44f8b95eb1b0"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_aa179f40-c405-5a78-88d1-24f60c0a6682",
+      "pubmedqa_2e7764fd-d9b4-50b1-a232-55c34834c22c",
+      "pubmedqa_0ab19051-685a-585c-b17d-b71bc7151b7f",
+      "pubmedqa_67fb0010-fb70-596d-abf4-a40bbb216cf9",
+      "pubmedqa_c9c233fa-5709-5c12-930e-44f8b95eb1b0"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "10401824",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_29b0f4a8-d3dc-5144-ba52-97b383ff4b94",
+      "pubmedqa_2b05232a-024d-547f-905d-239e4333a174",
+      "pubmedqa_4f2411c1-5a29-5ee3-8a63-40070bbc2950",
+      "pubmedqa_d99317c5-a945-5b49-b0be-4dfd3c95644c"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_29b0f4a8-d3dc-5144-ba52-97b383ff4b94",
+      "pubmedqa_2b05232a-024d-547f-905d-239e4333a174",
+      "pubmedqa_4f2411c1-5a29-5ee3-8a63-40070bbc2950",
+      "pubmedqa_d99317c5-a945-5b49-b0be-4dfd3c95644c"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "12846929",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_8290024d-29c2-5dc3-8965-bc1d0ba49c49",
+      "pubmedqa_411087f7-c24a-52d0-b640-4a55c4c0ec9e",
+      "pubmedqa_606974f6-900e-5379-83df-96fd101767a4",
+      "pubmedqa_a1fcf9be-8c1d-5e0a-86c8-cafd6df5e530",
+      "pubmedqa_e1785c99-779c-5c8f-b491-fac5b30d6466"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_8290024d-29c2-5dc3-8965-bc1d0ba49c49",
+      "pubmedqa_411087f7-c24a-52d0-b640-4a55c4c0ec9e",
+      "pubmedqa_606974f6-900e-5379-83df-96fd101767a4",
+      "pubmedqa_a1fcf9be-8c1d-5e0a-86c8-cafd6df5e530",
+      "pubmedqa_e1785c99-779c-5c8f-b491-fac5b30d6466"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "23690198",
+   "kg_correct": false,
+   "vanilla_correct": false,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_26ed90e1-2e50-5d0e-91b7-0726d643727b",
+      "pubmedqa_99777aa2-fc9e-57e5-aca6-30be7d21dee9",
+      "pubmedqa_abf3d79a-33fe-5114-8051-be1c365c2f32",
+      "pubmedqa_4e5af8ba-a795-5347-9916-89d578274329",
+      "pubmedqa_5562700a-efd6-537d-8d31-1f3a64e79edd"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_26ed90e1-2e50-5d0e-91b7-0726d643727b",
+      "pubmedqa_99777aa2-fc9e-57e5-aca6-30be7d21dee9",
+      "pubmedqa_abf3d79a-33fe-5114-8051-be1c365c2f32",
+      "pubmedqa_4e5af8ba-a795-5347-9916-89d578274329",
+      "pubmedqa_5562700a-efd6-537d-8d31-1f3a64e79edd"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "15050326",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_0980a67b-0870-57d2-857d-88a8c633c2ef",
+      "pubmedqa_ee183f5b-ea81-5cdf-b8c3-78b527d053ed",
+      "pubmedqa_5695e822-e18c-5f43-acd4-3bae3dbdfb5b",
+      "pubmedqa_66900f2f-7a1c-536d-b523-0cc205c72469",
+      "pubmedqa_e1785c99-779c-5c8f-b491-fac5b30d6466"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_0980a67b-0870-57d2-857d-88a8c633c2ef",
+      "pubmedqa_ee183f5b-ea81-5cdf-b8c3-78b527d053ed",
+      "pubmedqa_5695e822-e18c-5f43-acd4-3bae3dbdfb5b",
+      "pubmedqa_66900f2f-7a1c-536d-b523-0cc205c72469",
+      "pubmedqa_e1785c99-779c-5c8f-b491-fac5b30d6466"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "15841770",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_365562fe-cb04-5a78-8964-74bf010254c4",
+      "pubmedqa_085668fb-597d-5d1c-9208-c476132b8cd8",
+      "pubmedqa_186e13a1-7378-544f-be4a-f7e5ea034d1e",
+      "pubmedqa_320fe741-ee39-54d7-b223-eddb0deffbb5",
+      "pubmedqa_6703243a-b206-5685-b092-99ec68138ce9"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_365562fe-cb04-5a78-8964-74bf010254c4",
+      "pubmedqa_085668fb-597d-5d1c-9208-c476132b8cd8",
+      "pubmedqa_186e13a1-7378-544f-be4a-f7e5ea034d1e",
+      "pubmedqa_320fe741-ee39-54d7-b223-eddb0deffbb5",
+      "pubmedqa_6703243a-b206-5685-b092-99ec68138ce9"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "25503376",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_79091417-6a2c-597d-ab3d-a32b3b8b9947",
+      "pubmedqa_1e4bb412-2c8f-5ccd-a2a0-0330d399db08",
+      "pubmedqa_4f2411c1-5a29-5ee3-8a63-40070bbc2950",
+      "pubmedqa_d99317c5-a945-5b49-b0be-4dfd3c95644c"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_79091417-6a2c-597d-ab3d-a32b3b8b9947",
+      "pubmedqa_1e4bb412-2c8f-5ccd-a2a0-0330d399db08",
+      "pubmedqa_4f2411c1-5a29-5ee3-8a63-40070bbc2950",
+      "pubmedqa_d99317c5-a945-5b49-b0be-4dfd3c95644c"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "19394934",
+   "kg_correct": false,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_186e13a1-7378-544f-be4a-f7e5ea034d1e",
+      "pubmedqa_6703243a-b206-5685-b092-99ec68138ce9",
+      "pubmedqa_ba8b7b04-686d-51c5-bd23-3cefbfb5f0e6"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_186e13a1-7378-544f-be4a-f7e5ea034d1e",
+      "pubmedqa_6703243a-b206-5685-b092-99ec68138ce9",
+      "pubmedqa_ba8b7b04-686d-51c5-bd23-3cefbfb5f0e6"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "21394762",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_13823909-f14e-54f1-a82e-b8053e280f63",
+      "pubmedqa_4030cbae-7e70-5905-b35f-1a65d9e9176f",
+      "pubmedqa_a8bf79e2-b3ad-5cdc-9fc2-23e2d5e80ef1",
+      "pubmedqa_5643118c-611e-5854-9d19-b063ff0a0b0c",
+      "pubmedqa_a4bc3549-6400-5c68-9fb5-fd59212e61f9"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_13823909-f14e-54f1-a82e-b8053e280f63",
+      "pubmedqa_4030cbae-7e70-5905-b35f-1a65d9e9176f",
+      "pubmedqa_a8bf79e2-b3ad-5cdc-9fc2-23e2d5e80ef1",
+      "pubmedqa_5643118c-611e-5854-9d19-b063ff0a0b0c",
+      "pubmedqa_a4bc3549-6400-5c68-9fb5-fd59212e61f9"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "28056802",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_1bcaebc1-6e83-5e2b-ac83-2366251d0c91",
+      "pubmedqa_6278794a-57e1-5887-8cd5-f53938263b2a",
+      "pubmedqa_66042bec-01f6-5855-b0da-54e9cfa2ca2e",
+      "pubmedqa_ae7524be-814b-5542-9647-c834eae3e415",
+      "pubmedqa_e0ec1e92-850b-5133-a212-6b4d6203ae5f"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_1bcaebc1-6e83-5e2b-ac83-2366251d0c91",
+      "pubmedqa_6278794a-57e1-5887-8cd5-f53938263b2a",
+      "pubmedqa_66042bec-01f6-5855-b0da-54e9cfa2ca2e",
+      "pubmedqa_ae7524be-814b-5542-9647-c834eae3e415",
+      "pubmedqa_e0ec1e92-850b-5133-a212-6b4d6203ae5f"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "20084845",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_821ea187-c5b2-55f2-a90f-bb91e90b0745"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_821ea187-c5b2-55f2-a90f-bb91e90b0745"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "20306735",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_3017de6a-b78a-5c58-a99b-f96db4269e87",
+      "pubmedqa_4027dc3c-1b93-5700-ae73-06b73f0135c2"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_3017de6a-b78a-5c58-a99b-f96db4269e87",
+      "pubmedqa_4027dc3c-1b93-5700-ae73-06b73f0135c2"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "14872327",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_5ae0e46c-d1d6-599a-925d-def937b68ecd",
+      "pubmedqa_0bbfad44-ad64-5136-877e-c2324b79bd3f",
+      "pubmedqa_40eb52a6-1375-5b05-9d1a-95a5897e5b55",
+      "pubmedqa_c5d3920b-6a27-582a-9e21-ee60b8f3587f"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_5ae0e46c-d1d6-599a-925d-def937b68ecd",
+      "pubmedqa_0bbfad44-ad64-5136-877e-c2324b79bd3f",
+      "pubmedqa_40eb52a6-1375-5b05-9d1a-95a5897e5b55",
+      "pubmedqa_c5d3920b-6a27-582a-9e21-ee60b8f3587f"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "23412195",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_d29ede9c-b1d8-5a3c-907e-23b3c564c5d7"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_d29ede9c-b1d8-5a3c-907e-23b3c564c5d7"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "15943725",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_acf51969-95eb-5a12-806a-0f028dcedc9d",
+      "pubmedqa_2c93f6f6-d255-5cdc-890d-45ef2a900e24",
+      "pubmedqa_81ade04c-9529-53d9-834f-50eedae2718a",
+      "pubmedqa_7b34513d-e8f6-5788-8083-ac162b02975c"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_acf51969-95eb-5a12-806a-0f028dcedc9d",
+      "pubmedqa_2c93f6f6-d255-5cdc-890d-45ef2a900e24",
+      "pubmedqa_81ade04c-9529-53d9-834f-50eedae2718a",
+      "pubmedqa_7b34513d-e8f6-5788-8083-ac162b02975c"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "24671913",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_0ed3efcd-9073-5206-a62a-9715f4f05081",
+      "pubmedqa_9aba4171-30db-5460-8244-2e49d08dc949",
+      "pubmedqa_502063db-0b93-5fc3-937b-cf715d0de33e",
+      "pubmedqa_6278794a-57e1-5887-8cd5-f53938263b2a",
+      "pubmedqa_6311a531-8b67-5968-b3eb-3af997abf49a"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_0ed3efcd-9073-5206-a62a-9715f4f05081",
+      "pubmedqa_9aba4171-30db-5460-8244-2e49d08dc949",
+      "pubmedqa_502063db-0b93-5fc3-937b-cf715d0de33e",
+      "pubmedqa_6278794a-57e1-5887-8cd5-f53938263b2a",
+      "pubmedqa_6311a531-8b67-5968-b3eb-3af997abf49a"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "26561905",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_b462a336-e90c-5240-a365-7df36b70e58e",
+      "pubmedqa_1908e1e0-413c-550a-b731-d26d2c8b5cec",
+      "pubmedqa_e4548880-b400-5418-ae99-0ad7e5880603"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_b462a336-e90c-5240-a365-7df36b70e58e",
+      "pubmedqa_1908e1e0-413c-550a-b731-d26d2c8b5cec",
+      "pubmedqa_e4548880-b400-5418-ae99-0ad7e5880603"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "27136599",
+   "kg_correct": false,
+   "vanilla_correct": false,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_0f9e1f73-f439-52b8-ac0f-21f11e1e1858"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_0f9e1f73-f439-52b8-ac0f-21f11e1e1858"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "24516646",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_60265356-f9c5-559c-ab8e-18ccb81a203a",
+      "pubmedqa_731bb947-9360-5a6d-a86f-395847c759fc"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_60265356-f9c5-559c-ab8e-18ccb81a203a",
+      "pubmedqa_731bb947-9360-5a6d-a86f-395847c759fc"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "20537205",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_60ebd995-541b-5a86-b350-7772c1219e09"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_60ebd995-541b-5a86-b350-7772c1219e09"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "22302761",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_40674124-0b5a-5d5d-9d33-79cc79f63a32",
+      "pubmedqa_f776bf20-4765-50da-95e2-ad77a64af249",
+      "pubmedqa_2d85796e-a51d-57bd-bec0-abaafb2cd662",
+      "pubmedqa_9363658a-83bd-5eb2-9e61-07315e423d08",
+      "pubmedqa_f2cf5943-6f74-5020-ab22-c30866830ee4"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_40674124-0b5a-5d5d-9d33-79cc79f63a32",
+      "pubmedqa_f776bf20-4765-50da-95e2-ad77a64af249",
+      "pubmedqa_2d85796e-a51d-57bd-bec0-abaafb2cd662",
+      "pubmedqa_9363658a-83bd-5eb2-9e61-07315e423d08",
+      "pubmedqa_f2cf5943-6f74-5020-ab22-c30866830ee4"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "23539689",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_085668fb-597d-5d1c-9208-c476132b8cd8",
+      "pubmedqa_320fe741-ee39-54d7-b223-eddb0deffbb5"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_085668fb-597d-5d1c-9208-c476132b8cd8",
+      "pubmedqa_320fe741-ee39-54d7-b223-eddb0deffbb5"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "24507422",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_6cb7b002-e720-59bd-94fe-8d498ddfa830",
+      "pubmedqa_8aa6765b-c57d-59d9-9bdb-94bec418ab22",
+      "pubmedqa_f544ce69-400d-55ca-8db6-b26a1b4e4ef0",
+      "pubmedqa_275ffc59-ee25-5797-93af-a465e3d35a19"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_6cb7b002-e720-59bd-94fe-8d498ddfa830",
+      "pubmedqa_8aa6765b-c57d-59d9-9bdb-94bec418ab22",
+      "pubmedqa_f544ce69-400d-55ca-8db6-b26a1b4e4ef0",
+      "pubmedqa_275ffc59-ee25-5797-93af-a465e3d35a19"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "19640728",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_b4950b73-68ea-51c6-910e-68897b715b46",
+      "pubmedqa_ede2d020-7e8f-5008-800c-2a0dc9a6f278"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_b4950b73-68ea-51c6-910e-68897b715b46",
+      "pubmedqa_ede2d020-7e8f-5008-800c-2a0dc9a6f278"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "23806388",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_03009d65-5582-5061-8cb3-bafdcb8eb06e",
+      "pubmedqa_f75327e5-c0bc-57e4-9d68-2ced5fb48682",
+      "pubmedqa_10075a62-41f6-5647-880e-153d78a89d48",
+      "pubmedqa_fcd3fdb5-2f6f-5055-a741-d96d62cc47db",
+      "pubmedqa_e1785c99-779c-5c8f-b491-fac5b30d6466"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_03009d65-5582-5061-8cb3-bafdcb8eb06e",
+      "pubmedqa_f75327e5-c0bc-57e4-9d68-2ced5fb48682",
+      "pubmedqa_10075a62-41f6-5647-880e-153d78a89d48",
+      "pubmedqa_fcd3fdb5-2f6f-5055-a741-d96d62cc47db",
+      "pubmedqa_e1785c99-779c-5c8f-b491-fac5b30d6466"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "11970923",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_6d0ee6c2-225b-5d01-b6f5-18f01ca995e3",
+      "pubmedqa_41949469-b1b8-5139-84ac-7ee9ed69a5c0"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_6d0ee6c2-225b-5d01-b6f5-18f01ca995e3",
+      "pubmedqa_41949469-b1b8-5139-84ac-7ee9ed69a5c0"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "18399830",
+   "kg_correct": false,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_2b05232a-024d-547f-905d-239e4333a174",
+      "pubmedqa_64942438-1e78-5e8e-8754-3d5ca9587312"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_2b05232a-024d-547f-905d-239e4333a174",
+      "pubmedqa_64942438-1e78-5e8e-8754-3d5ca9587312"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "12595848",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_8e41fb48-da8c-560b-81c1-2591b9f0881e",
+      "pubmedqa_edf96ec9-c5a4-55b6-ab7e-ed553c0b0233"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_8e41fb48-da8c-560b-81c1-2591b9f0881e",
+      "pubmedqa_edf96ec9-c5a4-55b6-ab7e-ed553c0b0233"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "12163782",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_f83ca2f3-fdaf-5e63-af28-62d7df61d554",
+      "pubmedqa_57046108-6966-5db5-80ef-f291e0b2bef3",
+      "pubmedqa_923fdd6a-61d7-5e40-ae82-9ec7c86dea6c",
+      "pubmedqa_ec5cc3ff-cb56-5ada-8ce8-ee38fbd42796",
+      "pubmedqa_512fed39-dedb-55ca-8123-46f520479e01"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_f83ca2f3-fdaf-5e63-af28-62d7df61d554",
+      "pubmedqa_57046108-6966-5db5-80ef-f291e0b2bef3",
+      "pubmedqa_923fdd6a-61d7-5e40-ae82-9ec7c86dea6c",
+      "pubmedqa_ec5cc3ff-cb56-5ada-8ce8-ee38fbd42796",
+      "pubmedqa_512fed39-dedb-55ca-8123-46f520479e01"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "9199905",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_018be183-5df3-577c-8067-c34222a8e572",
+      "pubmedqa_72aac8e3-b560-5297-8db2-c76debf016e2",
+      "pubmedqa_085668fb-597d-5d1c-9208-c476132b8cd8",
+      "pubmedqa_320fe741-ee39-54d7-b223-eddb0deffbb5",
+      "pubmedqa_560283a2-6a48-59c3-9635-2b08a03828e1"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_018be183-5df3-577c-8067-c34222a8e572",
+      "pubmedqa_72aac8e3-b560-5297-8db2-c76debf016e2",
+      "pubmedqa_085668fb-597d-5d1c-9208-c476132b8cd8",
+      "pubmedqa_320fe741-ee39-54d7-b223-eddb0deffbb5",
+      "pubmedqa_560283a2-6a48-59c3-9635-2b08a03828e1"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "12484580",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_a8ad4e46-89dc-5005-a7b4-87a6c623756f",
+      "pubmedqa_e8418b6e-8d1d-5cd0-83c6-0eeca974b621",
+      "pubmedqa_d692953f-dd2d-5172-94a3-b2d7d69872bf"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_a8ad4e46-89dc-5005-a7b4-87a6c623756f",
+      "pubmedqa_e8418b6e-8d1d-5cd0-83c6-0eeca974b621",
+      "pubmedqa_d692953f-dd2d-5172-94a3-b2d7d69872bf"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "22644412",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_b0cd969e-eb45-5f6f-a267-2f76f1f301d6",
+      "pubmedqa_444d0df2-e743-5ce9-8bbc-a5263718e268",
+      "pubmedqa_d713323d-04ae-560a-8522-87acfb4fb768",
+      "pubmedqa_2190c417-9814-509e-96c4-8295e54b7da9",
+      "pubmedqa_04afc8a1-6945-5a13-8863-b86486772f72"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_b0cd969e-eb45-5f6f-a267-2f76f1f301d6",
+      "pubmedqa_444d0df2-e743-5ce9-8bbc-a5263718e268",
+      "pubmedqa_d713323d-04ae-560a-8522-87acfb4fb768",
+      "pubmedqa_2190c417-9814-509e-96c4-8295e54b7da9",
+      "pubmedqa_04afc8a1-6945-5a13-8863-b86486772f72"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "18565233",
+   "kg_correct": false,
+   "vanilla_correct": false,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_4bcf36de-ac4a-53a8-9729-f71ab45fe1c4",
+      "pubmedqa_73c3992b-0989-5c69-b96d-7b4154c9a15e",
+      "pubmedqa_ae257f1e-a500-58ff-b46e-34885106160c",
+      "pubmedqa_663bf4f8-c08f-5445-a2ea-b20e8141bc28",
+      "pubmedqa_90f8a2ee-d40f-59eb-9460-c9183ae4c752"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_4bcf36de-ac4a-53a8-9729-f71ab45fe1c4",
+      "pubmedqa_73c3992b-0989-5c69-b96d-7b4154c9a15e",
+      "pubmedqa_ae257f1e-a500-58ff-b46e-34885106160c",
+      "pubmedqa_663bf4f8-c08f-5445-a2ea-b20e8141bc28",
+      "pubmedqa_90f8a2ee-d40f-59eb-9460-c9183ae4c752"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "22683044",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_3ffa4494-8952-5642-a87a-1ecffd3b4175",
+      "pubmedqa_9ec54dc8-5db4-57cc-9ffd-72fcda55e756"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_3ffa4494-8952-5642-a87a-1ecffd3b4175",
+      "pubmedqa_9ec54dc8-5db4-57cc-9ffd-72fcda55e756"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "18928979",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_e98e1131-3f5b-51fa-8227-16854be20d9d",
+      "pubmedqa_4532a989-6c34-56e4-910d-fa3a5011ce71",
+      "pubmedqa_5f59cf10-e3c9-5181-bde0-4f3b86d6fd4c"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_e98e1131-3f5b-51fa-8227-16854be20d9d",
+      "pubmedqa_4532a989-6c34-56e4-910d-fa3a5011ce71",
+      "pubmedqa_5f59cf10-e3c9-5181-bde0-4f3b86d6fd4c"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "21214884",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_6738639c-c090-5f21-8551-ca1c38adadef"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_6738639c-c090-5f21-8551-ca1c38adadef"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "14627582",
+   "kg_correct": false,
+   "vanilla_correct": false,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_d220ae41-fd24-56c1-9bb7-fab49a600c89",
+      "pubmedqa_b690a36b-fd47-5f76-ba64-523c4d1006d3"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_d220ae41-fd24-56c1-9bb7-fab49a600c89",
+      "pubmedqa_b690a36b-fd47-5f76-ba64-523c4d1006d3"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "21823940",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_8e9abbf9-6914-57b0-b642-0da7284267a4",
+      "pubmedqa_dd55511f-583d-56fa-baef-319cfe191ece",
+      "pubmedqa_bbdf6658-01a6-538a-98c7-0bbb0dd09c1b",
+      "pubmedqa_f5f207f8-310b-52d1-99c2-282a43fcd9c3",
+      "pubmedqa_d7ffdad0-c374-5ee4-b0a8-85e76deb6cef"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_8e9abbf9-6914-57b0-b642-0da7284267a4",
+      "pubmedqa_dd55511f-583d-56fa-baef-319cfe191ece",
+      "pubmedqa_bbdf6658-01a6-538a-98c7-0bbb0dd09c1b",
+      "pubmedqa_f5f207f8-310b-52d1-99c2-282a43fcd9c3",
+      "pubmedqa_d7ffdad0-c374-5ee4-b0a8-85e76deb6cef"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "26209118",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_4e399569-8d50-57c1-a08d-fbd44f14e9bd",
+      "pubmedqa_085668fb-597d-5d1c-9208-c476132b8cd8",
+      "pubmedqa_320fe741-ee39-54d7-b223-eddb0deffbb5",
+      "pubmedqa_4a938ed0-c94b-5879-8293-70bf91330e08",
+      "pubmedqa_6edf0407-8fd6-5286-ad70-a45613c7a4d1"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_4e399569-8d50-57c1-a08d-fbd44f14e9bd",
+      "pubmedqa_085668fb-597d-5d1c-9208-c476132b8cd8",
+      "pubmedqa_320fe741-ee39-54d7-b223-eddb0deffbb5",
+      "pubmedqa_4a938ed0-c94b-5879-8293-70bf91330e08",
+      "pubmedqa_6edf0407-8fd6-5286-ad70-a45613c7a4d1"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "28359277",
+   "kg_correct": true,
+   "vanilla_correct": false,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_c5992486-7524-5c0e-bf45-9442ab27ec47"
+     ],
+     "q_source": "soft"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_c5992486-7524-5c0e-bf45-9442ab27ec47"
+     ],
+     "q_source": "soft"
+    }
+   }
+  },
+  {
+   "question_id": "18667100",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_26ca4964-9ecf-561d-9212-9991f65679ab",
+      "pubmedqa_576af2a0-b2f0-57c8-8209-a30966c25086",
+      "pubmedqa_6cb85bc7-f181-5405-ab2f-f86e5ea69e02",
+      "pubmedqa_06335d35-3365-52c9-a1f1-728a9af6f309",
+      "pubmedqa_ba5adec5-9d0f-57bd-9bc5-fb1f4498fd7c"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_26ca4964-9ecf-561d-9212-9991f65679ab",
+      "pubmedqa_576af2a0-b2f0-57c8-8209-a30966c25086",
+      "pubmedqa_6cb85bc7-f181-5405-ab2f-f86e5ea69e02",
+      "pubmedqa_06335d35-3365-52c9-a1f1-728a9af6f309",
+      "pubmedqa_ba5adec5-9d0f-57bd-9bc5-fb1f4498fd7c"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "24799031",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_c8d0d33c-0337-5998-b81f-05be58912375",
+      "pubmedqa_921e5c9f-9b55-541f-b327-db3a4b08462b",
+      "pubmedqa_bd6c0c74-911a-5753-a356-06064197d5ef"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_c8d0d33c-0337-5998-b81f-05be58912375",
+      "pubmedqa_921e5c9f-9b55-541f-b327-db3a4b08462b",
+      "pubmedqa_bd6c0c74-911a-5753-a356-06064197d5ef"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "18319270",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_e2251bb1-1e25-53a3-8f87-c4566b4086fb",
+      "pubmedqa_629c46c9-b36d-54c1-8623-224f2d573d94"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_e2251bb1-1e25-53a3-8f87-c4566b4086fb",
+      "pubmedqa_629c46c9-b36d-54c1-8623-224f2d573d94"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "17208539",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_6feda1f5-ae32-5304-afdf-bac62bfe7e4e"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_6feda1f5-ae32-5304-afdf-bac62bfe7e4e"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "16678696",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_836b4b02-1a3e-59b9-8c62-93f5294016f9",
+      "pubmedqa_4dfa5180-bd0a-561b-b991-2ca9b41295e4",
+      "pubmedqa_46c07f01-88eb-5cd0-b940-f12644b6edd2"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_836b4b02-1a3e-59b9-8c62-93f5294016f9",
+      "pubmedqa_4dfa5180-bd0a-561b-b991-2ca9b41295e4",
+      "pubmedqa_46c07f01-88eb-5cd0-b940-f12644b6edd2"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "16809243",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_c0f95f8e-0b93-5cea-b5a9-0fe83e372555",
+      "pubmedqa_5cf7f362-0cae-5510-a7b1-3b83d02c8568",
+      "pubmedqa_698377e9-c77a-5a89-8813-3400a8ecd880",
+      "pubmedqa_1480bfe5-9f8c-51c8-8043-20b787dc0d75",
+      "pubmedqa_66900f2f-7a1c-536d-b523-0cc205c72469"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_c0f95f8e-0b93-5cea-b5a9-0fe83e372555",
+      "pubmedqa_5cf7f362-0cae-5510-a7b1-3b83d02c8568",
+      "pubmedqa_698377e9-c77a-5a89-8813-3400a8ecd880",
+      "pubmedqa_1480bfe5-9f8c-51c8-8043-20b787dc0d75",
+      "pubmedqa_66900f2f-7a1c-536d-b523-0cc205c72469"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "10834864",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_54b59a88-01b0-5fda-971f-e7886cab5715",
+      "pubmedqa_5dec6060-c182-5c61-9706-e9a8fb69c4c0",
+      "pubmedqa_428a6db0-56c2-5968-9d14-0a811fa4bf0d",
+      "pubmedqa_6cb85bc7-f181-5405-ab2f-f86e5ea69e02",
+      "pubmedqa_4a938ed0-c94b-5879-8293-70bf91330e08"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_54b59a88-01b0-5fda-971f-e7886cab5715",
+      "pubmedqa_5dec6060-c182-5c61-9706-e9a8fb69c4c0",
+      "pubmedqa_428a6db0-56c2-5968-9d14-0a811fa4bf0d",
+      "pubmedqa_6cb85bc7-f181-5405-ab2f-f86e5ea69e02",
+      "pubmedqa_4a938ed0-c94b-5879-8293-70bf91330e08"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "20602101",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_b0b779b3-8a86-5413-aaaa-a330a4ddb804",
+      "pubmedqa_d810c9b3-6b47-54b4-aded-216deb7be011",
+      "pubmedqa_2d8061fa-83d5-54b5-b77c-1f3b6da0f1f6",
+      "pubmedqa_e1785c99-779c-5c8f-b491-fac5b30d6466",
+      "pubmedqa_13a15730-26f7-555b-a104-ad6687297d8e"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_b0b779b3-8a86-5413-aaaa-a330a4ddb804",
+      "pubmedqa_d810c9b3-6b47-54b4-aded-216deb7be011",
+      "pubmedqa_2d8061fa-83d5-54b5-b77c-1f3b6da0f1f6",
+      "pubmedqa_e1785c99-779c-5c8f-b491-fac5b30d6466",
+      "pubmedqa_13a15730-26f7-555b-a104-ad6687297d8e"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "26852225",
+   "kg_correct": false,
+   "vanilla_correct": false,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_113aead0-4ff1-5d0c-adbf-8f246d78afe9",
+      "pubmedqa_48ba3c31-fff5-50da-8951-6eb30b3b04ca"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_113aead0-4ff1-5d0c-adbf-8f246d78afe9",
+      "pubmedqa_48ba3c31-fff5-50da-8951-6eb30b3b04ca"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "19520213",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_7e2ce067-0a33-5d04-af66-cf9d7f6204d7"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_7e2ce067-0a33-5d04-af66-cf9d7f6204d7"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "26556589",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_fb2dc2d4-e96f-5056-9aea-9f3f5c9182b4",
+      "pubmedqa_0ab19051-685a-585c-b17d-b71bc7151b7f",
+      "pubmedqa_67fb0010-fb70-596d-abf4-a40bbb216cf9",
+      "pubmedqa_c9c233fa-5709-5c12-930e-44f8b95eb1b0",
+      "pubmedqa_47f46637-0ecc-5154-9cbb-95466dd9da56"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_fb2dc2d4-e96f-5056-9aea-9f3f5c9182b4",
+      "pubmedqa_0ab19051-685a-585c-b17d-b71bc7151b7f",
+      "pubmedqa_67fb0010-fb70-596d-abf4-a40bbb216cf9",
+      "pubmedqa_c9c233fa-5709-5c12-930e-44f8b95eb1b0",
+      "pubmedqa_47f46637-0ecc-5154-9cbb-95466dd9da56"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "15919266",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_93c21e0c-d13a-5f40-b31b-8e5fa34bf523",
+      "pubmedqa_b4c5ce53-a329-52dd-b046-0d2f9c8a9104",
+      "pubmedqa_9b640f43-8770-5b5d-a41d-b3bcde7e1423"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_93c21e0c-d13a-5f40-b31b-8e5fa34bf523",
+      "pubmedqa_b4c5ce53-a329-52dd-b046-0d2f9c8a9104",
+      "pubmedqa_9b640f43-8770-5b5d-a41d-b3bcde7e1423"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "8738894",
+   "kg_correct": false,
+   "vanilla_correct": false,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_0ab19051-685a-585c-b17d-b71bc7151b7f",
+      "pubmedqa_67fb0010-fb70-596d-abf4-a40bbb216cf9",
+      "pubmedqa_c9c233fa-5709-5c12-930e-44f8b95eb1b0",
+      "pubmedqa_6cee7d31-dfbe-551b-b60e-689d050431d0",
+      "pubmedqa_b2922d80-7e1f-53f0-b790-8d15e06c9671"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_0ab19051-685a-585c-b17d-b71bc7151b7f",
+      "pubmedqa_67fb0010-fb70-596d-abf4-a40bbb216cf9",
+      "pubmedqa_c9c233fa-5709-5c12-930e-44f8b95eb1b0",
+      "pubmedqa_6cee7d31-dfbe-551b-b60e-689d050431d0",
+      "pubmedqa_b2922d80-7e1f-53f0-b790-8d15e06c9671"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "18274917",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_ba54727b-88a1-5ffa-ba5d-b00b7af72dc7"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_ba54727b-88a1-5ffa-ba5d-b00b7af72dc7"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "23568387",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_d809ff91-8a2d-5ab8-946b-01dc1cde1f3c",
+      "pubmedqa_d7f5fb84-212e-5c35-b12c-dfc668130a7e",
+      "pubmedqa_fef0dd85-55a5-5f26-a023-892f2338c8f8",
+      "pubmedqa_1fdf2294-20e6-550d-9319-824c2bf1b04a",
+      "pubmedqa_2c90f270-d8c9-5c95-991a-7f4e9a378a44"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_d809ff91-8a2d-5ab8-946b-01dc1cde1f3c",
+      "pubmedqa_d7f5fb84-212e-5c35-b12c-dfc668130a7e",
+      "pubmedqa_fef0dd85-55a5-5f26-a023-892f2338c8f8",
+      "pubmedqa_1fdf2294-20e6-550d-9319-824c2bf1b04a",
+      "pubmedqa_2c90f270-d8c9-5c95-991a-7f4e9a378a44"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "21256734",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_e1785c99-779c-5c8f-b491-fac5b30d6466",
+      "pubmedqa_40eb52a6-1375-5b05-9d1a-95a5897e5b55",
+      "pubmedqa_c5d3920b-6a27-582a-9e21-ee60b8f3587f"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_e1785c99-779c-5c8f-b491-fac5b30d6466",
+      "pubmedqa_40eb52a6-1375-5b05-9d1a-95a5897e5b55",
+      "pubmedqa_c5d3920b-6a27-582a-9e21-ee60b8f3587f"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "22504515",
+   "kg_correct": true,
+   "vanilla_correct": false,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_a224b766-dcf4-59d8-b972-b3521cdddc4b",
+      "pubmedqa_c6f75f26-8bcb-5499-9a8a-ca0afc7ff62e"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_a224b766-dcf4-59d8-b972-b3521cdddc4b",
+      "pubmedqa_c6f75f26-8bcb-5499-9a8a-ca0afc7ff62e"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "11483547",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_5edcf798-af75-5363-884f-eaf8f5b47588",
+      "pubmedqa_f31eb64c-2fa3-5881-ae9d-91e03874fbc9",
+      "pubmedqa_02679982-14b5-554a-8370-ea69a6d5a97d",
+      "pubmedqa_fdf0ed69-4658-59a6-8778-490c2e73d29a",
+      "pubmedqa_53c3886e-f018-55cc-98c4-044da054eb18"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_5edcf798-af75-5363-884f-eaf8f5b47588",
+      "pubmedqa_f31eb64c-2fa3-5881-ae9d-91e03874fbc9",
+      "pubmedqa_02679982-14b5-554a-8370-ea69a6d5a97d",
+      "pubmedqa_fdf0ed69-4658-59a6-8778-490c2e73d29a",
+      "pubmedqa_53c3886e-f018-55cc-98c4-044da054eb18"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "23455575",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_bd06a299-d621-542a-8c6e-0432fc5bfd11",
+      "pubmedqa_45d968df-3bff-56fc-9db3-bad4c37d7ba5"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_bd06a299-d621-542a-8c6e-0432fc5bfd11",
+      "pubmedqa_45d968df-3bff-56fc-9db3-bad4c37d7ba5"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "18926458",
+   "kg_correct": false,
+   "vanilla_correct": false,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_3167a905-1bab-593a-b740-c354e99d40aa",
+      "pubmedqa_d3849b26-4f0c-560c-ba6b-65621f6fc83f",
+      "pubmedqa_f777ca63-3362-531b-a1b3-291305cf8155"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_3167a905-1bab-593a-b740-c354e99d40aa",
+      "pubmedqa_d3849b26-4f0c-560c-ba6b-65621f6fc83f",
+      "pubmedqa_f777ca63-3362-531b-a1b3-291305cf8155"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "19481382",
+   "kg_correct": false,
+   "vanilla_correct": false,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_20c889f2-3950-5697-aeb4-a0329a154516",
+      "pubmedqa_85a02265-98cb-5eba-8f50-4d2c992053b2",
+      "pubmedqa_f5431ca6-9257-55c9-aa8e-4cfa84da1b2c",
+      "pubmedqa_a1b79bc4-4a2b-5a4b-a2b6-9be3b0282cf9"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_20c889f2-3950-5697-aeb4-a0329a154516",
+      "pubmedqa_85a02265-98cb-5eba-8f50-4d2c992053b2",
+      "pubmedqa_f5431ca6-9257-55c9-aa8e-4cfa84da1b2c",
+      "pubmedqa_a1b79bc4-4a2b-5a4b-a2b6-9be3b0282cf9"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "22227642",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_fd944e87-90e4-5569-8532-e11521a0beba"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_fd944e87-90e4-5569-8532-e11521a0beba"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "18719011",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_085668fb-597d-5d1c-9208-c476132b8cd8",
+      "pubmedqa_320fe741-ee39-54d7-b223-eddb0deffbb5"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_085668fb-597d-5d1c-9208-c476132b8cd8",
+      "pubmedqa_320fe741-ee39-54d7-b223-eddb0deffbb5"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "8847047",
+   "kg_correct": true,
+   "vanilla_correct": false,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_e94fef99-58d6-510d-b98f-0b72733d107b",
+      "pubmedqa_04afc8a1-6945-5a13-8863-b86486772f72",
+      "pubmedqa_9323c96a-1f70-53f0-ae08-b29e8deec1ea",
+      "pubmedqa_f1b5c160-8284-591f-8887-e8c9dfa7f1b2",
+      "pubmedqa_e1785c99-779c-5c8f-b491-fac5b30d6466"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_e94fef99-58d6-510d-b98f-0b72733d107b",
+      "pubmedqa_04afc8a1-6945-5a13-8863-b86486772f72",
+      "pubmedqa_9323c96a-1f70-53f0-ae08-b29e8deec1ea",
+      "pubmedqa_f1b5c160-8284-591f-8887-e8c9dfa7f1b2",
+      "pubmedqa_e1785c99-779c-5c8f-b491-fac5b30d6466"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "22011946",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_4ddba5e6-82a0-5c23-896c-80795e1c6ee3",
+      "pubmedqa_caa81a44-5481-5841-97c4-edda58f86c9a",
+      "pubmedqa_4f2411c1-5a29-5ee3-8a63-40070bbc2950",
+      "pubmedqa_d99317c5-a945-5b49-b0be-4dfd3c95644c",
+      "pubmedqa_7171e754-13b5-559a-a874-00f070c76be5"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_4ddba5e6-82a0-5c23-896c-80795e1c6ee3",
+      "pubmedqa_caa81a44-5481-5841-97c4-edda58f86c9a",
+      "pubmedqa_4f2411c1-5a29-5ee3-8a63-40070bbc2950",
+      "pubmedqa_d99317c5-a945-5b49-b0be-4dfd3c95644c",
+      "pubmedqa_7171e754-13b5-559a-a874-00f070c76be5"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "27394685",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_89b4e64d-1060-582e-8dc6-084dcd5bd36a"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_89b4e64d-1060-582e-8dc6-084dcd5bd36a"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "19913785",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_3434c424-efca-5302-ba21-80897e0453c5",
+      "pubmedqa_c8cbcc5d-4697-5865-8ee5-acfe61b696c5",
+      "pubmedqa_a812ea2e-98db-513f-bcaa-22dc1237eeba",
+      "pubmedqa_b2e4b9e1-f29f-5aa6-bb83-dc65045a626e"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_3434c424-efca-5302-ba21-80897e0453c5",
+      "pubmedqa_c8cbcc5d-4697-5865-8ee5-acfe61b696c5",
+      "pubmedqa_a812ea2e-98db-513f-bcaa-22dc1237eeba",
+      "pubmedqa_b2e4b9e1-f29f-5aa6-bb83-dc65045a626e"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "27096199",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_2759deb2-966c-5526-9bcc-d0e5e065c4d5",
+      "pubmedqa_4a52012c-e7a6-5056-b005-699bdcfe628a",
+      "pubmedqa_9683fe0f-cba3-5246-8177-2d3f1c082ca5",
+      "pubmedqa_085668fb-597d-5d1c-9208-c476132b8cd8",
+      "pubmedqa_320fe741-ee39-54d7-b223-eddb0deffbb5"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_2759deb2-966c-5526-9bcc-d0e5e065c4d5",
+      "pubmedqa_4a52012c-e7a6-5056-b005-699bdcfe628a",
+      "pubmedqa_9683fe0f-cba3-5246-8177-2d3f1c082ca5",
+      "pubmedqa_085668fb-597d-5d1c-9208-c476132b8cd8",
+      "pubmedqa_320fe741-ee39-54d7-b223-eddb0deffbb5"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "28196511",
+   "kg_correct": true,
+   "vanilla_correct": true,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_6285f92c-493a-52c2-a8f9-33bc74933c90",
+      "pubmedqa_767fa6a6-1b4e-5930-a4d6-744b0507a5bc",
+      "pubmedqa_a00820cf-560e-5370-b9f1-ef84ed381411",
+      "pubmedqa_b6238feb-fdb7-5cc3-837e-c66da1ab92f7",
+      "pubmedqa_177efe10-6943-505e-83ab-4a320cc94d20"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_6285f92c-493a-52c2-a8f9-33bc74933c90",
+      "pubmedqa_767fa6a6-1b4e-5930-a4d6-744b0507a5bc",
+      "pubmedqa_a00820cf-560e-5370-b9f1-ef84ed381411",
+      "pubmedqa_b6238feb-fdb7-5cc3-837e-c66da1ab92f7",
+      "pubmedqa_177efe10-6943-505e-83ab-4a320cc94d20"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "18284441",
+   "kg_correct": false,
+   "vanilla_correct": false,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_bf9dfd07-65a7-5638-bd39-0b0b7c043caa",
+      "pubmedqa_b528a0e8-f120-5cff-8482-10198a1daff2"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_bf9dfd07-65a7-5638-bd39-0b0b7c043caa",
+      "pubmedqa_b528a0e8-f120-5cff-8482-10198a1daff2"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "17621202",
+   "kg_correct": false,
+   "vanilla_correct": false,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_704b86da-6c7a-504f-b914-274e56375ee6",
+      "pubmedqa_7680fa48-ff8b-5b1f-8bb4-963ab18f838e",
+      "pubmedqa_3ee43456-2eae-5c23-b958-98e164259351",
+      "pubmedqa_4f2411c1-5a29-5ee3-8a63-40070bbc2950",
+      "pubmedqa_d99317c5-a945-5b49-b0be-4dfd3c95644c"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_704b86da-6c7a-504f-b914-274e56375ee6",
+      "pubmedqa_7680fa48-ff8b-5b1f-8bb4-963ab18f838e",
+      "pubmedqa_3ee43456-2eae-5c23-b958-98e164259351",
+      "pubmedqa_4f2411c1-5a29-5ee3-8a63-40070bbc2950",
+      "pubmedqa_d99317c5-a945-5b49-b0be-4dfd3c95644c"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "12630042",
+   "kg_correct": false,
+   "vanilla_correct": false,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_a8dc8852-2fc7-54e6-90eb-777d035c87c9",
+      "pubmedqa_d6f75931-8e82-5f76-8782-4e57e8af622d",
+      "pubmedqa_d7d2ed45-c482-5772-8804-3fd92954dec8",
+      "pubmedqa_606974f6-900e-5379-83df-96fd101767a4",
+      "pubmedqa_b0b779b3-8a86-5413-aaaa-a330a4ddb804"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_a8dc8852-2fc7-54e6-90eb-777d035c87c9",
+      "pubmedqa_d6f75931-8e82-5f76-8782-4e57e8af622d",
+      "pubmedqa_d7d2ed45-c482-5772-8804-3fd92954dec8",
+      "pubmedqa_606974f6-900e-5379-83df-96fd101767a4",
+      "pubmedqa_b0b779b3-8a86-5413-aaaa-a330a4ddb804"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "16538201",
+   "kg_correct": false,
+   "vanilla_correct": false,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_39fdcc4a-8d05-56c6-8c61-d1b832c88401",
+      "pubmedqa_58840974-51e8-5ad6-933b-06ff47404302",
+      "pubmedqa_88beb972-3fac-5432-910a-d679e9026207",
+      "pubmedqa_9a0a57e9-2552-5927-b6e9-b2db8b6193bf",
+      "pubmedqa_0a2ecab2-92ad-530a-92d5-188699f01daf"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_39fdcc4a-8d05-56c6-8c61-d1b832c88401",
+      "pubmedqa_58840974-51e8-5ad6-933b-06ff47404302",
+      "pubmedqa_88beb972-3fac-5432-910a-d679e9026207",
+      "pubmedqa_9a0a57e9-2552-5927-b6e9-b2db8b6193bf",
+      "pubmedqa_0a2ecab2-92ad-530a-92d5-188699f01daf"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "25394614",
+   "kg_correct": false,
+   "vanilla_correct": false,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_7d673be1-3232-5604-a832-8d031c17acec",
+      "pubmedqa_88a31856-2717-53f9-8733-cd6f5208e69e",
+      "pubmedqa_1262c387-a9d6-5426-926c-3f6d7036a0bc",
+      "pubmedqa_2748f3ff-8d18-5fd6-824d-b47b6a09dd90",
+      "pubmedqa_9e2c752f-e69a-5153-a4a9-8e66be47f2ec"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_7d673be1-3232-5604-a832-8d031c17acec",
+      "pubmedqa_88a31856-2717-53f9-8733-cd6f5208e69e",
+      "pubmedqa_1262c387-a9d6-5426-926c-3f6d7036a0bc",
+      "pubmedqa_2748f3ff-8d18-5fd6-824d-b47b6a09dd90",
+      "pubmedqa_9e2c752f-e69a-5153-a4a9-8e66be47f2ec"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "18243752",
+   "kg_correct": false,
+   "vanilla_correct": false,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_ee183f5b-ea81-5cdf-b8c3-78b527d053ed",
+      "pubmedqa_33144cfb-4bfa-5cb5-ab85-52791606922c",
+      "pubmedqa_015945a9-0fd3-5784-affa-e31ff447fe75",
+      "pubmedqa_e1785c99-779c-5c8f-b491-fac5b30d6466",
+      "pubmedqa_aa7df915-3407-58ee-8589-efca98026b1e"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_ee183f5b-ea81-5cdf-b8c3-78b527d053ed",
+      "pubmedqa_33144cfb-4bfa-5cb5-ab85-52791606922c",
+      "pubmedqa_015945a9-0fd3-5784-affa-e31ff447fe75",
+      "pubmedqa_e1785c99-779c-5c8f-b491-fac5b30d6466",
+      "pubmedqa_aa7df915-3407-58ee-8589-efca98026b1e"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "17076091",
+   "kg_correct": false,
+   "vanilla_correct": false,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_79091417-6a2c-597d-ab3d-a32b3b8b9947",
+      "pubmedqa_2a17d1a9-eda5-5516-a8af-0d915c4ce1e8"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_79091417-6a2c-597d-ab3d-a32b3b8b9947",
+      "pubmedqa_2a17d1a9-eda5-5516-a8af-0d915c4ce1e8"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "22491528",
+   "kg_correct": false,
+   "vanilla_correct": false,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_d7773c61-37e3-5ed7-835b-6df021ae6e10",
+      "pubmedqa_e1785c99-779c-5c8f-b491-fac5b30d6466"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_d7773c61-37e3-5ed7-835b-6df021ae6e10",
+      "pubmedqa_e1785c99-779c-5c8f-b491-fac5b30d6466"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "20337202",
+   "kg_correct": false,
+   "vanilla_correct": false,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_e5061829-cbe6-5386-b2dc-f4cefb96ce8e",
+      "pubmedqa_66900f2f-7a1c-536d-b523-0cc205c72469"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_e5061829-cbe6-5386-b2dc-f4cefb96ce8e",
+      "pubmedqa_66900f2f-7a1c-536d-b523-0cc205c72469"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "16392897",
+   "kg_correct": false,
+   "vanilla_correct": false,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_24fdedd8-3343-5d06-a813-78b557413aa3",
+      "pubmedqa_4c3a5886-f473-5697-b90a-1a8c9b5966a3"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_24fdedd8-3343-5d06-a813-78b557413aa3",
+      "pubmedqa_4c3a5886-f473-5697-b90a-1a8c9b5966a3"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "12407608",
+   "kg_correct": false,
+   "vanilla_correct": false,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_f55ffa7f-6138-5ef6-933b-b8c4915dccaf",
+      "pubmedqa_f70dfc5d-1bbf-57c5-8c80-a6b3c89d73cd",
+      "pubmedqa_cd21e3f2-0f1a-5a2a-bac7-0a0773fdb9dd"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_f55ffa7f-6138-5ef6-933b-b8c4915dccaf",
+      "pubmedqa_f70dfc5d-1bbf-57c5-8c80-a6b3c89d73cd",
+      "pubmedqa_cd21e3f2-0f1a-5a2a-bac7-0a0773fdb9dd"
+     ],
+     "q_source": "surface"
+    }
+   }
+  },
+  {
+   "question_id": "16735905",
+   "kg_correct": false,
+   "vanilla_correct": false,
+   "store": {
+    "kg": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_b0bd312e-c1a1-5344-8649-d95023f83532",
+      "pubmedqa_c937bb2f-9475-5e11-894a-1a79b14282f5",
+      "pubmedqa_79091417-6a2c-597d-ab3d-a32b3b8b9947",
+      "pubmedqa_ba8b7b04-686d-51c5-bd23-3cefbfb5f0e6"
+     ],
+     "q_source": "surface"
+    },
+    "vanilla": {
+     "null_reason": "no_a_entities",
+     "q_ids": [
+      "pubmedqa_b0bd312e-c1a1-5344-8649-d95023f83532",
+      "pubmedqa_c937bb2f-9475-5e11-894a-1a79b14282f5",
+      "pubmedqa_79091417-6a2c-597d-ab3d-a32b3b8b9947",
+      "pubmedqa_ba8b7b04-686d-51c5-bd23-3cefbfb5f0e6"
+     ],
+     "q_source": "surface"
+    }
+   }
+  }
+ ]
+}

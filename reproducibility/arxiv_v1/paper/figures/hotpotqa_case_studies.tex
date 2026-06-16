@@ -1,0 +1,59 @@
+\begin{figure*}[t]
+\centering
+\small
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.13\textwidth}
+                >{\raggedright\arraybackslash}p{0.22\textwidth}
+                >{\raggedright\arraybackslash}p{0.22\textwidth}
+                >{\raggedright\arraybackslash}p{0.33\textwidth}}
+\toprule
+\textbf{Case} & \textbf{Question} & \textbf{Answers (gold / KG / vanilla)} & \textbf{What the estimators show} \\
+\midrule
+%
+% CASE A1 — weak graph/evidence support + output collapse
+\textbf{(A) Stable wrong answer with weak graph support} &
+\emph{Are TEC-1 and Dubna 48K based on the same processor?} &
+Gold: \emph{yes}.
+KG: \emph{no}~(\textbf{\texttimes}).
+Vanilla: \emph{yes}~(\checkmark). &
+All five KG samples repeat the wrong answer
+($\mathrm{DSE}=0$, SD-UQ$=0.006$), so output-only confidence looks
+low-risk.
+Here the warning is evidence-facing and graph-facing rather than answer-facing:
+GPS sits at the fallback value $0.5$, and SEU rises to $0.75$, indicating weak
+local evidence support for the repeated answer.
+This is the clean case for the narrower claim:
+answer agreement can look low-risk even though the retrieved graph state and
+evidence support do not. \\
+\midrule
+%
+% CASE A2 — wrong but locally coherent graph path
+\textbf{(B) Wrong but graph-coherent} &
+\emph{Which country refrained from participating in the 1991 Baltic Cup though it had participated in previous Baltic Cup competitions?} &
+Gold: \emph{Belarus}.
+KG: \emph{Estonia}~(\textbf{\texttimes}).
+Vanilla: \emph{Belarus}~(\checkmark). &
+This case is useful for the opposite reason.
+KG-RAG is still wrong with low answer variation
+($\mathrm{DSE}=0$, SD-UQ$\approx 0$), but GPS is $0.0$ rather than an
+abstention because the retrieved graph supports a locally coherent, wrong
+entity neighbourhood.
+GPS is therefore behaving as a graph-consistency score, not failing as a
+correctness test.
+The lesson is conditional utility:
+sometimes GPS abstains and helps, and sometimes a wrong anchor looks
+structurally coherent enough that scalar scores alone are insufficient and
+the qualitative provenance trace has to be inspected. \\
+\bottomrule
+\end{tabular}
+\caption{%
+  \textbf{HotpotQA case studies from the fixed-$n=250$ run.}
+  Row~A is the motivating failure mode: answer-state uncertainty collapses while the
+  graph and evidence diagnostics carry the warning signal.
+  Row~B shows its limit: a wrong anchor can also be internally graph-coherent,
+  so retrieval-state scores are conditional diagnostics rather than infallible
+  uncertainty measures.%
+}
+\label{fig:hotpotqa_case_studies}
+\end{figure*}

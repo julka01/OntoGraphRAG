@@ -1,0 +1,63 @@
+{
+ "per_dataset_certificate": {
+  "pubmedqa": {
+   "n": 100,
+   "coverage": 0.0,
+   "selected": 0,
+   "precision": null
+  },
+  "realmedqa": {
+   "n": 223,
+   "coverage": 0.21524663677130046,
+   "selected": 48,
+   "precision": 1.0
+  },
+  "hotpotqa": {
+   "n": 238,
+   "coverage": 0.025210084033613446,
+   "selected": 6,
+   "precision": 0.8333333333333334
+  },
+  "hotpotqa_fullwiki": {
+   "n": 218,
+   "coverage": 0.11926605504587157,
+   "selected": 26,
+   "precision": 0.8076923076923077
+  },
+  "2wikimultihopqa": {
+   "n": 244,
+   "coverage": 0.01639344262295082,
+   "selected": 4,
+   "precision": 1.0
+  },
+  "musique": {
+   "n": 94,
+   "coverage": 0.02127659574468085,
+   "selected": 2,
+   "precision": 0.5
+  }
+ },
+ "pooled_certificate": {
+  "coverage": 0.07699194270367055,
+  "precision": 0.9186046511627907,
+  "selected": 86,
+  "n": 1117
+ },
+ "baseline_sd_only": {
+  "coverage": 0.07699194270367055,
+  "precision": 0.813953488372093,
+  "selected": 86
+ },
+ "baseline_combined_rank": {
+  "coverage": 0.07699194270367055,
+  "precision": 0.8837209302325582,
+  "selected": 86
+ },
+ "split_half": {
+  "precision_mean": 0.9178629993837447,
+  "precision_p5": 0.8666666666666667,
+  "precision_p95": 0.9737179487179487,
+  "coverage_mean": 0.07834525939177102,
+  "B": 200
+ }
+}

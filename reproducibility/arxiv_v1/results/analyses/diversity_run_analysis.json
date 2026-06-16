@@ -1,0 +1,51 @@
+{
+ "run": "results/diversity_run/runs/20260615-121939-hotpotqa-fullwiki-n250-full-metrics-evaluation-subset/mirage_hotpotqa_fullwiki_results.json",
+ "n_answered": 221,
+ "n_with_traces": 221,
+ "n_wrong_with_traces": 74,
+ "stability_mean_jaccard": {
+  "seed_entity": {
+   "mean": 0.9909502262443439,
+   "median": 1.0,
+   "n": 221
+  },
+  "path": {
+   "mean": 0.5841022585781401,
+   "median": 0.5765079365079365,
+   "n": 221
+  },
+  "subgraph": {
+   "mean": 0.6387816396607897,
+   "median": 0.6273535100778506,
+   "n": 221
+  },
+  "chunk": {
+   "mean": 0.6500168856642737,
+   "median": 0.6505494505494507,
+   "n": 221
+  }
+ },
+ "coupling_overlap_vs_sduq_amongwrong": {
+  "seed_entity": {
+   "spearman_rho": 0.08583017461049573,
+   "p": 0.46715708422598035,
+   "n": 74
+  },
+  "path": {
+   "spearman_rho": -0.30110729449307994,
+   "p": 0.009135862410879844,
+   "n": 74
+  },
+  "subgraph": {
+   "spearman_rho": -0.23021551019021136,
+   "p": 0.04846539482475531,
+   "n": 74
+  },
+  "chunk": {
+   "spearman_rho": -0.24293309414794387,
+   "p": 0.03701804628036437,
+   "n": 74
+  }
+ },
+ "dominant_seed_entity_fraction_mean": 0.00995475113122172
+}

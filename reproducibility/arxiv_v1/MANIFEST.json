@@ -1,0 +1,1624 @@
+{
+  "created_at_utc": "2026-06-16T00:18:39.026179+00:00",
+  "description": "Cached artefacts for the arXiv v1 paper package. No generation, retrieval, KG build, or judging rerun is required to verify these cached files.",
+  "files": [
+    {
+      "path": "reproducibility/arxiv_v1/README.md",
+      "role": "documentation",
+      "sha256": "47fae7f4ed4c5c558ad47fd03da7e3979fb53060834b3c400b211868d3dec651",
+      "size": 657,
+      "source_path": "reproducibility/arxiv_v1/README.md"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/experiments/certificate_eval.py",
+      "role": "code",
+      "sha256": "5a59a3c9d6a5015399bfef5e7dfa439fcfd4b1d0e39d329d641cb8907569c8f1",
+      "size": 4911,
+      "source_path": "experiments/certificate_eval.py"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/experiments/diversity_run_analysis.py",
+      "role": "code",
+      "sha256": "76c0e0392657c9c4d5ec8d387c0395813fa4c2017bf49d3bb33ccac2756a823c",
+      "size": 3915,
+      "source_path": "experiments/diversity_run_analysis.py"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/experiments/gps_sensitivity.py",
+      "role": "code",
+      "sha256": "ae97d22dbb029e44ec4c5229ab3baf32ee5a6ce24d567c4cdc982f27ea8bea02",
+      "size": 4342,
+      "source_path": "experiments/gps_sensitivity.py"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/experiments/gps_v3_depth_matched.py",
+      "role": "code",
+      "sha256": "7d0753d8ce83d0f1f9646563499ad452ee67bc1507fe17a87d7f00cba6a14467",
+      "size": 11201,
+      "source_path": "experiments/gps_v3_depth_matched.py"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/experiments/graph_state_diversity_analysis.py",
+      "role": "code",
+      "sha256": "2fe81918adaaf79ea2243d2ea2d25d09a44a97f50135ad5d82cd304084c06982",
+      "size": 5283,
+      "source_path": "experiments/graph_state_diversity_analysis.py"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/experiments/lockin_accounting_analysis.py",
+      "role": "code",
+      "sha256": "41a1aa1b38c675559ee332fb027e6ec7b3f4384a08c003e18504f878dfcb9b7c",
+      "size": 12433,
+      "source_path": "experiments/lockin_accounting_analysis.py"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/experiments/rejudge_independent.py",
+      "role": "code",
+      "sha256": "435b9ae29b89ce5daa0d5dc737b6e92be77defea28e2b500835bc588023fe34f",
+      "size": 5920,
+      "source_path": "experiments/rejudge_independent.py"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/experiments/rejudge_wave1.py",
+      "role": "code",
+      "sha256": "10d5cecc1588826172340145fa12607a1b25cdebad1f634b2ce03ccca2a34e80",
+      "size": 4304,
+      "source_path": "experiments/rejudge_wave1.py"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/experiments/reporting_robustness.py",
+      "role": "code",
+      "sha256": "015969687cf36caff1a025b33328d9210cc58a85fc57a9b3b16eb3c7640d10da",
+      "size": 7770,
+      "source_path": "experiments/reporting_robustness.py"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/experiments/residue_audit.py",
+      "role": "code",
+      "sha256": "1bc83601187501391643ff626c180e65f6818f22e90c59c363ad4cab5f1694f7",
+      "size": 3678,
+      "source_path": "experiments/residue_audit.py"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/experiments/summary_utils.py",
+      "role": "code",
+      "sha256": "fd3abad28bd5507a47be10c872b05b60e30891fdee8c71a6fc12b6fda0e46c2f",
+      "size": 13452,
+      "source_path": "experiments/summary_utils.py"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/experiments/trust_analysis.py",
+      "role": "code",
+      "sha256": "caa36a0549c14cfae6bd3364792013f7359eaff99044e46bc7c490b63c734264",
+      "size": 8122,
+      "source_path": "experiments/trust_analysis.py"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/experiments/uncertainty_metrics.py",
+      "role": "code",
+      "sha256": "22a3599a53de4c79aeac59006f9c8fecb0280b8f5a99ba4dcffbc4d93ef14cd4",
+      "size": 118718,
+      "source_path": "experiments/uncertainty_metrics.py"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/experiments/verbalized_confidence.py",
+      "role": "code",
+      "sha256": "4c6d8b97bcbb45bc22dcb9b630342bd1cf6bfe62b64aab7deb07cec602f7ef0b",
+      "size": 4513,
+      "source_path": "experiments/verbalized_confidence.py"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/experiments/wave1_analysis.py",
+      "role": "code",
+      "sha256": "4802b25d108f8784ecdbc0f53fe70636ca6839532d297a0b3831c6287261e140",
+      "size": 14402,
+      "source_path": "experiments/wave1_analysis.py"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/appendix.tex",
+      "role": "paper_source",
+      "sha256": "be063db1be4becca459fd2c06a55ffc2cd00aff18711d3e6a66e732c0d3ffc0f",
+      "size": 58595,
+      "source_path": "paper/appendix.tex"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/background.tex",
+      "role": "paper_source",
+      "sha256": "6151760ac816ce3f682ffffe58b22dbee6644f15ff384464fc77c98e55f40701",
+      "size": 4198,
+      "source_path": "paper/background.tex"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/conclusion.tex",
+      "role": "paper_source",
+      "sha256": "bc0a1b573b027f9cc7a0d38b1998334feb035b3d1a69c5e211087b83fc3eaa51",
+      "size": 5600,
+      "source_path": "paper/conclusion.tex"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/experimental_setup.tex",
+      "role": "paper_source",
+      "sha256": "81be6889016d5fa755cf47978f1599e9cd2d47ee5f0a7cd006d712bdad91fa48",
+      "size": 10249,
+      "source_path": "paper/experimental_setup.tex"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/adaptive_kg_auroc_heatmap.pdf",
+      "role": "paper_figure",
+      "sha256": "17534696a45b6fbf2871c3bf372974cf269712caf69031d34fcba107413604ad",
+      "size": 40089,
+      "source_path": "paper/figures/adaptive_kg_auroc_heatmap.pdf"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/adaptive_kg_auroc_heatmap.png",
+      "role": "paper_figure",
+      "sha256": "95bbe27720be1a956be5f57040ba5273869c47af274da51bc31d3e2372c954b5",
+      "size": 86297,
+      "source_path": "paper/figures/adaptive_kg_auroc_heatmap.png"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/answer_auroc_heatmap.pdf",
+      "role": "paper_figure",
+      "sha256": "f2277e788ae798de8f8153f76d05eba6d9ef6709646a72bb3bb864047238ee06",
+      "size": 45549,
+      "source_path": "paper/figures/answer_auroc_heatmap.pdf"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/answer_auroc_heatmap.png",
+      "role": "paper_figure",
+      "sha256": "f3d51188fb6ee286b88129b0b992c90b26a36741035e02441ee12c1225e56e62",
+      "size": 93988,
+      "source_path": "paper/figures/answer_auroc_heatmap.png"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/calibration_paradox.pdf",
+      "role": "paper_figure",
+      "sha256": "cd588b08274cb039c62df3d35be4a1337cd10fd6833ed61021da2105ba4d8129",
+      "size": 71079,
+      "source_path": "paper/figures/calibration_paradox.pdf"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/composite_audit_score.tex",
+      "role": "paper_figure",
+      "sha256": "d74624c1a04e18527213fd2f39e4bc713e2325bcf8a1652ef983486311c0d2ca",
+      "size": 1202,
+      "source_path": "paper/figures/composite_audit_score.tex"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/concentration_facets.pdf",
+      "role": "paper_figure",
+      "sha256": "82c2990348556d8cc6dedebb8e6d023196072aacd23e5c27a0f30d7ba6e69bbe",
+      "size": 59970,
+      "source_path": "paper/figures/concentration_facets.pdf"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/concentration_facets.png",
+      "role": "paper_figure",
+      "sha256": "5d7260fa9ba60aaec4a34d001f33f58a5105b5dad51cacf4438470b57c070744",
+      "size": 86297,
+      "source_path": "paper/figures/concentration_facets.png"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/concentration_vs_dispersion.pdf",
+      "role": "paper_figure",
+      "sha256": "9a82d13c4dbcd18277bcd8dfccd857b2f899bd2972819b69d736fc4998ed72ac",
+      "size": 48385,
+      "source_path": "paper/figures/concentration_vs_dispersion.pdf"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/concentration_vs_dispersion.png",
+      "role": "paper_figure",
+      "sha256": "71a0ad44426bd06dd03428e40e2df2641b6ee5e831fedf3db4adc9ae0a74f10d",
+      "size": 44658,
+      "source_path": "paper/figures/concentration_vs_dispersion.png"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/context_collapse_ablation.pdf",
+      "role": "paper_figure",
+      "sha256": "4c48102a32836ed0fca3fa98d6c6e9a5dca935e43f2b1bf8eb96cc908f88e3f5",
+      "size": 77525,
+      "source_path": "paper/figures/context_collapse_ablation.pdf"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/context_collapse_ablation.png",
+      "role": "paper_figure",
+      "sha256": "624aca0a749cff48d72ea15aef7faac0f43120d148eb08d854b3ecfa06df3025",
+      "size": 160804,
+      "source_path": "paper/figures/context_collapse_ablation.png"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/coverage_accuracy.pdf",
+      "role": "paper_figure",
+      "sha256": "071ba08b955edb29dd742b603505176a6c28a33242460fc884cb63386ef6d5ea",
+      "size": 46857,
+      "source_path": "paper/figures/coverage_accuracy.pdf"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/coverage_accuracy.png",
+      "role": "paper_figure",
+      "sha256": "1138683eb8429af2eccbf437f08f96facaada9a5b626fb009fa26f9ebe71bb30",
+      "size": 112108,
+      "source_path": "paper/figures/coverage_accuracy.png"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/decomposition.tex",
+      "role": "paper_figure",
+      "sha256": "ce0c837bca53db5b79a4b08fc03cb0bc79563ebb463ff8edabde87b709eda42a",
+      "size": 1819,
+      "source_path": "paper/figures/decomposition.tex"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/failure_taxonomy.tex",
+      "role": "paper_figure",
+      "sha256": "6a501023403ea7609cc3d611f763dc589e01fd11734af44826b9652de1d191c0",
+      "size": 1640,
+      "source_path": "paper/figures/failure_taxonomy.tex"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/family_disagreement_scatter.pdf",
+      "role": "paper_figure",
+      "sha256": "c18ec22915f3a08049f8d1a34e068537e381b0e86c4541e1abc86553e19e5a73",
+      "size": 43983,
+      "source_path": "paper/figures/family_disagreement_scatter.pdf"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/family_disagreement_scatter.png",
+      "role": "paper_figure",
+      "sha256": "d3671ed6ac05ba9320a7af48c25cee738f9e43cbfd9746eb21f1a24f451967c6",
+      "size": 151568,
+      "source_path": "paper/figures/family_disagreement_scatter.png"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/gps_abstention_map.pdf",
+      "role": "paper_figure",
+      "sha256": "4fcd4dc3a60adea3910274853fd8832093ee998a07c5c1c3f0914aab4a4373b7",
+      "size": 28051,
+      "source_path": "paper/figures/gps_abstention_map.pdf"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/gps_abstention_map.png",
+      "role": "paper_figure",
+      "sha256": "c44248f79192b01da4a1760f7c2c4502322acc50fd8cca61a806b4c147193637",
+      "size": 41907,
+      "source_path": "paper/figures/gps_abstention_map.png"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/gps_reliability_bins.tex",
+      "role": "paper_figure",
+      "sha256": "279f0389c1dbbffd04f4929750df10142a0ba57cce9514143cfc43493e3d846b",
+      "size": 1109,
+      "source_path": "paper/figures/gps_reliability_bins.tex"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/hop_auroc_dense_floor_thr0.1_k10_rt0p0.pdf",
+      "role": "paper_figure",
+      "sha256": "3606153dd6e1f7c84f5522b4436b36814e802d14a0648e1edc74b21e39315435",
+      "size": 21889,
+      "source_path": "paper/figures/hop_auroc_dense_floor_thr0.1_k10_rt0p0.pdf"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/hop_auroc_dense_floor_thr0.1_k10_rt0p0.png",
+      "role": "paper_figure",
+      "sha256": "8a3e679cad56816eded72268591583ffa848761bac3c3ba663bda98120a17e92",
+      "size": 44264,
+      "source_path": "paper/figures/hop_auroc_dense_floor_thr0.1_k10_rt0p0.png"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/hop_auroc_detail_dense_floor_thr0.1_k10_rt0p0.pdf",
+      "role": "paper_figure",
+      "sha256": "5146b64fbbb358e4acf0d76519aa0db11abe134c89a99480b32bc8ae727a2ff1",
+      "size": 29966,
+      "source_path": "paper/figures/hop_auroc_detail_dense_floor_thr0.1_k10_rt0p0.pdf"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/hop_auroc_detail_dense_floor_thr0.1_k10_rt0p0.png",
+      "role": "paper_figure",
+      "sha256": "4cfdd4ffda63ff3fc844507f9295865cdfcd749b0f72e6d9839d686d59a422bd",
+      "size": 48989,
+      "source_path": "paper/figures/hop_auroc_detail_dense_floor_thr0.1_k10_rt0p0.png"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/hop_auroc_detail_kg_entity_first_thr0.1_k10_rt0p0.pdf",
+      "role": "paper_figure",
+      "sha256": "5146b64fbbb358e4acf0d76519aa0db11abe134c89a99480b32bc8ae727a2ff1",
+      "size": 29966,
+      "source_path": "paper/figures/hop_auroc_detail_kg_entity_first_thr0.1_k10_rt0p0.pdf"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/hop_auroc_detail_kg_entity_first_thr0.1_k10_rt0p0.png",
+      "role": "paper_figure",
+      "sha256": "4cfdd4ffda63ff3fc844507f9295865cdfcd749b0f72e6d9839d686d59a422bd",
+      "size": 48989,
+      "source_path": "paper/figures/hop_auroc_detail_kg_entity_first_thr0.1_k10_rt0p0.png"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/hop_auroc_kg_entity_first_thr0.1_k10_rt0p0.pdf",
+      "role": "paper_figure",
+      "sha256": "f0f7c0ec6403ed4b35f827afb529eff093f413ab2650dd1104d91dcc8aa9ead5",
+      "size": 21889,
+      "source_path": "paper/figures/hop_auroc_kg_entity_first_thr0.1_k10_rt0p0.pdf"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/hop_auroc_kg_entity_first_thr0.1_k10_rt0p0.png",
+      "role": "paper_figure",
+      "sha256": "8a3e679cad56816eded72268591583ffa848761bac3c3ba663bda98120a17e92",
+      "size": 44264,
+      "source_path": "paper/figures/hop_auroc_kg_entity_first_thr0.1_k10_rt0p0.png"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/hop_ppv_dense_floor_thr0.1_k10_rt0p0.pdf",
+      "role": "paper_figure",
+      "sha256": "d311bb27e80c260388668cf78a3fa26f582399d020795175fccd0dd77835756f",
+      "size": 18383,
+      "source_path": "paper/figures/hop_ppv_dense_floor_thr0.1_k10_rt0p0.pdf"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/hop_ppv_dense_floor_thr0.1_k10_rt0p0.png",
+      "role": "paper_figure",
+      "sha256": "5f9f6f972cd0e1ae722ba395fc6ff842e944e241e22ebd6d70535ee71796a100",
+      "size": 48546,
+      "source_path": "paper/figures/hop_ppv_dense_floor_thr0.1_k10_rt0p0.png"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/hop_ppv_kg_entity_first_thr0.1_k10_rt0p0.pdf",
+      "role": "paper_figure",
+      "sha256": "cf6c93c9ae8e5097d30373aa45b8783b7da851bf883a4c8e4ce7b7d6fad0c087",
+      "size": 18427,
+      "source_path": "paper/figures/hop_ppv_kg_entity_first_thr0.1_k10_rt0p0.pdf"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/hop_ppv_kg_entity_first_thr0.1_k10_rt0p0.png",
+      "role": "paper_figure",
+      "sha256": "adc9c2ece982abc1af9f1d801b0d4e54288935f0c40aebdb28802fa3b50a946e",
+      "size": 49189,
+      "source_path": "paper/figures/hop_ppv_kg_entity_first_thr0.1_k10_rt0p0.png"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/hotpotqa_case_studies.tex",
+      "role": "paper_figure",
+      "sha256": "f5156ecab6469a7a1c8a99230da3ec647dab70889d17b3deab0d3c0284112662",
+      "size": 2650,
+      "source_path": "paper/figures/hotpotqa_case_studies.tex"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/latest_results_manifest.json",
+      "role": "paper_figure",
+      "sha256": "392a9f96592e5d81463cfd86029548cf3ee26281ad7ffc4e79c060e993701b76",
+      "size": 1709,
+      "source_path": "paper/figures/latest_results_manifest.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/lockin_gallery.tex",
+      "role": "paper_figure",
+      "sha256": "2cb467711da3e7c269aa4b345063ab3a5b168416d8af7a9dabcbbddee0706087",
+      "size": 3353,
+      "source_path": "paper/figures/lockin_gallery.tex"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/lockin_migration.pdf",
+      "role": "paper_figure",
+      "sha256": "7c94a4bc361c48f500216614eb1320ae085f4d44b6599a8d4ea52e93b70dd6b4",
+      "size": 44203,
+      "source_path": "paper/figures/lockin_migration.pdf"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/lockin_migration.png",
+      "role": "paper_figure",
+      "sha256": "f6766b3b355cb72c39997def80edd0ffbf62a43a36f4d7bc15f72e30df944eea",
+      "size": 63222,
+      "source_path": "paper/figures/lockin_migration.png"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/lockin_trace.tex",
+      "role": "paper_figure",
+      "sha256": "148cd0fe4469a446630636c0bb5faf79558e872635a4d56c3809e40096efe681",
+      "size": 3456,
+      "source_path": "paper/figures/lockin_trace.tex"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/make_figures.py",
+      "role": "paper_figure",
+      "sha256": "6feb155167549b9180917105a5d631f9a36d5b22d39046288cf4eb57468b00b7",
+      "size": 68701,
+      "source_path": "paper/figures/make_figures.py"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/metric_failure_modes.tex",
+      "role": "paper_figure",
+      "sha256": "1e826cfc117430036382c7741cac53be37ba812ae782c41aac772c62a5f0ceeb",
+      "size": 2025,
+      "source_path": "paper/figures/metric_failure_modes.tex"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/musique_case_studies.tex",
+      "role": "paper_figure",
+      "sha256": "2c71efe8faa349e6eea6fc91a4f8802c0739a69df01c51e9ccf706ded0b995f0",
+      "size": 2869,
+      "source_path": "paper/figures/musique_case_studies.tex"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/path_faithfulness_case.tex",
+      "role": "paper_figure",
+      "sha256": "e26bb12a3e7d2578d95b1951429f98523c27646a3b8f5cddc35366cda875a10d",
+      "size": 2184,
+      "source_path": "paper/figures/path_faithfulness_case.tex"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/pipeline.tex",
+      "role": "paper_figure",
+      "sha256": "0083b88283e858834813b935efc30bca436e7cf70b94c584428773c1e829c1f1",
+      "size": 5222,
+      "source_path": "paper/figures/pipeline.tex"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/routing_distribution.pdf",
+      "role": "paper_figure",
+      "sha256": "85a94376f3598541f850437b0ca73b22ef2095433e523bc2118f4dcffd515cf8",
+      "size": 26102,
+      "source_path": "paper/figures/routing_distribution.pdf"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/stability_auc_by_overlap.pdf",
+      "role": "paper_figure",
+      "sha256": "a5f813d9fbdb687b007d5e0e6de6fb80ec5ab280cff6e515f680afccd52267ab",
+      "size": 28897,
+      "source_path": "paper/figures/stability_auc_by_overlap.pdf"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/stability_auc_by_overlap.png",
+      "role": "paper_figure",
+      "sha256": "3587b8785e1b6c72d4277ce695dc065246791c27d7501b7e2fc80a79cc525f9a",
+      "size": 71728,
+      "source_path": "paper/figures/stability_auc_by_overlap.png"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/structural_auroc_heatmap.pdf",
+      "role": "paper_figure",
+      "sha256": "7415d55371ad4ba704e6ee3555b9f9944d24341b1b5262a900ed89c964553ded",
+      "size": 32037,
+      "source_path": "paper/figures/structural_auroc_heatmap.pdf"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/structural_auroc_heatmap.png",
+      "role": "paper_figure",
+      "sha256": "9191ffd14a8ba6eaaf0c8897fbaf32122df9288186958478839582743320004e",
+      "size": 45671,
+      "source_path": "paper/figures/structural_auroc_heatmap.png"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/twowiki_case_studies.tex",
+      "role": "paper_figure",
+      "sha256": "f01ad776a0bb8ed56ac044d5270c390fc6a88f97c608ed8c2fc13045c4bfdb09",
+      "size": 3004,
+      "source_path": "paper/figures/twowiki_case_studies.tex"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/twowiki_hopwise_diagnostics.tex",
+      "role": "paper_figure",
+      "sha256": "c94ef9f4d37f77ce0177395adc0a4de935ceb3f60c674100d061ceb40b41c967",
+      "size": 1229,
+      "source_path": "paper/figures/twowiki_hopwise_diagnostics.tex"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/figures/within_adaptive_stability.tex",
+      "role": "paper_figure",
+      "sha256": "83a5ef41dd55dd7c492ba2cb6266ce569f5eafb6dfe1451ede840b7868a98f91",
+      "size": 952,
+      "source_path": "paper/figures/within_adaptive_stability.tex"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/introduction.tex",
+      "role": "paper_source",
+      "sha256": "40e5865c69bc81e2ff88991ac7b2544ca123cb0186b122bdbb5f7011707edbda",
+      "size": 8786,
+      "source_path": "paper/introduction.tex"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/main_arxiv.pdf",
+      "role": "paper_pdf",
+      "sha256": "d8df768e146ddca1ee9ad7e95a67a9b7789ffc64359d2c40048985d47031da6f",
+      "size": 617147,
+      "source_path": "paper/main_arxiv.pdf"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/main_arxiv.tex",
+      "role": "paper_source",
+      "sha256": "a44c4c0c7ee2697aba6f663fd577fe85b0d0ec5e9ddc1f6662d0c10b3855ae9f",
+      "size": 5466,
+      "source_path": "paper/main_arxiv.tex"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/metric_formulations.tex",
+      "role": "paper_source",
+      "sha256": "3d0b2693a8aef8d4aff9739f4eb2145d51f58b3683dad37b7a277746d06507f5",
+      "size": 16017,
+      "source_path": "paper/metric_formulations.tex"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/references.bib",
+      "role": "paper_source",
+      "sha256": "1aaaed52af70e2c98311462bee143480b8311fbc872b57187c83f65f74d10cc5",
+      "size": 44513,
+      "source_path": "paper/references.bib"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/related_work.tex",
+      "role": "paper_source",
+      "sha256": "38505dcca9f2c91a44711a18e46b8e06941bd1c25cdd2b5e039ecba131299eac",
+      "size": 12443,
+      "source_path": "paper/related_work.tex"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/results.tex",
+      "role": "paper_source",
+      "sha256": "e87f0a24d89a47643aefbf0d4bae252ecc0c04752d330f2c7894ed3b31df51b9",
+      "size": 39099,
+      "source_path": "paper/results.tex"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/paper/system_description.tex",
+      "role": "paper_source",
+      "sha256": "8a146673767c9fcf037b6832b6064e8a771ffa1ab5ab3e91eb977f7bcbb128f4",
+      "size": 4792,
+      "source_path": "paper/system_description.tex"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/analyses/anchor_masking_candidates_2wiki_strict.json",
+      "role": "analysis_output",
+      "sha256": "7472d3f806b2047e9a861a26fd0b0e5fc6da65759e8b7334acd2bcb4da10c76c",
+      "size": 7852,
+      "source_path": "results/analyses/anchor_masking_candidates_2wiki_strict.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/analyses/anchor_masking_intervention.json",
+      "role": "analysis_output",
+      "sha256": "e70fcd917a5c0b9971e6a88a33441e946959ae9bf667a4d7e7691bfe82f76edf",
+      "size": 3102,
+      "source_path": "results/analyses/anchor_masking_intervention.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/analyses/certificate_eval.json",
+      "role": "analysis_output",
+      "sha256": "7737df0e9d45e6556ee8019006510a166e9fd52c2dc31e4c574024d69e23fe9e",
+      "size": 1267,
+      "source_path": "results/analyses/certificate_eval.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/analyses/certificate_rejudge.json",
+      "role": "analysis_output",
+      "sha256": "1b3ea19ccddcff7272666a4537d5eac5169e95db4119d0b913c3a58d4c482238",
+      "size": 60,
+      "source_path": "results/analyses/certificate_rejudge.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/analyses/current_hopwise_2wiki.json",
+      "role": "analysis_output",
+      "sha256": "2e03bfbe99b68c67df153e8384a88c89271579fd9140ccb845c789ef06e4c530",
+      "size": 12723,
+      "source_path": "results/analyses/current_hopwise_2wiki.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/analyses/current_hopwise_analysis.py",
+      "role": "analysis_output",
+      "sha256": "04b04cc894bfaceada67c090e8b02c01672f8413c15ebb0785b9e0d2c9dd0b5e",
+      "size": 8950,
+      "source_path": "results/analyses/current_hopwise_analysis.py"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/analyses/diversity_run_analysis.json",
+      "role": "analysis_output",
+      "sha256": "0b737bef4e6f255b1bde03d176bb06bf9e9cef21b1e273fd06efc530fd276385",
+      "size": 1129,
+      "source_path": "results/analyses/diversity_run_analysis.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/analyses/final_submission_diagnostics.json",
+      "role": "analysis_output",
+      "sha256": "38f06ece43dde981377bc22046c3205488d16743594a1dac0d011da2f7544031",
+      "size": 5036,
+      "source_path": "results/analyses/final_submission_diagnostics.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/analyses/final_submission_diagnostics.py",
+      "role": "analysis_output",
+      "sha256": "b2fc3552afbd6c12d14e598fdd385e7696fcfb1c25ab68e0814e63e2107c8a2d",
+      "size": 15412,
+      "source_path": "results/analyses/final_submission_diagnostics.py"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/analyses/gps_sensitivity.json",
+      "role": "analysis_output",
+      "sha256": "dcded41faa2d43f7c7bd9275d8bd5f8bc5b7258016e775b2494e0b5318a07ca2",
+      "size": 17523,
+      "source_path": "results/analyses/gps_sensitivity.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/analyses/gps_v2_paper_numbers.json",
+      "role": "analysis_output",
+      "sha256": "f9634cf0b26e518fa1b5cef472ede0e83885f7befa4c24b17ab02e2e01815e75",
+      "size": 6386,
+      "source_path": "results/analyses/gps_v2_paper_numbers.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/analyses/gps_v3_depth_matched.json",
+      "role": "analysis_output",
+      "sha256": "7c158dec842aa8a9c9e2360f82572517c5cb2c71c74cd686767df63235910982",
+      "size": 6055,
+      "source_path": "results/analyses/gps_v3_depth_matched.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/analyses/graph_state_diversity_analysis.json",
+      "role": "analysis_output",
+      "sha256": "88ac31b2f9ed218452c7157e8e21e2899e59b515fc6abff61c1b44d2bec6ecd6",
+      "size": 270,
+      "source_path": "results/analyses/graph_state_diversity_analysis.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/analyses/kg_scale_stats.json",
+      "role": "analysis_output",
+      "sha256": "0a2dabf057622e8bbaca3e5f735a123d1c56cb027dc52a6cdceeed89941d8122",
+      "size": 860,
+      "source_path": "results/analyses/kg_scale_stats.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/analyses/lockin_accounting.json",
+      "role": "analysis_output",
+      "sha256": "8dd3351f856d38a67e064997b47cdcaaad02e06413315bda932712aa7bfb9cc5",
+      "size": 15231,
+      "source_path": "results/analyses/lockin_accounting.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/analyses/lockin_accounting_tables.tex",
+      "role": "analysis_output",
+      "sha256": "20245aec7b6950a169c4f6bd24effd21c190d20ce25e9d6f87535f7bba511397",
+      "size": 1640,
+      "source_path": "results/analyses/lockin_accounting_tables.tex"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/analyses/rejudge_independent.json",
+      "role": "analysis_output",
+      "sha256": "da665152ba8ef470d6d6a26f16ee3ea12d94bebcb677e2fbeaa6cf7d5c9d14f0",
+      "size": 901,
+      "source_path": "results/analyses/rejudge_independent.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/analyses/rejudge_wave1.json",
+      "role": "analysis_output",
+      "sha256": "51c7cede1779424a593162fac63349db6b0ae2aea8a35e17e9825e2baedab5d5",
+      "size": 2321,
+      "source_path": "results/analyses/rejudge_wave1.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/analyses/reporting_robustness.json",
+      "role": "analysis_output",
+      "sha256": "8b9239b46931b91ca82b50e37a81de0eda55dd78c57934a57d431602c6452dfb",
+      "size": 3493,
+      "source_path": "results/analyses/reporting_robustness.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/analyses/residue_audit.json",
+      "role": "analysis_output",
+      "sha256": "8ee54852eba2cedb17854a95a573217580edf2735248d66c2ec2d188fe92e377",
+      "size": 3190,
+      "source_path": "results/analyses/residue_audit.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/analyses/sd_uq_regime_analysis.json",
+      "role": "analysis_output",
+      "sha256": "2b69451e68aab156c38fc7e6c0f605029e9fae7990f0bd419bd2f8f41f087a7c",
+      "size": 21501,
+      "source_path": "results/analyses/sd_uq_regime_analysis.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/analyses/trust_analysis.json",
+      "role": "analysis_output",
+      "sha256": "7b801ed077d44a229acf3a009ba1b40e7b2b8ae9f444c57e20d321411d918d34",
+      "size": 3664,
+      "source_path": "results/analyses/trust_analysis.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/analyses/verbalized_confidence.json",
+      "role": "analysis_output",
+      "sha256": "883303f358e118058c2a26ec495950ba318efaa901857b15c918a3cfbde84960",
+      "size": 2390,
+      "source_path": "results/analyses/verbalized_confidence.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/analyses/wave1_analysis.json",
+      "role": "analysis_output",
+      "sha256": "42c6507cc0f6375307e6ebcbd1337da12e88f99ba4b008f6ba9b82d1efa96bc5",
+      "size": 9782,
+      "source_path": "results/analyses/wave1_analysis.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/analyses/within_adaptive_stability_2wiki.json",
+      "role": "analysis_output",
+      "sha256": "d8c37ddffa4ab893b17c70c6be343c89bc801146b41bfb6f51e9b79d8ff9b917",
+      "size": 1460,
+      "source_path": "results/analyses/within_adaptive_stability_2wiki.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/analyses/within_adaptive_stability_analysis.py",
+      "role": "analysis_output",
+      "sha256": "dac1f4eb852e816b830b7d1aaf45fd8993e3d767f881f264f40bc3e2c6f4b8f6",
+      "size": 5066,
+      "source_path": "results/analyses/within_adaptive_stability_analysis.py"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/dense_kdose/runs/20260612-224324-realmedqa-n100-full-metrics-evaluation-subset/manifest.json",
+      "role": "analysis_output",
+      "sha256": "d168802d59c119c3112435a3eff395cbeb7d6f18b2b60ab6363e98943e180365",
+      "size": 1933,
+      "source_path": "results/dense_kdose/runs/20260612-224324-realmedqa-n100-full-metrics-evaluation-subset/manifest.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/dense_kdose/runs/20260612-224324-realmedqa-n100-full-metrics-evaluation-subset/mirage_evaluation_summary.json",
+      "role": "analysis_output",
+      "sha256": "450d5c2bb1e2e0103405f2bb18a2d31a0ddb33547df19536a085d0829c180ce4",
+      "size": 79489,
+      "source_path": "results/dense_kdose/runs/20260612-224324-realmedqa-n100-full-metrics-evaluation-subset/mirage_evaluation_summary.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/dense_kdose/runs/20260612-224324-realmedqa-n100-full-metrics-evaluation-subset/mirage_realmedqa_results.json",
+      "role": "analysis_output",
+      "sha256": "a3fd86193a7971f97b151834f973a0c0827d055e5d863bf3b01d460651cfafca",
+      "size": 1221518,
+      "source_path": "results/dense_kdose/runs/20260612-224324-realmedqa-n100-full-metrics-evaluation-subset/mirage_realmedqa_results.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/dense_kdose/runs/20260612-224324-realmedqa-n100-full-metrics-evaluation-subset/questions/realmedqa_n100_seed42_he1599ddb41e2_thr0.1_k10_rt0p0_questions.json",
+      "role": "analysis_output",
+      "sha256": "0738189edb1b0706b57ab7bf2056ccc006ae44812b7fcb329d9514b74e1554f6",
+      "size": 348912,
+      "source_path": "results/dense_kdose/runs/20260612-224324-realmedqa-n100-full-metrics-evaluation-subset/questions/realmedqa_n100_seed42_he1599ddb41e2_thr0.1_k10_rt0p0_questions.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/dense_kdose/runs/20260612-224324-realmedqa-n100-full-metrics-evaluation-subset/questions/realmedqa_n100_seed42_he1599ddb41e2_thr0.1_k1_rt0p0_questions.json",
+      "role": "analysis_output",
+      "sha256": "a9dd5597ec3cab0317ba37c90d1686adf65ebeee4dabaf0e78d9718bac6be446",
+      "size": 335643,
+      "source_path": "results/dense_kdose/runs/20260612-224324-realmedqa-n100-full-metrics-evaluation-subset/questions/realmedqa_n100_seed42_he1599ddb41e2_thr0.1_k1_rt0p0_questions.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/dense_kdose/runs/20260612-224324-realmedqa-n100-full-metrics-evaluation-subset/questions/realmedqa_n100_seed42_he1599ddb41e2_thr0.1_k3_rt0p0_questions.json",
+      "role": "analysis_output",
+      "sha256": "83093bd4154894081477ea26cdb15a8b13106abd2ee6b5eef62bc2204230a3ea",
+      "size": 345889,
+      "source_path": "results/dense_kdose/runs/20260612-224324-realmedqa-n100-full-metrics-evaluation-subset/questions/realmedqa_n100_seed42_he1599ddb41e2_thr0.1_k3_rt0p0_questions.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/dense_kdose/runs/index.json",
+      "role": "analysis_output",
+      "sha256": "e765198537bd937b059c0e09a19fe84264d6643da059dcc903349a38f824987b",
+      "size": 1134,
+      "source_path": "results/dense_kdose/runs/index.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/diversity_run/runs/20260614-232517-2wikimultihopqa-n250-full-metrics-evaluation-subset/manifest.json",
+      "role": "analysis_output",
+      "sha256": "2839204613936ff39baf5ceb83a19b0da4cffe0c4e8f4f39a935627a344ffe1e",
+      "size": 633,
+      "source_path": "results/diversity_run/runs/20260614-232517-2wikimultihopqa-n250-full-metrics-evaluation-subset/manifest.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/diversity_run/runs/20260614-233000-realmedqa-n230-full-metrics-evaluation-subset/manifest.json",
+      "role": "analysis_output",
+      "sha256": "3400f261ee254f513e6b19a23e976f33d03103ea24655f7761e0ac0e2119d024",
+      "size": 1694,
+      "source_path": "results/diversity_run/runs/20260614-233000-realmedqa-n230-full-metrics-evaluation-subset/manifest.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/diversity_run/runs/20260614-233000-realmedqa-n230-full-metrics-evaluation-subset/mirage_evaluation_summary.json",
+      "role": "analysis_output",
+      "sha256": "055c30f4b50b96370c0792857484c9fe44e5f5c9fb1d54a269c3581ebdb198b4",
+      "size": 43237,
+      "source_path": "results/diversity_run/runs/20260614-233000-realmedqa-n230-full-metrics-evaluation-subset/mirage_evaluation_summary.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/diversity_run/runs/20260614-233000-realmedqa-n230-full-metrics-evaluation-subset/mirage_realmedqa_results.json",
+      "role": "analysis_output",
+      "sha256": "9f4dd66b2ff681813919e33bf141a16ed51a1d301b69312c72d953992f6ffeec",
+      "size": 1612959,
+      "source_path": "results/diversity_run/runs/20260614-233000-realmedqa-n230-full-metrics-evaluation-subset/mirage_realmedqa_results.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/diversity_run/runs/20260614-233000-realmedqa-n230-full-metrics-evaluation-subset/questions/realmedqa_n230_seed42_hd70e0169903b_dense_floor_thr0.1_k10_rt0p0_questions.json",
+      "role": "analysis_output",
+      "sha256": "bc11c8875a89705ea5ff7be330b8a5ba890bd44a1bbe7bc4744cfbf4bd243672",
+      "size": 710395,
+      "source_path": "results/diversity_run/runs/20260614-233000-realmedqa-n230-full-metrics-evaluation-subset/questions/realmedqa_n230_seed42_hd70e0169903b_dense_floor_thr0.1_k10_rt0p0_questions.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/diversity_run/runs/20260614-233000-realmedqa-n230-full-metrics-evaluation-subset/questions/realmedqa_n230_seed42_hd70e0169903b_kg_entity_first_thr0.1_k10_rt0p0_questions.json",
+      "role": "analysis_output",
+      "sha256": "37771b6d465275653cee729c3dd2d1e53ba93e4ee290ee8f1437f373ac91dde5",
+      "size": 721846,
+      "source_path": "results/diversity_run/runs/20260614-233000-realmedqa-n230-full-metrics-evaluation-subset/questions/realmedqa_n230_seed42_hd70e0169903b_kg_entity_first_thr0.1_k10_rt0p0_questions.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/diversity_run/runs/20260615-034334-musique-n100-full-metrics-evaluation-subset/manifest.json",
+      "role": "analysis_output",
+      "sha256": "08e93a93db9d6c38fa859648ee7bc712dbb1bb7da8107a4055d82f0de12fdf3b",
+      "size": 610,
+      "source_path": "results/diversity_run/runs/20260615-034334-musique-n100-full-metrics-evaluation-subset/manifest.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/diversity_run/runs/20260615-121939-hotpotqa-fullwiki-n250-full-metrics-evaluation-subset/manifest.json",
+      "role": "analysis_output",
+      "sha256": "da905523936eeeee3843a678327d245ac3b6fae86734f8cc81f041988ec3f667",
+      "size": 1818,
+      "source_path": "results/diversity_run/runs/20260615-121939-hotpotqa-fullwiki-n250-full-metrics-evaluation-subset/manifest.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/diversity_run/runs/20260615-121939-hotpotqa-fullwiki-n250-full-metrics-evaluation-subset/mirage_evaluation_summary.json",
+      "role": "analysis_output",
+      "sha256": "965443c30a8e228b3709e036e9db5568c70b2786247d9beb992b2fd62611ab06",
+      "size": 52082,
+      "source_path": "results/diversity_run/runs/20260615-121939-hotpotqa-fullwiki-n250-full-metrics-evaluation-subset/mirage_evaluation_summary.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/diversity_run/runs/20260615-121939-hotpotqa-fullwiki-n250-full-metrics-evaluation-subset/mirage_hotpotqa_fullwiki_results.json",
+      "role": "analysis_output",
+      "sha256": "afe90c9ff035da5db130fd5e892d85420018f7bcff3019505fcf8bf7e7ae4f07",
+      "size": 1808420,
+      "source_path": "results/diversity_run/runs/20260615-121939-hotpotqa-fullwiki-n250-full-metrics-evaluation-subset/mirage_hotpotqa_fullwiki_results.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/diversity_run/runs/20260615-121939-hotpotqa-fullwiki-n250-full-metrics-evaluation-subset/questions/hotpotqa_fullwiki_n250_seed42_h58c3b75f798a_dense_floor_thr0.1_k10_rt0p0_questions.json",
+      "role": "analysis_output",
+      "sha256": "525afaf95053c2854f9e73025136ef3a6fcc5f44ef585cc60bc7fa34d9e6f03c",
+      "size": 767908,
+      "source_path": "results/diversity_run/runs/20260615-121939-hotpotqa-fullwiki-n250-full-metrics-evaluation-subset/questions/hotpotqa_fullwiki_n250_seed42_h58c3b75f798a_dense_floor_thr0.1_k10_rt0p0_questions.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/diversity_run/runs/20260615-121939-hotpotqa-fullwiki-n250-full-metrics-evaluation-subset/questions/hotpotqa_fullwiki_n250_seed42_h58c3b75f798a_kg_entity_first_thr0.1_k10_rt0p0_questions.json",
+      "role": "analysis_output",
+      "sha256": "018692eaca7896fb90885227226ffd14a0f548da9b95999cc4436f8516009898",
+      "size": 809542,
+      "source_path": "results/diversity_run/runs/20260615-121939-hotpotqa-fullwiki-n250-full-metrics-evaluation-subset/questions/hotpotqa_fullwiki_n250_seed42_h58c3b75f798a_kg_entity_first_thr0.1_k10_rt0p0_questions.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/diversity_run/runs/index.json",
+      "role": "analysis_output",
+      "sha256": "419b1d114d1142fef172e56f1570f1dd86e958ea14c506a8eacb5111c22cd3af",
+      "size": 1761,
+      "source_path": "results/diversity_run/runs/index.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/dose_response/runs/20260612-201446-realmedqa-n5-full-metrics-evaluation-subset/manifest.json",
+      "role": "analysis_output",
+      "sha256": "eb4f192381ea11334284f332daa0808054eddc695ef758403bd9338745d70cc1",
+      "size": 1413,
+      "source_path": "results/dose_response/runs/20260612-201446-realmedqa-n5-full-metrics-evaluation-subset/manifest.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/dose_response/runs/20260612-201446-realmedqa-n5-full-metrics-evaluation-subset/mirage_evaluation_summary.json",
+      "role": "analysis_output",
+      "sha256": "c75af58dc84ce82f705482a6f61fa2664536c9cd04a47c42a4cd667aad996b96",
+      "size": 20806,
+      "source_path": "results/dose_response/runs/20260612-201446-realmedqa-n5-full-metrics-evaluation-subset/mirage_evaluation_summary.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/dose_response/runs/20260612-201446-realmedqa-n5-full-metrics-evaluation-subset/mirage_realmedqa_results.json",
+      "role": "analysis_output",
+      "sha256": "490d1c7352193db0e1c2d46b2e315930ea221c092392d2d7e81155221ccfb498",
+      "size": 38338,
+      "source_path": "results/dose_response/runs/20260612-201446-realmedqa-n5-full-metrics-evaluation-subset/mirage_realmedqa_results.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/dose_response/runs/20260612-201446-realmedqa-n5-full-metrics-evaluation-subset/questions/realmedqa_n5_seed42_h1197fca9dce1_kg_strict_entity_first_thr0.1_k10_rt0p7_questions.json",
+      "role": "analysis_output",
+      "sha256": "d99514325d604beb5cce1f3807091df09fc2cd091a9c1b47d9b5656c5be247ca",
+      "size": 14164,
+      "source_path": "results/dose_response/runs/20260612-201446-realmedqa-n5-full-metrics-evaluation-subset/questions/realmedqa_n5_seed42_h1197fca9dce1_kg_strict_entity_first_thr0.1_k10_rt0p7_questions.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/dose_response/runs/20260612-201959-realmedqa-n2-full-metrics-evaluation-subset/manifest.json",
+      "role": "analysis_output",
+      "sha256": "b55ed0385e825347b7aad58ada6da10a879482bb547338ec9b455fa1f329ae25",
+      "size": 1412,
+      "source_path": "results/dose_response/runs/20260612-201959-realmedqa-n2-full-metrics-evaluation-subset/manifest.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/dose_response/runs/20260612-201959-realmedqa-n2-full-metrics-evaluation-subset/mirage_evaluation_summary.json",
+      "role": "analysis_output",
+      "sha256": "0927a47a6dcf0d449f82bbef14601b38435a43e142a73cf9c4ce906bcad22667",
+      "size": 16866,
+      "source_path": "results/dose_response/runs/20260612-201959-realmedqa-n2-full-metrics-evaluation-subset/mirage_evaluation_summary.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/dose_response/runs/20260612-201959-realmedqa-n2-full-metrics-evaluation-subset/mirage_realmedqa_results.json",
+      "role": "analysis_output",
+      "sha256": "1967bf5d536a760c3f5fe5f54c23768ebd2eb305c689d7bb0d1d04d292150fa4",
+      "size": 22815,
+      "source_path": "results/dose_response/runs/20260612-201959-realmedqa-n2-full-metrics-evaluation-subset/mirage_realmedqa_results.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/dose_response/runs/20260612-201959-realmedqa-n2-full-metrics-evaluation-subset/questions/realmedqa_n2_seed42_h0fa1e103cf1f_kg_strict_entity_first_thr0.1_k10_rt0p7_questions.json",
+      "role": "analysis_output",
+      "sha256": "14879fbb699333c425571c82e004e9343ed0835f78c1baa7e8de3da100436357",
+      "size": 5884,
+      "source_path": "results/dose_response/runs/20260612-201959-realmedqa-n2-full-metrics-evaluation-subset/questions/realmedqa_n2_seed42_h0fa1e103cf1f_kg_strict_entity_first_thr0.1_k10_rt0p7_questions.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/dose_response/runs/20260612-202121-realmedqa-n100-full-metrics-evaluation-subset/manifest.json",
+      "role": "analysis_output",
+      "sha256": "a1098159128e1f6109b9267583848d35230850f323f50b73635686603850f5f7",
+      "size": 2004,
+      "source_path": "results/dose_response/runs/20260612-202121-realmedqa-n100-full-metrics-evaluation-subset/manifest.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/dose_response/runs/20260612-202121-realmedqa-n100-full-metrics-evaluation-subset/mirage_evaluation_summary.json",
+      "role": "analysis_output",
+      "sha256": "7aa8d8be124fab9c1628c66d6a981e9684bfae6ca7d10cb1678e9d79ea709fe1",
+      "size": 63992,
+      "source_path": "results/dose_response/runs/20260612-202121-realmedqa-n100-full-metrics-evaluation-subset/mirage_evaluation_summary.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/dose_response/runs/20260612-202121-realmedqa-n100-full-metrics-evaluation-subset/mirage_realmedqa_results.json",
+      "role": "analysis_output",
+      "sha256": "abcd325a7b126939b53a421ffd07b147caaa9e6c16fc1b58d841fe11ce00b09e",
+      "size": 1067373,
+      "source_path": "results/dose_response/runs/20260612-202121-realmedqa-n100-full-metrics-evaluation-subset/mirage_realmedqa_results.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/dose_response/runs/20260612-202121-realmedqa-n100-full-metrics-evaluation-subset/questions/realmedqa_n100_seed42_he1599ddb41e2_kg_strict_entity_first_thr0.1_k10_rt0p0_questions.json",
+      "role": "analysis_output",
+      "sha256": "f013fb334e2aca7255284c2fec6ed888044dcc549fdc24d24bd35cd59b8a5437",
+      "size": 304637,
+      "source_path": "results/dose_response/runs/20260612-202121-realmedqa-n100-full-metrics-evaluation-subset/questions/realmedqa_n100_seed42_he1599ddb41e2_kg_strict_entity_first_thr0.1_k10_rt0p0_questions.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/dose_response/runs/20260612-202121-realmedqa-n100-full-metrics-evaluation-subset/questions/realmedqa_n100_seed42_he1599ddb41e2_kg_strict_entity_first_thr0.1_k10_rt0p5_questions.json",
+      "role": "analysis_output",
+      "sha256": "b75e05956fb21d1cbf9bc5105268f029e79f4f9980913538bb8219544c1f326b",
+      "size": 301280,
+      "source_path": "results/dose_response/runs/20260612-202121-realmedqa-n100-full-metrics-evaluation-subset/questions/realmedqa_n100_seed42_he1599ddb41e2_kg_strict_entity_first_thr0.1_k10_rt0p5_questions.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/dose_response/runs/20260612-202121-realmedqa-n100-full-metrics-evaluation-subset/questions/realmedqa_n100_seed42_he1599ddb41e2_kg_strict_entity_first_thr0.1_k10_rt1p0_questions.json",
+      "role": "analysis_output",
+      "sha256": "e2716792ae7f9946eb867d284cdd6b975f8f931610023c4294bc899a9320254f",
+      "size": 300061,
+      "source_path": "results/dose_response/runs/20260612-202121-realmedqa-n100-full-metrics-evaluation-subset/questions/realmedqa_n100_seed42_he1599ddb41e2_kg_strict_entity_first_thr0.1_k10_rt1p0_questions.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/dose_response/runs/index.json",
+      "role": "analysis_output",
+      "sha256": "2a196cfd0064498d9b6919ededa9097a1c5d424c3b6d1006366bd7fb72dd86e0",
+      "size": 2319,
+      "source_path": "results/dose_response/runs/index.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/latest_kg_design_final_metrics/runs/20260518-171029-pubmedqa-n100-full-metrics-evaluation-subset-rebuildkg/gps_v2_replay_pubmedqa_20260610.json",
+      "role": "gps_replay",
+      "sha256": "be2b6f8536794b03c8f5aa92da2d12472765d3ff0abdd58ebaad1bdc1b4e3ccf",
+      "size": 71862,
+      "source_path": "results/latest_kg_design_final_metrics/runs/20260518-171029-pubmedqa-n100-full-metrics-evaluation-subset-rebuildkg/gps_v2_replay_pubmedqa_20260610.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/latest_kg_design_final_metrics/runs/20260518-171029-pubmedqa-n100-full-metrics-evaluation-subset-rebuildkg/manifest.json",
+      "role": "headline_results",
+      "sha256": "3fce07126eb5c5b74fe0ec42e5f1ba421c362fc03e6a0027c6cccd54cecbdbab",
+      "size": 1611,
+      "source_path": "results/latest_kg_design_final_metrics/runs/20260518-171029-pubmedqa-n100-full-metrics-evaluation-subset-rebuildkg/manifest.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/latest_kg_design_final_metrics/runs/20260518-171029-pubmedqa-n100-full-metrics-evaluation-subset-rebuildkg/mirage_pubmedqa_results.json",
+      "role": "headline_results",
+      "sha256": "a1dac5a2526e798077abb0784916ce997c1c728aacf1cef86d96149690eb5016",
+      "size": 499609,
+      "source_path": "results/latest_kg_design_final_metrics/runs/20260518-171029-pubmedqa-n100-full-metrics-evaluation-subset-rebuildkg/mirage_pubmedqa_results.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/latest_kg_design_final_metrics/runs/20260519-163109-musique-n100-full-metrics-evaluation-subset-rebuildkg/gps_v2_replay_musique_20260610.json",
+      "role": "gps_replay",
+      "sha256": "aa4e3eab96ec2aaa40ee0e296877b355fc3a286096f735bef3ab9613b40654cc",
+      "size": 267241,
+      "source_path": "results/latest_kg_design_final_metrics/runs/20260519-163109-musique-n100-full-metrics-evaluation-subset-rebuildkg/gps_v2_replay_musique_20260610.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/latest_kg_design_final_metrics/runs/20260519-163109-musique-n100-full-metrics-evaluation-subset-rebuildkg/manifest.json",
+      "role": "headline_results",
+      "sha256": "154887c23226941d3ee9cae2bf4b98028875f0f0abe502267bc6b64b6874bf09",
+      "size": 1642,
+      "source_path": "results/latest_kg_design_final_metrics/runs/20260519-163109-musique-n100-full-metrics-evaluation-subset-rebuildkg/manifest.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/latest_kg_design_final_metrics/runs/20260519-163109-musique-n100-full-metrics-evaluation-subset-rebuildkg/mirage_musique_results.json",
+      "role": "headline_results",
+      "sha256": "30cfa8620b503df45d62244bb4e2c4d5762d8d58325fc5253c5622afe9d394a7",
+      "size": 541037,
+      "source_path": "results/latest_kg_design_final_metrics/runs/20260519-163109-musique-n100-full-metrics-evaluation-subset-rebuildkg/mirage_musique_results.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/latest_kg_design_final_metrics/runs/20260527-163249-realmedqa-n230-full-metrics-evaluation-subset-rebuildkg/gps_v2_replay_realmedqa_20260610.json",
+      "role": "gps_replay",
+      "sha256": "a9cb20f822761201a5f86dd4ed45ba2dc0f3e9e084466b482917d5548d3838d6",
+      "size": 685451,
+      "source_path": "results/latest_kg_design_final_metrics/runs/20260527-163249-realmedqa-n230-full-metrics-evaluation-subset-rebuildkg/gps_v2_replay_realmedqa_20260610.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/latest_kg_design_final_metrics/runs/20260527-163249-realmedqa-n230-full-metrics-evaluation-subset-rebuildkg/manifest.json",
+      "role": "headline_results",
+      "sha256": "84551741c7d94144741e7abe9f5f8483c108365afd82f2e30228b9268646fca1",
+      "size": 1718,
+      "source_path": "results/latest_kg_design_final_metrics/runs/20260527-163249-realmedqa-n230-full-metrics-evaluation-subset-rebuildkg/manifest.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/latest_kg_design_final_metrics/runs/20260527-163249-realmedqa-n230-full-metrics-evaluation-subset-rebuildkg/mirage_realmedqa_results.json",
+      "role": "headline_results",
+      "sha256": "0c6ed2cf57d1744f05ff86c7eb4f71dd9ffce5db29f93088e955b7eafa39d51c",
+      "size": 1722809,
+      "source_path": "results/latest_kg_design_final_metrics/runs/20260527-163249-realmedqa-n230-full-metrics-evaluation-subset-rebuildkg/mirage_realmedqa_results.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/latest_kg_design_final_metrics/runs/20260527-163249-realmedqa-n230-full-metrics-evaluation-subset-rebuildkg/realmedqa_structural_metric_replay_20260528.json",
+      "role": "gps_replay",
+      "sha256": "1d6b3f4f77bed52e488f99a083ae752de6a7d813fc6da5a0b61f50536c8e0dfd",
+      "size": 3504,
+      "source_path": "results/latest_kg_design_final_metrics/runs/20260527-163249-realmedqa-n230-full-metrics-evaluation-subset-rebuildkg/realmedqa_structural_metric_replay_20260528.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/latest_kg_design_final_metrics/runs/20260528-174538-realmedqa-n230-full-metrics-evaluation-subset/gps_v2_replay_realmedqa_strict_20260610.json",
+      "role": "gps_replay",
+      "sha256": "a66684b81f81bd20b772dc4d65a61651d868ae92f07e347b60470b6a4ba69e49",
+      "size": 287511,
+      "source_path": "results/latest_kg_design_final_metrics/runs/20260528-174538-realmedqa-n230-full-metrics-evaluation-subset/gps_v2_replay_realmedqa_strict_20260610.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/latest_kg_design_final_metrics/runs/20260528-174538-realmedqa-n230-full-metrics-evaluation-subset/manifest.json",
+      "role": "headline_results",
+      "sha256": "98b67ff04a56dc6b290dcfe879d380f6ba2f5521e40929658debb93adb11f74b",
+      "size": 1426,
+      "source_path": "results/latest_kg_design_final_metrics/runs/20260528-174538-realmedqa-n230-full-metrics-evaluation-subset/manifest.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/latest_kg_design_final_metrics/runs/20260528-174538-realmedqa-n230-full-metrics-evaluation-subset/mirage_realmedqa_results.json",
+      "role": "headline_results",
+      "sha256": "2411f1c23c3d64dd8a42f3fb60e4ba6a76e31ab5b0aed2be1bee6533604c8994",
+      "size": 772902,
+      "source_path": "results/latest_kg_design_final_metrics/runs/20260528-174538-realmedqa-n230-full-metrics-evaluation-subset/mirage_realmedqa_results.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/latest_kg_design_final_metrics/runs/20260528-231830-2wikimultihopqa-n250-full-metrics-evaluation-subset-rebuildkg/gps_v2_replay_2wikimultihopqa_20260610.json",
+      "role": "gps_replay",
+      "sha256": "aea7c62b9a8fe5a996d717ac81e45187448fce9ec568ddbe1a024b962b2f0562",
+      "size": 474370,
+      "source_path": "results/latest_kg_design_final_metrics/runs/20260528-231830-2wikimultihopqa-n250-full-metrics-evaluation-subset-rebuildkg/gps_v2_replay_2wikimultihopqa_20260610.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/latest_kg_design_final_metrics/runs/20260528-231830-2wikimultihopqa-n250-full-metrics-evaluation-subset-rebuildkg/manifest.json",
+      "role": "headline_results",
+      "sha256": "37e2de9f720886c9a57a967bf2066c04ac3f4b5b6e527bf17fd92538d99c5edf",
+      "size": 1739,
+      "source_path": "results/latest_kg_design_final_metrics/runs/20260528-231830-2wikimultihopqa-n250-full-metrics-evaluation-subset-rebuildkg/manifest.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/latest_kg_design_final_metrics/runs/20260528-231830-2wikimultihopqa-n250-full-metrics-evaluation-subset-rebuildkg/mirage_2wikimultihopqa_results.json",
+      "role": "headline_results",
+      "sha256": "546b000afd722c7872be679426667c8b5444a2f4967d6179038af885731c0378",
+      "size": 1401875,
+      "source_path": "results/latest_kg_design_final_metrics/runs/20260528-231830-2wikimultihopqa-n250-full-metrics-evaluation-subset-rebuildkg/mirage_2wikimultihopqa_results.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/latest_kg_design_final_metrics/runs/20260529-120453-2wikimultihopqa-n250-full-metrics-evaluation-subset/gps_v2_replay_2wikimultihopqa_strict_20260610.json",
+      "role": "gps_replay",
+      "sha256": "6a132c0d5cc01e5098e975541159053cff3e2efa85f36c2dafe382760c5e7725",
+      "size": 226074,
+      "source_path": "results/latest_kg_design_final_metrics/runs/20260529-120453-2wikimultihopqa-n250-full-metrics-evaluation-subset/gps_v2_replay_2wikimultihopqa_strict_20260610.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/latest_kg_design_final_metrics/runs/20260529-120453-2wikimultihopqa-n250-full-metrics-evaluation-subset/manifest.json",
+      "role": "headline_results",
+      "sha256": "1e63301d14c8880620f1a4c7b90fcd6ad28cb36bd05b9d5afe15c3d694654202",
+      "size": 1448,
+      "source_path": "results/latest_kg_design_final_metrics/runs/20260529-120453-2wikimultihopqa-n250-full-metrics-evaluation-subset/manifest.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/latest_kg_design_final_metrics/runs/20260529-120453-2wikimultihopqa-n250-full-metrics-evaluation-subset/mirage_2wikimultihopqa_results.json",
+      "role": "headline_results",
+      "sha256": "1185627475daafe15e90f6d2d6b32e448cfa6ea85077ec93f59cff56a0222dde",
+      "size": 712704,
+      "source_path": "results/latest_kg_design_final_metrics/runs/20260529-120453-2wikimultihopqa-n250-full-metrics-evaluation-subset/mirage_2wikimultihopqa_results.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/latest_kg_design_final_metrics/runs/20260531-174507-hotpotqa-n250-full-metrics-evaluation-subset-rebuildkg/gps_v2_replay_hotpotqa_20260610.json",
+      "role": "gps_replay",
+      "sha256": "4eb706342e79837714cc96b2ba37813f9467040afc06b0df73e51038cb7df25a",
+      "size": 516826,
+      "source_path": "results/latest_kg_design_final_metrics/runs/20260531-174507-hotpotqa-n250-full-metrics-evaluation-subset-rebuildkg/gps_v2_replay_hotpotqa_20260610.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/latest_kg_design_final_metrics/runs/20260531-174507-hotpotqa-n250-full-metrics-evaluation-subset-rebuildkg/manifest.json",
+      "role": "headline_results",
+      "sha256": "bedde814034000f400534b9aebbf9613f8e6b79aff08fa119f3a08efd715830f",
+      "size": 1668,
+      "source_path": "results/latest_kg_design_final_metrics/runs/20260531-174507-hotpotqa-n250-full-metrics-evaluation-subset-rebuildkg/manifest.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/latest_kg_design_final_metrics/runs/20260531-174507-hotpotqa-n250-full-metrics-evaluation-subset-rebuildkg/mirage_hotpotqa_results.json",
+      "role": "headline_results",
+      "sha256": "1458bf752175b09ee4926b9f4c635c89bdfd2620a85a342a52a13256e17a1a8f",
+      "size": 1401448,
+      "source_path": "results/latest_kg_design_final_metrics/runs/20260531-174507-hotpotqa-n250-full-metrics-evaluation-subset-rebuildkg/mirage_hotpotqa_results.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/latest_kg_design_final_metrics/runs/20260602-121814-hotpotqa-fullwiki-n250-full-metrics-evaluation-subset-rebuildkg/gps_v2_replay_hotpotqa_fullwiki_20260610.json",
+      "role": "gps_replay",
+      "sha256": "31ce8a968074289c879f335198b37705960c2f96207b81ea5b83416ef399409e",
+      "size": 827709,
+      "source_path": "results/latest_kg_design_final_metrics/runs/20260602-121814-hotpotqa-fullwiki-n250-full-metrics-evaluation-subset-rebuildkg/gps_v2_replay_hotpotqa_fullwiki_20260610.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/latest_kg_design_final_metrics/runs/20260602-121814-hotpotqa-fullwiki-n250-full-metrics-evaluation-subset-rebuildkg/manifest.json",
+      "role": "headline_results",
+      "sha256": "aa9a5d925b0d62a5738ee99bca4c2db1646105125d3b561ea7c83f1692511074",
+      "size": 1825,
+      "source_path": "results/latest_kg_design_final_metrics/runs/20260602-121814-hotpotqa-fullwiki-n250-full-metrics-evaluation-subset-rebuildkg/manifest.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/latest_kg_design_final_metrics/runs/20260602-121814-hotpotqa-fullwiki-n250-full-metrics-evaluation-subset-rebuildkg/mirage_hotpotqa_fullwiki_results.json",
+      "role": "headline_results",
+      "sha256": "d9a6b60c88d8435df80c26f88d63f22a45dc53ab19242aae2ebb11dde4268188",
+      "size": 1441906,
+      "source_path": "results/latest_kg_design_final_metrics/runs/20260602-121814-hotpotqa-fullwiki-n250-full-metrics-evaluation-subset-rebuildkg/mirage_hotpotqa_fullwiki_results.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/latest_kg_design_final_metrics/runs/index.json",
+      "role": "headline_results",
+      "sha256": "266b28c567c1912163fbdc8326ed490d572c0300a963a84ca7f0c725bbea26f5",
+      "size": 10805,
+      "source_path": "results/latest_kg_design_final_metrics/runs/index.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/n20_probe/runs/20260612-222103-realmedqa-n100-full-metrics-evaluation-subset/manifest.json",
+      "role": "analysis_output",
+      "sha256": "95765a0f7936de6cff8ed465fde3c3355e02335ab4386a2e1e12dd54018bc398",
+      "size": 1426,
+      "source_path": "results/n20_probe/runs/20260612-222103-realmedqa-n100-full-metrics-evaluation-subset/manifest.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/n20_probe/runs/20260612-222103-realmedqa-n100-full-metrics-evaluation-subset/mirage_evaluation_summary.json",
+      "role": "analysis_output",
+      "sha256": "92609cd6b3a4e800b48966a0bc97472497d9017524e670dc3531faa1deae1e6d",
+      "size": 23080,
+      "source_path": "results/n20_probe/runs/20260612-222103-realmedqa-n100-full-metrics-evaluation-subset/mirage_evaluation_summary.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/n20_probe/runs/20260612-222103-realmedqa-n100-full-metrics-evaluation-subset/mirage_realmedqa_results.json",
+      "role": "analysis_output",
+      "sha256": "d7f2b518248c3a5e239c724b1323f8425271b582f9700743e3b2e55d6eeb492e",
+      "size": 358601,
+      "source_path": "results/n20_probe/runs/20260612-222103-realmedqa-n100-full-metrics-evaluation-subset/mirage_realmedqa_results.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/n20_probe/runs/20260612-222103-realmedqa-n100-full-metrics-evaluation-subset/questions/realmedqa_n100_seed42_he1599ddb41e2_kg_strict_entity_first_thr0.1_k10_rt0p0_questions.json",
+      "role": "analysis_output",
+      "sha256": "5a869674c6f23d87d4e7799519449b194a1312d29450de74189f0c72f0ff39be",
+      "size": 304536,
+      "source_path": "results/n20_probe/runs/20260612-222103-realmedqa-n100-full-metrics-evaluation-subset/questions/realmedqa_n100_seed42_he1599ddb41e2_kg_strict_entity_first_thr0.1_k10_rt0p0_questions.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/n20_probe/runs/20260612-235058-2wikimultihopqa-n100-full-metrics-evaluation-subset/manifest.json",
+      "role": "analysis_output",
+      "sha256": "960a922e3703fc44b69fa41c20a13f084538b6d4b3593f6ddc8cb924bad213d3",
+      "size": 1703,
+      "source_path": "results/n20_probe/runs/20260612-235058-2wikimultihopqa-n100-full-metrics-evaluation-subset/manifest.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/n20_probe/runs/20260612-235058-2wikimultihopqa-n100-full-metrics-evaluation-subset/mirage_2wikimultihopqa_results.json",
+      "role": "analysis_output",
+      "sha256": "f04606e2c6cda003c231140752333bb916edb8964fa6e3da904ae2d2c43f3324",
+      "size": 596744,
+      "source_path": "results/n20_probe/runs/20260612-235058-2wikimultihopqa-n100-full-metrics-evaluation-subset/mirage_2wikimultihopqa_results.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/n20_probe/runs/20260612-235058-2wikimultihopqa-n100-full-metrics-evaluation-subset/mirage_evaluation_summary.json",
+      "role": "analysis_output",
+      "sha256": "b7f69cc80c343015eb1bef17e4a19f639bee9fa4fab8c970d9c3ada942ee58e0",
+      "size": 40784,
+      "source_path": "results/n20_probe/runs/20260612-235058-2wikimultihopqa-n100-full-metrics-evaluation-subset/mirage_evaluation_summary.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/n20_probe/runs/20260612-235058-2wikimultihopqa-n100-full-metrics-evaluation-subset/questions/2wikimultihopqa_n100_seed42_h7767a87f44f4_dense_floor_thr0.1_k10_rt0p0_questions.json",
+      "role": "analysis_output",
+      "sha256": "8e96cd5d9025e54af6951d8eb6013d5358e054a891c28ee2498ea933e3f5a9c2",
+      "size": 250009,
+      "source_path": "results/n20_probe/runs/20260612-235058-2wikimultihopqa-n100-full-metrics-evaluation-subset/questions/2wikimultihopqa_n100_seed42_h7767a87f44f4_dense_floor_thr0.1_k10_rt0p0_questions.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/n20_probe/runs/20260612-235058-2wikimultihopqa-n100-full-metrics-evaluation-subset/questions/2wikimultihopqa_n100_seed42_h7767a87f44f4_kg_entity_first_thr0.1_k10_rt0p0_questions.json",
+      "role": "analysis_output",
+      "sha256": "b6965df46c75f42010d7ea081cdf70fdea5d30d8e934a7fc94015ff8133a5a6e",
+      "size": 250013,
+      "source_path": "results/n20_probe/runs/20260612-235058-2wikimultihopqa-n100-full-metrics-evaluation-subset/questions/2wikimultihopqa_n100_seed42_h7767a87f44f4_kg_entity_first_thr0.1_k10_rt0p0_questions.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/n20_probe/runs/index.json",
+      "role": "analysis_output",
+      "sha256": "1449ee7ae84f194cce1239b696d10047760eb7d4cb3b7ee79ceb9dd7dcc0a59a",
+      "size": 1451,
+      "source_path": "results/n20_probe/runs/index.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/2wikimultihopqa__n100_seed0.json",
+      "role": "selection_ids",
+      "sha256": "6dca52c400e866f209daad2997f1962abf38920aa0e34f7b07a9d2548886754c",
+      "size": 4446,
+      "source_path": "results/selections/2wikimultihopqa__n100_seed0.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/2wikimultihopqa__n100_seed42.json",
+      "role": "selection_ids",
+      "sha256": "72a73e0f7b0e9eeae7a3baa0eb869863218317bd70ce126b006171c5586b9aee",
+      "size": 4450,
+      "source_path": "results/selections/2wikimultihopqa__n100_seed42.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/2wikimultihopqa__n10_seed0.json",
+      "role": "selection_ids",
+      "sha256": "46afcb29338e25433084a09fe69b137df83a1716512fc1b4e33d423ad4ffcb2d",
+      "size": 841,
+      "source_path": "results/selections/2wikimultihopqa__n10_seed0.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/2wikimultihopqa__n10_seed42.json",
+      "role": "selection_ids",
+      "sha256": "53ea14ab4332427f875c3704c11ade7c90bd39637b7efa05328bdcdd5f8947f0",
+      "size": 845,
+      "source_path": "results/selections/2wikimultihopqa__n10_seed42.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/2wikimultihopqa__n10_seed7.json",
+      "role": "selection_ids",
+      "sha256": "ac498685c881a8d8e1e3e24074bd0197473682ae5c29d50f5fb39bc28d3ebd4e",
+      "size": 841,
+      "source_path": "results/selections/2wikimultihopqa__n10_seed7.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/2wikimultihopqa__n20_seed42.json",
+      "role": "selection_ids",
+      "sha256": "1d673a2565273b5d27a990e5b5d3727d4bccbdae6cc9c6f10775693c74511750",
+      "size": 1245,
+      "source_path": "results/selections/2wikimultihopqa__n20_seed42.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/2wikimultihopqa__n250_seed42.json",
+      "role": "selection_ids",
+      "sha256": "1c57fcf08569f2b9a9fe25e58dec4ecf2ca5856cd6d91dc499167757b54c2b40",
+      "size": 10450,
+      "source_path": "results/selections/2wikimultihopqa__n250_seed42.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/bioasq__n100_seed0.json",
+      "role": "selection_ids",
+      "sha256": "856741edac2771ab5f5af750afaaa94a9b767c8c44740a37ba9e2e02b2de4403",
+      "size": 3294,
+      "source_path": "results/selections/bioasq__n100_seed0.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/bioasq__n100_seed42.json",
+      "role": "selection_ids",
+      "sha256": "c19d6a352f7cf27458e226999e1d304915ba81e88e246866d7bde1f752983b86",
+      "size": 2242,
+      "source_path": "results/selections/bioasq__n100_seed42.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/bioasq__n10_seed42.json",
+      "role": "selection_ids",
+      "sha256": "c208f9a865c42069c3ff7646fdd36269606a5c2186b6cbc309fbac5e6ef56a4b",
+      "size": 744,
+      "source_path": "results/selections/bioasq__n10_seed42.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/bioasq__n10_seed7.json",
+      "role": "selection_ids",
+      "sha256": "83e06c08330eca3302ac83e5856bcabdc1fc1025b2a9db76b72db226afe7e581",
+      "size": 740,
+      "source_path": "results/selections/bioasq__n10_seed7.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/bioasq__n20_seed42.json",
+      "role": "selection_ids",
+      "sha256": "bf19ed4a3c04fee3653cc893a1a42960524828b298d1e60409d294228ebbb632",
+      "size": 1064,
+      "source_path": "results/selections/bioasq__n20_seed42.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/bioasq__n5_seed42.json",
+      "role": "selection_ids",
+      "sha256": "27b41aa1e110e901208385f732c3c308e5312315bdd1695211319e8cfa3b39e9",
+      "size": 579,
+      "source_path": "results/selections/bioasq__n5_seed42.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/hotpotqa__n100_seed42.json",
+      "role": "selection_ids",
+      "sha256": "716de06d1e69a3a88905111ace10ba8d8ad08ded378e8692e78f597166e32834",
+      "size": 3635,
+      "source_path": "results/selections/hotpotqa__n100_seed42.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/hotpotqa__n10_seed42.json",
+      "role": "selection_ids",
+      "sha256": "0fef20ea434a1efbcc4793522079ffd3e5b58c0612368a98f3179ac8861fb626",
+      "size": 750,
+      "source_path": "results/selections/hotpotqa__n10_seed42.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/hotpotqa__n10_seed7.json",
+      "role": "selection_ids",
+      "sha256": "10190d86c0b2e310368fdf9351fcea3937bb814c06666676e8d689e46ea4e303",
+      "size": 746,
+      "source_path": "results/selections/hotpotqa__n10_seed7.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/hotpotqa__n15_seed42.json",
+      "role": "selection_ids",
+      "sha256": "1e02ea79063eb0aecacf718a6cf1d526089e1af9f134cdfc1bc78eaf0e25677d",
+      "size": 910,
+      "source_path": "results/selections/hotpotqa__n15_seed42.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/hotpotqa__n20_seed42.json",
+      "role": "selection_ids",
+      "sha256": "72e811234df8b61ed3c3ff81ed5a730c284a34554997dc0191f59161b18b12de",
+      "size": 1070,
+      "source_path": "results/selections/hotpotqa__n20_seed42.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/hotpotqa__n250_seed42.json",
+      "role": "selection_ids",
+      "sha256": "2e3b7004c6595377f3a3002adc1dd20b2278acaee5784e829caecd8e142b0204",
+      "size": 8435,
+      "source_path": "results/selections/hotpotqa__n250_seed42.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/hotpotqa__n2_seed42.json",
+      "role": "selection_ids",
+      "sha256": "aa256b502119772466e4717a020aeee81af3d1fbcff25b1766a752edea7361f6",
+      "size": 489,
+      "source_path": "results/selections/hotpotqa__n2_seed42.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/hotpotqa__n30_seed42.json",
+      "role": "selection_ids",
+      "sha256": "61333f2a1e76a087e0d4efe9bc99fa57e51e079fd2931772187151036f974296",
+      "size": 1390,
+      "source_path": "results/selections/hotpotqa__n30_seed42.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/hotpotqa__n5_seed0.json",
+      "role": "selection_ids",
+      "sha256": "33df13cdc5c0dc6ebf17211bf5a01eb5cfaa1388969daaad259331664676dd5d",
+      "size": 581,
+      "source_path": "results/selections/hotpotqa__n5_seed0.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/hotpotqa_fullwiki__n250_seed42.json",
+      "role": "selection_ids",
+      "sha256": "ffc434bdd74b45ae61231345ef914b3dcf09f9b0b63ac4dce005f9770665eeae",
+      "size": 8453,
+      "source_path": "results/selections/hotpotqa_fullwiki__n250_seed42.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/medhop__n10_seed7.json",
+      "role": "selection_ids",
+      "sha256": "ffde50f5b9278ab482acd0d7f4da6998d38cd96582885a0a70fb5caa1d280f54",
+      "size": 597,
+      "source_path": "results/selections/medhop__n10_seed7.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/multihoprag__n100_seed0.json",
+      "role": "selection_ids",
+      "sha256": "2a9c4af73ca1e8f0e3b3cfa22ee5033f5da8cc19e9da75833bf73de1b8989c7d",
+      "size": 2800,
+      "source_path": "results/selections/multihoprag__n100_seed0.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/multihoprag__n100_seed42.json",
+      "role": "selection_ids",
+      "sha256": "c104edea0287b421ecf52ac0d48f2a985d9c630abf1d5b6337c96ae77748e76f",
+      "size": 2796,
+      "source_path": "results/selections/multihoprag__n100_seed42.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/multihoprag__n10_seed0.json",
+      "role": "selection_ids",
+      "sha256": "344a668428ffbdea176929112d92994a39b08dfa7d8e4d5332ac4771306d47c2",
+      "size": 671,
+      "source_path": "results/selections/multihoprag__n10_seed0.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/multihoprag__n10_seed1.json",
+      "role": "selection_ids",
+      "sha256": "22faa7f25603f1bf37a4dee5324855309441e8bbff622a7837ecdc8fdcad4de2",
+      "size": 667,
+      "source_path": "results/selections/multihoprag__n10_seed1.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/multihoprag__n10_seed42.json",
+      "role": "selection_ids",
+      "sha256": "1215a379a4143d99c16bcab4fa2bc862603821353e82eb4e3cac6ba6d47a01e4",
+      "size": 670,
+      "source_path": "results/selections/multihoprag__n10_seed42.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/multihoprag__n20_seed42.json",
+      "role": "selection_ids",
+      "sha256": "e92d238a63bd973cda26d68155e44c8063e82af5c5f29842d168a1bb439c41a8",
+      "size": 904,
+      "source_path": "results/selections/multihoprag__n20_seed42.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/multihoprag__n250_seed42.json",
+      "role": "selection_ids",
+      "sha256": "3fe666b15a29c89d58beaf2ffd1047ff9f0d001775530d8eea387b6c5d4b8722",
+      "size": 6322,
+      "source_path": "results/selections/multihoprag__n250_seed42.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/musique__n100_seed42.json",
+      "role": "selection_ids",
+      "sha256": "5808a1e56ad0310a1aee8acc22923fce319fad670246b1cedcfb5a4ecaa01a81",
+      "size": 3366,
+      "source_path": "results/selections/musique__n100_seed42.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/musique__n10_seed0.json",
+      "role": "selection_ids",
+      "sha256": "f651d70330c6a0f169e8dd73f680febe6e1799ac2981c9bb73e6eef925914f4a",
+      "size": 762,
+      "source_path": "results/selections/musique__n10_seed0.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/musique__n10_seed7.json",
+      "role": "selection_ids",
+      "sha256": "1a934930695c43554e7d312231e5a3827159712998a47ddd0948e072581c7e1e",
+      "size": 728,
+      "source_path": "results/selections/musique__n10_seed7.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/musique__n20_seed42.json",
+      "role": "selection_ids",
+      "sha256": "1ee69440ab18377c767e855b148b8a5b762189981524cfcad258824bec254b9b",
+      "size": 967,
+      "source_path": "results/selections/musique__n20_seed42.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/musique__n2_seed7.json",
+      "role": "selection_ids",
+      "sha256": "e7b0b86b49cdeca3a69df2285d437d0e752aecfb83f48b04ea37e55f6b9795ed",
+      "size": 480,
+      "source_path": "results/selections/musique__n2_seed7.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/pubmedqa__n100_seed0.json",
+      "role": "selection_ids",
+      "sha256": "c17e041c2ae3ec75a40e9374811bc75a84f7ddbeb50534a99def4a4b26e0c9ba",
+      "size": 2025,
+      "source_path": "results/selections/pubmedqa__n100_seed0.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/pubmedqa__n100_seed42.json",
+      "role": "selection_ids",
+      "sha256": "5997ee911ed49ef7b9f2acfee40f99e5a7bc664d4ed5d401e74eaf9baa46da1b",
+      "size": 2029,
+      "source_path": "results/selections/pubmedqa__n100_seed42.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/pubmedqa__n10_seed42.json",
+      "role": "selection_ids",
+      "sha256": "e99a88fccafdcb4079b1aa0b293d51008a2e720666e3188970a3b73c7d7b21b1",
+      "size": 589,
+      "source_path": "results/selections/pubmedqa__n10_seed42.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/pubmedqa__n10_seed7.json",
+      "role": "selection_ids",
+      "sha256": "1e3a8154757a94eb1c64320fe710324beb9f51ec4b79f278b032459cd3d549b8",
+      "size": 584,
+      "source_path": "results/selections/pubmedqa__n10_seed7.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/pubmedqa__n20_seed42.json",
+      "role": "selection_ids",
+      "sha256": "fc17abd41eac2a459ff10d8b18655d86d44aa0828b37bebc8df4c74483b56856",
+      "size": 748,
+      "source_path": "results/selections/pubmedqa__n20_seed42.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/realmedqa__n100_seed0.json",
+      "role": "selection_ids",
+      "sha256": "ac41bd91dd84f948a749acc35411149c4f7733357a9dab68949a133cacd07747",
+      "size": 3432,
+      "source_path": "results/selections/realmedqa__n100_seed0.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/realmedqa__n100_seed42.json",
+      "role": "selection_ids",
+      "sha256": "a1e8b712ac341951d7d5b8f7b7a90675523e927e8aefb898b54d7f2ac53cf871",
+      "size": 3436,
+      "source_path": "results/selections/realmedqa__n100_seed42.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/realmedqa__n10_seed42.json",
+      "role": "selection_ids",
+      "sha256": "e61e18824f32b668ef064d6576c408576ad8ead751057cf5c33df9e97cec16dc",
+      "size": 731,
+      "source_path": "results/selections/realmedqa__n10_seed42.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/realmedqa__n20_seed42.json",
+      "role": "selection_ids",
+      "sha256": "fc859f26d2727c08350703bc8170de8ed56e252dcb13e581959e9741897f7c95",
+      "size": 1031,
+      "source_path": "results/selections/realmedqa__n20_seed42.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/realmedqa__n230_seed42.json",
+      "role": "selection_ids",
+      "sha256": "2f4660f819254c5bbbd4dedade8d0010ac3f2870024ec182edf5c8a0b52faa08",
+      "size": 7326,
+      "source_path": "results/selections/realmedqa__n230_seed42.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/realmedqa__n2_seed42.json",
+      "role": "selection_ids",
+      "sha256": "d8e9396b49df137571bf65fff4ade27ecb1a926e16c6a686a938ceceb3348c0d",
+      "size": 486,
+      "source_path": "results/selections/realmedqa__n2_seed42.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/results/selections/realmedqa__n5_seed42.json",
+      "role": "selection_ids",
+      "sha256": "cf28ee2a60a469d0632676c44008e2d206a34e07f30a5404e675e77a8fbc7989",
+      "size": 576,
+      "source_path": "results/selections/realmedqa__n5_seed42.json"
+    },
+    {
+      "path": "reproducibility/arxiv_v1/scripts/check_arxiv_package.py",
+      "role": "code",
+      "sha256": "1f7f2652cc4c778a36387bbb4575dabd1083c9224654bd3217788aede224dadf",
+      "size": 5676,
+      "source_path": "scripts/check_arxiv_package.py"
+    }
+  ],
+  "git": {
+    "commit": "ea0dc521c75e2491e53c95e2434de584c4e0a461",
+    "dirty": true,
+    "dirty_status": [
+      " M .gitignore",
+      " M README.md",
+      " M experiments/experiment.py",
+      " M experiments/make_concentration_figure.py",
+      " M experiments/make_migration_figure.py",
+      " M experiments/rejudge_independent.py",
+      " M experiments/trust_analysis.py",
+      " M ontographrag/api/app.py",
+      " M ontographrag/rag/systems/_context_assembly.py",
+      " M ontographrag/rag/systems/_graph_search.py",
+      " M ontographrag/rag/systems/_iterative.py",
+      " M ontographrag/rag/systems/enhanced_rag_system.py",
+      " M tests/test_retrieval.py",
+      "?? experiments/anchor_masking_intervention.py",
+      "?? experiments/certificate_eval.py",
+      "?? experiments/diversity_run_analysis.py",
+      "?? experiments/gps_sensitivity.py",
+      "?? experiments/gps_v3_depth_matched.py",
+      "?? experiments/graph_state_diversity_analysis.py",
+      "?? experiments/lockin_accounting_analysis.py",
+      "?? experiments/rejudge_wave1.py",
+      "?? experiments/reporting_robustness.py",
+      "?? experiments/residue_audit.py",
+      "?? experiments/verbalized_confidence.py",
+      "?? experiments/wave1_analysis.py",
+      "?? ontographrag/rag/graph_state.py",
+      "?? reproducibility/",
+      "?? run_diversity_chain.sh",
+      "?? scripts/"
+    ]
+  },
+  "package": "arxiv_v1"
+}
